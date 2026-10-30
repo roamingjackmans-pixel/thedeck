@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import * as Deck from '../public/js/deck.js';
 import * as Sync from '../public/js/sync.js';
+import * as E from '../public/js/engine.js';
 import { render, inline, plain } from '../public/js/markup.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -288,6 +289,171 @@ test('the token link fills in the right settings', () => {
   assert.equal(url.origin + url.pathname, 'https://github.com/settings/personal-access-tokens/new');
   assert.equal(url.searchParams.get('contents'), 'write');
   assert.equal(url.searchParams.get('target_name'), 'roamingjackmans-pixel');
+});
+
+// ---------- multiplayer rules ----------
+
+function table(names = ['Host', 'Sam', 'Alex'], deck = original, seed = 5) {
+  const rand = seeded(seed);
+  const s = E.newRoom('12345', { pid: 'p0', name: names[0] }, 1000);
+  names.slice(1).forEach((name, i) => E.addPlayer(s, { pid: `p${i + 1}`, name }, 1000));
+  const act = (pid, a, now = 2000) => E.apply(s, pid, a, now, deck, rand);
+  return { s, act, rand };
+}
+const mustOk = r => { assert.ok(r.ok, r.err); return r; };
+
+test('a game starts with the whole deck shuffled and the host to play', () => {
+  const { s, act } = table();
+  assert.equal(act('p1', { k: 'start' }).ok, false, 'only the host starts');
+  mustOk(act('p0', { k: 'start' }));
+  assert.equal(s.phase, 'play');
+  assert.equal(s.game.shoe.length, 153);
+  assert.equal(s.game.turn, 'p0');
+});
+
+test('a drawn card waits privately until you show it, give it or keep it', () => {
+  const { s, act } = table();
+  act('p0', { k: 'start' });
+  assert.equal(act('p1', { k: 'draw' }).ok, false, "can't draw on someone else's turn");
+  mustOk(act('p0', { k: 'draw' }));
+  const [card] = E.pendingOf(s, 'p0');
+  assert.ok(card && card.uid);
+  assert.equal(s.game.shoe.length, 152);
+  assert.equal(act('p0', { k: 'draw' }).ok, false, 'one card at a time');
+  assert.equal(act('p0', { k: 'endturn' }).ok, false, 'must deal with it before ending the turn');
+
+  // give it to Sam: it moves to Sam's screen with the same choices
+  mustOk(act('p0', { k: 'give', uid: card.uid, to: 'p1' }));
+  assert.equal(E.pendingOf(s, 'p0').length, 0);
+  assert.equal(E.pendingOf(s, 'p1')[0].from, 'p0');
+  // Sam passes it on to Alex, who keeps it
+  mustOk(act('p1', { k: 'give', uid: card.uid, to: 'p2' }));
+  mustOk(act('p2', { k: 'keep', uid: card.uid }));
+  assert.deepEqual(E.handOf(s, 'p2').map(c => c.uid), [card.uid]);
+  // Alex can show it later, even though it isn't their turn
+  mustOk(act('p2', { k: 'show', uid: card.uid }));
+  assert.equal(s.game.table[0].by, 'p2');
+  assert.equal(s.showSeq, 1);
+  assert.equal(act('p1', { k: 'show', uid: card.uid }).ok, false, "can't play someone else's card");
+});
+
+test('ending your turn discards the table and passes the turn on', () => {
+  const { s, act } = table();
+  act('p0', { k: 'start' });
+  assert.equal(act('p0', { k: 'endturn' }).ok, false, 'draw first');
+  act('p0', { k: 'draw' });
+  const [card] = E.pendingOf(s, 'p0');
+  mustOk(act('p0', { k: 'show', uid: card.uid }));
+  mustOk(act('p0', { k: 'draw' }), 'can draw again after dealing with the first card');
+  mustOk(act('p0', { k: 'keep', uid: E.pendingOf(s, 'p0')[0].uid }));
+  mustOk(act('p0', { k: 'endturn' }));
+  assert.equal(s.game.table.length, 0);
+  assert.deepEqual(s.game.discard.map(c => c.uid), [card.uid]);
+  assert.equal(s.game.turn, 'p1');
+  assert.equal(E.handOf(s, 'p0').length, 1, 'kept cards stay in your hand');
+  act('p1', { k: 'draw' }); act('p1', { k: 'keep', uid: E.pendingOf(s, 'p1')[0].uid }); act('p1', { k: 'endturn' });
+  act('p2', { k: 'draw' }); act('p2', { k: 'keep', uid: E.pendingOf(s, 'p2')[0].uid }); act('p2', { k: 'endturn' });
+  assert.equal(s.game.turn, 'p0', 'back round to the first player');
+});
+
+test('shown cards can be taken back or discarded by whoever showed them', () => {
+  const { s, act } = table();
+  act('p0', { k: 'start' });
+  act('p0', { k: 'draw' });
+  const uid = E.pendingOf(s, 'p0')[0].uid;
+  act('p0', { k: 'show', uid });
+  assert.equal(act('p1', { k: 'takeback', uid }).ok, false);
+  assert.equal(act('p1', { k: 'discard', uid }).ok, false);
+  mustOk(act('p0', { k: 'takeback', uid }));
+  assert.equal(E.handOf(s, 'p0')[0].uid, uid);
+  mustOk(act('p0', { k: 'discard', uid }));
+  assert.equal(s.game.discard.at(-1).uid, uid);
+});
+
+test('switched-off groups never get drawn, and the discard pile is reshuffled when the deck runs out', () => {
+  const small = {
+    groups: [{ id: 'snow', name: 'Snow' }],
+    cards: [1, 2, 3, 4].map(id => ({ id, title: `C${id}`, text: 'x', flavor: '', groups: id === 4 ? ['snow'] : [] })),
+  };
+  const { s, act } = table(['Host'], small);
+  mustOk(act('p0', { k: 'rules', off: ['snow', 'nonsense'] }));
+  assert.deepEqual(s.rules.off, ['snow'], 'unknown groups are dropped');
+  act('p0', { k: 'start' });
+  const drawn = [];
+  for (let i = 0; i < 9; i++) {
+    mustOk(act('p0', { k: 'draw' }));
+    const c = E.pendingOf(s, 'p0')[0];
+    drawn.push(c.id);
+    act('p0', { k: 'show', uid: c.uid });
+    act('p0', { k: 'endturn' });
+  }
+  assert.ok(!drawn.includes(4), 'the snow card stayed out');
+  assert.ok(s.game.shuffles >= 2, 'the discard pile went back in');
+  assert.deepEqual(new Set(drawn.slice(0, 3)), new Set([1, 2, 3]), 'no repeats before a reshuffle');
+  // with everything held in hands, there's nothing to draw
+  const t = table(['Host'], small);
+  t.act('p0', { k: 'rules', off: ['snow'] });
+  t.act('p0', { k: 'start' });
+  for (let i = 0; i < 3; i++) { t.act('p0', { k: 'draw' }); t.act('p0', { k: 'keep', uid: E.pendingOf(t.s, 'p0')[0].uid }); }
+  assert.match(t.act('p0', { k: 'draw' }).err, /nothing left to draw/);
+});
+
+test('with replacement, discarded cards go straight back into the deck', () => {
+  const { s, act } = table(['Host']);
+  act('p0', { k: 'rules', replacement: true });
+  act('p0', { k: 'start' });
+  act('p0', { k: 'draw' });
+  act('p0', { k: 'show', uid: E.pendingOf(s, 'p0')[0].uid });
+  act('p0', { k: 'endturn' });
+  assert.equal(s.game.discard.length, 0);
+  assert.equal(s.game.shoe.length, 153);
+});
+
+test('a player who drops out on their turn is skipped, and the host can skip or remove players', () => {
+  const { s, act } = table();
+  act('p0', { k: 'start' });
+  act('p0', { k: 'draw' }); act('p0', { k: 'keep', uid: E.pendingOf(s, 'p0')[0].uid }); act('p0', { k: 'endturn' });
+  assert.equal(s.game.turn, 'p1');
+  E.setOnline(s, 'p1', false, 10000);
+  assert.equal(E.tick(s, 10000 + E.AUTO_SKIP_MS - 1), false, 'gets a moment to come back');
+  assert.equal(E.tick(s, 10000 + E.AUTO_SKIP_MS + 1), true);
+  assert.equal(s.game.turn, 'p2');
+  assert.equal(act('p1', { k: 'skip' }).ok, false, 'only the host skips');
+  mustOk(act('p0', { k: 'skip' }));
+  assert.equal(s.game.turn, 'p0', 'offline players are passed over');
+  // Sam has a card in hand when removed: it goes to the discard pile
+  s.game.hands.p1 = [{ uid: 99, id: 7 }];
+  assert.equal(act('p0', { k: 'remove', pid: 'p2' }).ok, false, "can't remove someone who's here");
+  mustOk(act('p0', { k: 'remove', pid: 'p1' }));
+  assert.ok(!s.players.p1 && !s.order.includes('p1'));
+  assert.equal(s.game.discard.at(-1).id, 7);
+});
+
+test('a returning player gets their seat and hand back, and a new host can take over', () => {
+  const { s, act } = table();
+  act('p0', { k: 'start' });
+  act('p0', { k: 'draw' });
+  act('p0', { k: 'give', uid: E.pendingOf(s, 'p0')[0].uid, to: 'p2' });
+  E.setOnline(s, 'p2', false, 3000);
+  E.addPlayer(s, { pid: 'p2', name: 'Alex' }, 4000);
+  assert.equal(s.players.p2.on, true);
+  assert.equal(E.pendingOf(s, 'p2').length, 1, 'the card is still waiting for them');
+  E.takeOver(s, 'p1', 0, 5000);
+  assert.equal(s.hostPid, 'p1');
+  assert.equal(s.players.p0.on, false);
+  mustOk(act('p1', { k: 'skip' }), 'the new host has host powers');
+});
+
+test('cards added to or deleted from the host deck mid-game join or leave the draw pile', () => {
+  const { s, act } = table(['Host']);
+  act('p0', { k: 'start' });
+  const deck = clone();
+  Deck.deleteCard(deck, s.game.shoe[0]);
+  const added = Deck.addCard(deck);
+  assert.equal(E.syncDeck(s, deck, seeded(2)), true);
+  assert.ok(s.game.shoe.includes(added.id));
+  assert.equal(s.game.shoe.length, 153);
+  assert.equal(new Set(s.game.shoe).size, 153);
 });
 
 await Promise.all(pending);

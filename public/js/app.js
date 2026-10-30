@@ -1,28 +1,28 @@
 // THE DECK: draw a card, do what it says.
-// This file runs the main screen and keeps the deck in sync. The secret menu (options and the card
-// editor) is in menu.js, the drawing rules in deck.js, publishing in sync.js, and saving in store.js.
+//
+// This file holds the deck and keeps it in sync, and switches between the screens:
+//   home  - make or join a lobby (game.js), or play on one phone (solo.js)
+//   solo  - the original one-phone game
+//   room  - a lobby, then the card table where everyone plays on their own phone (game.js, net.js, engine.js)
+// The secret menu (options and the card editor) is menu.js, the drawing rules deck.js, publishing sync.js,
+// and saving store.js.
 //
 // Everyone plays the shared deck (cards.json). Editing on a device makes an unpublished copy there.
 // A device connected to GitHub publishes its copy when the secret menu closes, and every other phone
-// picks up the new shared deck within a minute or two.
-import { inline, render } from './markup.js';
+// picks up the new shared deck within a minute or two. In a lobby, everyone plays the host's deck.
 import * as Deck from './deck.js';
 import * as Store from './store.js';
 import * as Sync from './sync.js';
 import { initMenu } from './menu.js';
+import { initSolo } from './solo.js';
+import { initGame } from './game.js';
 
 const $ = id => document.getElementById(id);
 const ui = {
-  draw: $('draw-button'),
-  options: $('options-button'),
   menu: $('menu'),
-  card: $('card'),
-  title: $('card-title'),
-  text: $('card-text'),
-  flavor: $('card-flavor-text'),
-  permalink: document.querySelector('#card .permalink'),
-  notice: $('notice'),
+  options: $('options-button'),
   toast: $('toast'),
+  screens: { home: $('home'), solo: $('solo'), room: $('room') },
 };
 
 const UPDATE_CHECK_MS = 60 * 1000;
@@ -35,15 +35,43 @@ const state = {
   github: null,      // { token, login } when this device can publish
   publishing: false,
   replacement: false,
-  off: new Set(),    // groups switched off in the secret menu
-  shoe: [],          // ids of the cards still to come
-  currentId: null,   // the card on screen
+  off: new Set(),    // groups switched off in the secret menu (the host's rules in a lobby)
+  shoe: [],          // one-phone mode: ids of the cards still to come
+  currentId: null,   // one-phone mode: the card on screen
+  prevId: null,      // one-phone mode: the card before it (on the discard pile)
+  screen: 'home',
 };
 
-const cardById = id => state.deck?.cards.find(c => c.id === id) || null;
 const copyOf = deck => structuredClone({ groups: deck.groups, cards: deck.cards });
 const sameDeck = (a, b) => !!a && !!b && JSON.stringify([a.groups, a.cards]) === JSON.stringify([b.groups, b.cards]);
 const menuOpen = () => ui.menu.open;
+let solo = null;
+let game = null;
+
+// ---------- screens ----------
+
+function showScreen(name) {
+  for (const [id, el] of Object.entries(ui.screens)) el.hidden = id !== name;
+  state.screen = name;
+  document.body.dataset.screen = name;
+  window.scrollTo(0, 0);
+  if (name === 'solo') solo.refresh();
+}
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-home]')) showScreen('home');
+});
+
+let toastTimer = null;
+function toast(text, ms = 2200) {
+  ui.toast.textContent = text;
+  ui.toast.hidden = false;
+  ui.toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    ui.toast.classList.remove('show');
+    setTimeout(() => { ui.toast.hidden = true; }, 250);
+  }, ms);
+}
 
 // ---------- saving on this device ----------
 
@@ -69,6 +97,7 @@ function deckChanged() {
   clearTimeout(draftTimer);
   draftTimer = setTimeout(saveDraft, 300);
   syncChanged();
+  deckEdited();
 }
 function flushDeck() { if (draftTimer) saveDraft(); }
 function dropDraft() {
@@ -81,113 +110,19 @@ window.addEventListener('pagehide', flushDeck);
 document.addEventListener('visibilitychange', () => { if (document.hidden) flushDeck(); });
 
 const syncChanged = () => app.onSyncChange?.();
-
-// ---------- the screen ----------
-
-function showCard(card, { animate = true, keepHash = false } = {}) {
-  state.currentId = card.id;
-  Store.save('current', { id: card.id, date: Date.now() });
-  ui.title.innerHTML = inline(card.title);
-  ui.text.innerHTML = render(card.text);
-  ui.flavor.innerHTML = render(card.flavor);
-  ui.flavor.hidden = !card.flavor;
-  ui.permalink.href = `#card-${card.id}`;
-  ui.card.hidden = false;
-  if (animate) {
-    ui.card.classList.remove('deal');
-    void ui.card.offsetWidth; // restart the animation
-    ui.card.classList.add('deal');
-  }
-  if (!keepHash && location.hash) history.replaceState(null, '', location.pathname + location.search);
+const rulesChanged = () => game?.rulesChanged();
+// A lobby host's phones get the new deck a moment after the editing stops, not on every keystroke.
+let deckTimer = null;
+function deckEdited() {
+  clearTimeout(deckTimer);
+  deckTimer = setTimeout(() => game?.deckChanged(), 800);
 }
-
-function clearCard() {
-  state.currentId = null;
-  Store.remove('current');
-  ui.card.hidden = true;
-}
-
-/** Re-shows the card on screen, in case it was edited or deleted. */
-function refreshCard() {
-  const card = cardById(state.currentId);
-  if (card) showCard(card, { animate: false, keepHash: true });
-  else if (state.currentId != null) clearCard();
-}
-
-function showNotice(text) {
-  ui.notice.textContent = text;
-  ui.notice.hidden = !text;
-}
-
-let toastTimer = null;
-function toast(text, ms = 2200) {
-  ui.toast.textContent = text;
-  ui.toast.hidden = false;
-  ui.toast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    ui.toast.classList.remove('show');
-    setTimeout(() => { ui.toast.hidden = true; }, 250);
-  }, ms);
-}
-
-function draw() {
-  if (!state.deck) return;
-  const result = Deck.drawCard({
-    deck: state.deck, shoe: state.shoe, off: state.off,
-    replacement: state.replacement, lastId: state.currentId,
-  });
-  if (!result.card) {
-    clearCard();
-    showNotice(state.deck.cards.length
-      ? 'No cards can come up. Every card is in a group that is unchecked in the options.'
-      : 'The deck is empty. Add some cards first.');
-    return;
-  }
-  state.shoe = result.shoe;
-  saveShoe();
-  showNotice(result.reshuffled ? "That's the whole deck. Every card has been shuffled back in." : '');
-  showCard(result.card);
-}
-
-const cardIdFromHash = () => {
-  const m = /^#card-(\d+)$/.exec(location.hash);
-  return m ? Number(m[1]) : null;
-};
-
-window.addEventListener('hashchange', () => {
-  const card = cardById(cardIdFromHash());
-  if (card) { showNotice(''); showCard(card, { keepHash: true }); }
-});
-
-ui.permalink.addEventListener('click', async e => {
-  e.preventDefault();
-  if (state.currentId == null) return;
-  history.replaceState(null, '', `#card-${state.currentId}`);
-  try {
-    await navigator.clipboard.writeText(location.href);
-    toast('Link to this card copied');
-  } catch {
-    toast('The link to this card is in the address bar');
-  }
-});
-
-ui.draw.addEventListener('click', draw);
-
-// Space or Enter draws a card when nothing else has the keyboard.
-document.addEventListener('keydown', e => {
-  if (e.key !== ' ' && e.key !== 'Enter') return;
-  if (e.altKey || e.ctrlKey || e.metaKey || menuOpen()) return;
-  if (e.target.closest?.('input, textarea, select, button, a, [contenteditable]')) return;
-  e.preventDefault();
-  draw();
-});
 
 // ---------- switching decks ----------
 
 /**
- * Puts a deck in play. fresh: start a new shoe (a whole different deck); otherwise the cards already
- * drawn stay drawn, and any new cards join the cards still to come.
+ * Puts a deck in play. fresh: start a new one-phone shoe (a whole different deck); otherwise the cards
+ * already drawn stay drawn, and any new cards join the cards still to come.
  */
 function useDeck(deck, { fresh = false } = {}) {
   const before = new Set(state.deck?.cards.map(c => c.id) || []);
@@ -200,7 +135,8 @@ function useDeck(deck, { fresh = false } = {}) {
   const groups = new Set(deck.groups.map(g => g.id));
   state.off = new Set([...state.off].filter(id => groups.has(id)));
   saveSettings();
-  if (!menuOpen()) refreshCard();
+  if (!menuOpen()) solo.refresh();
+  game?.deckChanged();
 }
 
 /** Switches to the shared deck if this device has no edits of its own. Returns true if it changed. */
@@ -286,7 +222,7 @@ async function publish() {
   }
 }
 
-// ---------- what the secret menu can do ----------
+// ---------- what the screens and the secret menu can do ----------
 
 const app = {
   state,
@@ -296,29 +232,39 @@ const app = {
   flushDeck,
   toast,
   publish,
-  setReplacement(on) { state.replacement = on; saveSettings(); },
+  showScreen,
+  saveShoe,
+  openMenu: tab => menu?.open(tab),
+  setReplacement(on) { state.replacement = on; saveSettings(); rulesChanged(); },
   setGroupOn(id, on) {
     if (on) state.off.delete(id); else state.off.add(id);
     saveSettings();
+    rulesChanged();
   },
   cardsLeft: () => Deck.cardsLeft(state.deck, state.shoe, state.off),
-  resetShoe() { state.shoe = Deck.freshShoe(state.deck); saveShoe(); showNotice(''); },
+  resetShoe() { state.shoe = Deck.freshShoe(state.deck); saveShoe(); solo.showNotice(''); solo.refresh(); },
   cardAdded(card) { state.shoe.push(card.id); saveShoe(); deckChanged(); },
   cardDeleted(id) {
     state.shoe = state.shoe.filter(x => x !== id);
     saveShoe();
-    if (state.currentId === id) clearCard();
+    if (state.currentId === id) solo.clear();
     deckChanged();
   },
-  groupDeleted(id) { state.off.delete(id); saveSettings(); deckChanged(); },
-  showCardById(id) { const card = cardById(id); if (card) { showNotice(''); showCard(card); } },
+  groupDeleted(id) { state.off.delete(id); saveSettings(); deckChanged(); rulesChanged(); },
+  /** "Show on Screen" in the card editor: the card goes up in one-phone mode. */
+  showCardById(id) {
+    if (state.screen === 'room') { toast('Leave the lobby to look at cards in one-phone mode'); return; }
+    showScreen('solo');
+    solo.showCardById(id);
+  },
+  inRoom: () => state.screen === 'room',
 
   /** Makes a whole new deck (an import, or the original cards) this device's edits. */
   replaceDeck(deck) {
     if (!state.custom) state.baseRevision = state.shared?.revision ?? 0;
     state.custom = true;
     useDeck(deck, { fresh: true });
-    showNotice('');
+    solo.showNotice('');
     saveDraft();
     syncChanged();
   },
@@ -341,7 +287,7 @@ const app = {
     const login = await Sync.checkToken(clean);
     state.github = { token: clean, login };
     if (!Store.save('github', state.github)) {
-      app.toast("This browser won't save the token, so it only lasts until you close the page.", 5000);
+      toast("This browser won't save the token, so it only lasts until you close the page.", 5000);
     }
     syncChanged();
     return login;
@@ -355,22 +301,39 @@ const app = {
   /** The menu closed: show any edits on screen, then publish them if this device can. */
   menuClosed() {
     flushDeck();
-    refreshCard();
+    solo.refresh();
     applyShared();
+    game?.deckChanged();
     if (state.custom && state.github) publish();
   },
 };
 
+let menu = null;
+
 // ---------- start up ----------
 
+const cardIdFromHash = () => {
+  const m = /^#card-(\d+)$/.exec(location.hash);
+  return m ? Number(m[1]) : null;
+};
+window.addEventListener('hashchange', () => {
+  const id = cardIdFromHash();
+  if (id == null || state.screen === 'room') return;
+  if (solo.showCardById(id, { keepHash: true })) showScreen('solo');
+});
+
 async function start() {
+  solo = initSolo(app);
+  game = initGame(app);
+  const resumed = game.boot(); // straight back into a lobby after a reload, or ?room=12345
+
   const cached = cachedShared();
   let fetched = null;
   try { fetched = await fetchShared(); } catch (err) { console.warn('Could not load the shared deck', err); }
   // Right after publishing, this device knows a newer deck than the site has deployed yet.
   state.shared = fetched && (!cached || fetched.revision >= cached.revision) ? fetched : cached;
   if (!state.shared) {
-    showNotice("Couldn't load the cards. Check your connection and reload the page.");
+    game.homeMessage("Couldn't load the cards. Check your connection and reload the page.");
     return;
   }
   if (state.shared === fetched) saveShared();
@@ -403,17 +366,22 @@ async function start() {
   state.shoe = fresh ? shoe.ids.filter(id => cardIds.has(id)) : Deck.freshShoe(state.deck);
   if (!fresh) saveShoe();
 
-  const linked = cardById(cardIdFromHash());
   const current = Store.load('current');
-  if (linked) showCard(linked, { keepHash: true });
-  else if (current && Date.now() - current.date < Deck.SHOE_LIFETIME_MS && cardById(current.id)) {
-    showCard(cardById(current.id), { animate: false });
+  if (current && Date.now() - current.date < Deck.SHOE_LIFETIME_MS) {
+    if (cardIds.has(current.id)) state.currentId = current.id;
+    if (cardIds.has(current.prev)) state.prevId = current.prev;
   }
 
   lastCheck = Date.now();
-  const menu = initMenu(app);
+  menu = initMenu(app);
   ui.options.addEventListener('click', () => menu.open());
-  ui.draw.disabled = false;
+  solo.enable();
+  game.ready();
+
+  if (!resumed) {
+    const linked = cardIdFromHash();
+    if (linked != null && solo.showCardById(linked, { keepHash: true })) showScreen('solo');
+  }
 }
 
 start();

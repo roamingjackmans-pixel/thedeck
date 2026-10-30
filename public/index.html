@@ -8,44 +8,120 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="THE DECK">
   <title>THE DECK | josephjackman.com</title>
-  <meta name="description" content="THE DECK: draw a card, do what it says. A party card game for the browser.">
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="THE DECK: a drinking card game for parties. Everyone joins a lobby on their own phone, draws their own cards, and shows them, gives them away or keeps them for later.">
+  <meta name="theme-color" content="#14532f">
   <meta property="og:title" content="THE DECK">
   <meta property="og:description" content="Draw a card. Do what it says.">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="css/style.css">
   <script src="version.js"></script>
+  <script src="vendor/peerjs.min.js"></script>
 </head>
 <body>
   <!-- The secret menu button: invisible in the top-left corner. Hover there for a few seconds (or just tap it). -->
   <button id="options-button" type="button" class="btn btn-default">Options</button>
 
-  <main class="container">
-    <header class="masthead">
-      <h1>THE DECK</h1>
-      <button id="draw-button" type="button" class="btn btn-primary btn-lg" disabled>Draw a Card</button>
-    </header>
-    <hr>
-
-    <p id="notice" class="notice" role="status" hidden></p>
-
-    <article id="card" class="card" aria-live="polite" hidden>
-      <div id="card-title-wrapper">
-        <h2 id="card-title"></h2>
-        <a class="permalink" href="#" title="Link to this card">&para;</a>
+  <!-- Home: make or join a lobby, or play on one phone -->
+  <section id="home" class="screen">
+    <div class="home">
+      <h1 class="logo">THE DECK</h1>
+      <p class="tagline">Draw a card. Do what it says.</p>
+      <div class="home-deck" aria-hidden="true">
+        <div class="pc pc-back hd hd1"><span class="pc-emblem">THE<br>DECK</span></div>
+        <div class="pc pc-back hd hd2"><span class="pc-emblem">THE<br>DECK</span></div>
+        <div class="pc pc-face pc-mini hd hd3 red"><span class="pc-corner tl">♥</span><span class="pc-corner br">♥</span><div class="pc-body"><h3 class="pc-title">Social</h3></div></div>
+        <div class="pc pc-face pc-mini hd hd4"><span class="pc-corner tl">♠</span><span class="pc-corner br">♠</span><div class="pc-body"><h3 class="pc-title">Waterfall</h3></div></div>
       </div>
-      <div id="card-text"></div>
-      <div id="card-flavor-text"></div>
-    </article>
-  </main>
+      <div class="panel">
+        <label class="field-label" for="name-input">Your name</label>
+        <input id="name-input" type="text" maxlength="20" autocomplete="nickname" placeholder="Your name" enterkeyhint="done">
+        <button id="create-btn" type="button" class="btn btn-gold btn-lg btn-block" disabled>Make a Lobby</button>
+        <form id="join-form" class="join-row" autocomplete="off">
+          <label class="sr-only" for="code-input">Lobby code</label>
+          <input id="code-input" type="text" inputmode="numeric" maxlength="5" placeholder="Lobby code" enterkeyhint="go">
+          <button id="join-btn" type="submit" class="btn btn-light">Join</button>
+        </form>
+        <p id="home-msg" class="home-msg" role="status"></p>
+        <div class="or"><span>or</span></div>
+        <button id="solo-btn" type="button" class="btn btn-ghost btn-block" disabled>Play on One Phone</button>
+      </div>
+      <p class="how">Everyone joins on their own phone and draws their own cards. Show a card to everyone, give it
+        to someone, or keep it in your hand for later.</p>
+    </div>
+    <footer class="felt-footer">
+      <a href="/">josephjackman.com</a><span aria-hidden="true"> &bull; </span><a href="legal.html">Boring Legal Stuff</a>
+    </footer>
+  </section>
 
-  <footer id="footer">
-    <a href="/">josephjackman.com</a>
-    <span aria-hidden="true">&nbsp;&bull;&nbsp;</span>
-    <a href="legal.html">Boring Legal Stuff</a>
-  </footer>
+  <!-- One phone: the original game. Draw, do it, pass the phone. -->
+  <section id="solo" class="screen" hidden>
+    <header class="topbar">
+      <span class="topbar-spacer"></span>
+      <span class="topbar-title">THE DECK</span>
+      <button type="button" class="back-btn" data-home>Home</button>
+    </header>
+    <main class="solo">
+      <p id="notice" class="notice" role="status" hidden></p>
+      <div class="piles">
+        <button id="solo-deck" type="button" class="pile" aria-label="Draw a card"></button>
+        <div id="solo-discard" class="pile" aria-label="Cards already drawn"></div>
+      </div>
+      <div id="card" class="card-stage" aria-live="polite"></div>
+      <button id="draw-button" type="button" class="btn btn-gold btn-lg" disabled>Draw a Card</button>
+    </main>
+  </section>
+
+  <!-- A lobby: waiting room, then the card table -->
+  <section id="room" class="screen" hidden>
+    <header class="topbar">
+      <span class="topbar-spacer"></span>
+      <button id="code-btn" type="button" class="code-pill" title="Share the invite link">Lobby <b id="code-text"></b> <span class="code-share">Invite</span></button>
+      <button id="host-btn" type="button" class="icon-btn" aria-label="Host controls" hidden>&#8943;</button>
+      <button id="leave-btn" type="button" class="back-btn">Leave</button>
+    </header>
+    <p id="room-status" class="room-status" role="status" hidden></p>
+
+    <div id="lobby-view" class="lobby" hidden>
+      <h2 class="room-heading">Who's playing</h2>
+      <ul id="lobby-players" class="lobby-players"></ul>
+      <div id="lobby-rules" class="rules-panel"></div>
+      <button id="start-btn" type="button" class="btn btn-gold btn-lg btn-block" hidden>Start the Game</button>
+      <p id="lobby-wait" class="lobby-wait"></p>
+    </div>
+
+    <div id="table-view" class="table" hidden>
+      <ul id="players-strip" class="players-strip"></ul>
+      <p id="turn-banner" class="turn-banner"></p>
+      <div class="piles">
+        <button id="draw-pile" type="button" class="pile" aria-label="Draw a card"></button>
+        <button id="discard-pile" type="button" class="pile" aria-label="The discard pile"></button>
+      </div>
+      <button id="pending-pill" type="button" class="pending-pill" hidden></button>
+      <div class="turn-actions"><button id="end-turn-btn" type="button" class="btn btn-gold btn-lg" hidden>End Turn</button></div>
+      <div class="table-area">
+        <h3 class="area-label">On the table</h3>
+        <div id="table-cards" class="card-strip"></div>
+      </div>
+      <ol id="game-log" class="game-log"></ol>
+      <div class="hand-area">
+        <div class="hand-head">
+          <h3 class="area-label" id="hand-label">Your hand</h3>
+        </div>
+        <div id="hand" class="card-strip hand"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Looking at one card (drawn, given to you, shown by someone, in your hand), and other popups -->
+  <div id="viewer" class="viewer" hidden>
+    <div class="viewer-inner" role="dialog" aria-modal="true" aria-labelledby="viewer-label">
+      <p id="viewer-label" class="viewer-label"></p>
+      <div id="viewer-card" class="viewer-card"></div>
+      <div id="viewer-body" class="viewer-body"></div>
+      <div id="viewer-actions" class="viewer-actions"></div>
+    </div>
+  </div>
 
   <div id="toast" class="toast" role="status" hidden></div>
 

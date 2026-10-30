@@ -1,2 +1,2 @@
 // Build stamp. The deploy workflow overwrites this file with the real version and commit.
-window.DECK_VERSION = { version: '1.1.0', commit: 'dev', built: '' };
+window.DECK_VERSION = { version: '2.0.0', commit: 'dev', built: '' };

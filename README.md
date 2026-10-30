@@ -1,9 +1,33 @@
 # THE DECK
 
 Draw a card, do what it says. A party card game for the browser, rebuilt from
-[rchowe.com/deck](http://rchowe.com/deck/) with an editable deck.
+[rchowe.com/deck](http://rchowe.com/deck/) as a multiplayer game on a green card table, with an editable deck.
 
 **Play:** https://josephjackman.com/thedeck/
+
+## Playing together
+
+- One person taps **Make a Lobby** and shares the **5-number code** (or the Invite link, `?room=CODE`).
+  Everyone else types the code and taps **Join**, on their own phone.
+- The **host sets the rules** in the lobby: which card groups are in play, and whether discarded cards stay out
+  until the deck runs out or go straight back in. The host can change them mid-game too (the ⋯ button).
+- Players take turns in the order they joined. On your turn, **tap the deck** to draw. The card turns over on
+  **your phone only**; everyone else sees that you're looking at a card. Then choose:
+  - **Show to All**: it pops up on everyone's phone and lands face up on the table.
+  - **Give to Player**: pick someone. It pops up privately on their phone with the same three choices, so they
+    can show it, pass it on, or keep it.
+  - **Add to Hand**: keep it. Cards in your hand can be shown, given away or discarded **any time**, even when
+    it isn't your turn.
+- **End Turn** moves every face-up card on the table to the discard pile and passes the turn on. You can also
+  draw again before ending your turn (for cards like "Draw another card").
+- When the deck runs out, the discard pile is **shuffled back in**, like a real deck.
+- The host can skip a turn, remove someone who left, or end the game. Someone who drops out on their turn is
+  skipped after 20 seconds, and gets their seat and hand back when they return.
+- There's no game server. The host's phone runs the game and the others connect straight to it (WebRTC,
+  through the free [PeerJS](https://peerjs.com) matchmaking service, the same way Horse Race works). If the host
+  leaves, the next player takes over hosting automatically and the game carries on. Everyone plays the host's
+  deck, which is sent to each phone when it joins.
+- **Play on One Phone** is the original game: tap the deck, do what it says, pass the phone.
 
 ## What it does
 
@@ -13,10 +37,11 @@ Everything the original did:
 - Cards are drawn **without replacement**: every card comes up once before any repeats. The half-used deck is
   remembered for 24 hours, so reloading the page doesn't start over.
 - A hidden **Options** button sits in the top-left corner. Hover there for a few seconds and it fades in, or
-  just tap the corner on a phone.
+  just tap the corner on a phone. (Screens keep that corner clear, so it never sits on top of a real button.)
 - In Options: **Draw Style** (with or without replacement), **Card Options** (uncheck a group such as
   "There are girls present" to keep its cards out of the deck) and **Reset Shoe** (put every card back).
-- The ¶ next to a card's title is a link to that card (`#card-12`). Clicking it copies the link.
+  When you're hosting a lobby, the Card Options and Draw Style are the lobby's rules.
+- The ¶ in a card's corner is a link to that card (`#card-12`). Clicking it copies the link.
 - All 153 original cards and the original three groups.
 
 New in this version (the **Edit Cards** tab of the secret menu):
@@ -67,9 +92,13 @@ Open http://localhost:8091.
 npm test
 ```
 
-Checks the drawing rules (no repeats, groups switched off, reshuffling), the editing rules (groups, cards,
-imports), publishing against a pretend GitHub (revisions, two devices publishing at once, error messages),
-that card formatting can't run code, and that the shared deck file is well formed.
+Checks the drawing rules (no repeats, groups switched off, reshuffling), the multiplayer rules (private draws,
+passing cards on, playing out of turn, ending turns, reshuffling the discard pile, dropped players, host
+takeover), the editing rules (groups, cards, imports), publishing against a pretend GitHub (revisions, two
+devices publishing at once, error messages), that card formatting can't run code, and that the shared deck file
+is well formed.
+
+To try multiplayer on one computer, open the site in two or three tabs: each tab is its own player.
 
 ## Deploying
 
@@ -88,12 +117,18 @@ public/              the site (this folder is what gets published)
   index.html, legal.html, css/style.css, version.js
   cards.json         the shared deck everyone plays (changed by publishing)
   original-cards.json  the original 153 cards and 3 groups, for "Restore Original Cards"
-  js/app.js          main screen: drawing, showing cards, links, keeping the deck in sync
+  js/app.js          the deck and keeping it in sync, switching screens
+  js/solo.js         one-phone mode
+  js/game.js         home, lobby and card table screens, and the card viewer
+  js/net.js          lobby connections: host, join, reconnect, host handover (from Horse Race)
+  js/engine.js       the multiplayer rules (runs on the host; no page code, so it can be tested)
+  js/cards.js        drawing playing cards, piles and the flip
   js/menu.js         the secret menu: options, groups, card editor, publishing, export/import
   js/sync.js         publishing to GitHub
   js/deck.js         drawing and editing rules (no page code, so it can be tested)
   js/markup.js       safe card formatting
   js/store.js        saving to this browser
+  vendor/peerjs.min.js  PeerJS 1.5.5
 tools/
   serve.mjs          local server
   test.mjs           tests

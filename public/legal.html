@@ -8,8 +8,10 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .legal { max-width: 720px; padding-top: 10px; }
-    .legal h2 { margin: 20px 0 10px; font-size: 30px; font-weight: 500; }
+    .legal { flex: 1; width: 100%; max-width: 720px; margin: 0 auto; padding: calc(16px + env(safe-area-inset-top)) 18px 10px; line-height: 1.5; }
+    .legal h2 { margin: 24px 0 8px; font: 700 26px/1.2 Georgia, "Times New Roman", serif; }
+    .legal a, #footer a { color: var(--gold); }
+    #footer { padding: 16px 10px calc(14px + env(safe-area-inset-bottom)); color: var(--on-felt-muted); font-size: 13px; text-align: center; }
   </style>
 </head>
 <body>
@@ -26,7 +28,8 @@
     <h2>Credit</h2>
     <p>THE DECK was created by rchowe and first published at
       <a href="http://rchowe.com/deck/">rchowe.com/deck</a>. This version is adapted from it and shared under
-      the same license. Changes: the site was rebuilt from scratch, cards can be edited and sorted into any
+      the same license. Changes: the site was rebuilt from scratch as a multiplayer game where everyone draws on
+      their own phone, the cards look like a real deck, cards can be edited and sorted into any
       number of groups from the secret menu, new groups can be added, the &ldquo;With Replacement&rdquo; draw
       style works, card formatting was simplified, and two flavor texts were changed (the
       &ldquo;World's Most Interesting Man&rdquo; picture and the &ldquo;Add a Card&rdquo; email address).</p>
