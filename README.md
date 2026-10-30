@@ -27,6 +27,14 @@ Draw a card, do what it says. A party card game for the browser, rebuilt from
   through the free [PeerJS](https://peerjs.com) matchmaking service, the same way Horse Race works). If the host
   leaves, the next player takes over hosting automatically and the game carries on. Everyone plays the host's
   deck, which is sent to each phone when it joins.
+- **Backup relay** for phones that can't connect straight to the host (mobile data, VPNs, privacy settings;
+  PeerJS's own free relay server has shut down). If the direct connection fails or hasn't opened within 6
+  seconds, the player's messages go through free public MQTT servers over secure websockets instead
+  (`js/relay.js`, the same as Horse Race's). The host always listens there too. Relayed players get a RELAY tag
+  in the lobby, switch back to direct later if it starts working, and go last in line to take over hosting.
+  The relay servers are public, so what goes through them (names, cards, turns) isn't private. Add
+  `?forcerelay` to the address to test it; `deckTrace()` in the browser console shows how a tab connected.
+  Horse Race's [connection check](https://josephjackman.com/horserace/check.html) tests a phone for all of this.
 - **Play on One Phone** is the original game: tap the deck, do what it says, pass the phone.
 
 ## The look
@@ -133,6 +141,7 @@ public/              the site (this folder is what gets published)
   js/solo.js         one-phone mode
   js/game.js         home, lobby and card table screens, and the card viewer
   js/net.js          lobby connections: host, join, reconnect, host handover (from Horse Race)
+  js/relay.js        the backup relay through public MQTT servers (from Horse Race)
   js/engine.js       the multiplayer rules (runs on the host; no page code, so it can be tested)
   js/cards.js        drawing playing cards, piles and the flip
   js/menu.js         the secret menu: options, groups, card editor, publishing, export/import

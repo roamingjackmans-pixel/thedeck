@@ -10,10 +10,18 @@
 //
 // If the host disappears (closed the tab, phone went to sleep, left), the other players notice, and the
 // first one in line claims the room code and carries on hosting with the last state everyone had.
+//
+// Some phones and networks can't make the direct connection. If it hasn't worked within a few seconds, the
+// player switches to the backup relay (relay.js), which carries the same messages through public message
+// servers. The host always listens on both, so to the rest of this file a relayed player looks the same.
 import * as E from './engine.js';
+import { RelayHost, RelayGuest } from './relay.js';
 
 const PREFIX = 'jjthedeck-v1-';
 const roomPeerId = code => PREFIX + code;
+const RTC_WAIT = 6000;    // how long the direct connection gets before we try the relay as well
+// ?forcerelay in the page address skips the direct connection, for testing the relay
+const FORCE_RELAY = typeof location !== 'undefined' && /[?&]forcerelay\b/.test(location.search);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const clone = o => JSON.parse(JSON.stringify(o));
 const DECK_PART = 40; // cards per deck message, to stay well under data channel size limits
@@ -182,6 +190,12 @@ export class Room extends Emitter {
     this.offset = 0;
     if (!this.deck) this.deck = this.localDeck();
     peer.on('connection', conn => this._onConn(conn));
+    // players who can't connect directly come in through the relay
+    const hub = new RelayHost(state.code, conn => {
+      if (this.role === 'host' && this.hub === hub) this._onConn(conn); else conn.close();
+    });
+    this.hub = hub;
+    hub.start();
     peer.on('error', e => {
       if (this.peer !== peer) return;
       if (e?.type === 'unavailable-id') this._stepDown(); // someone else holds our code now
@@ -203,7 +217,13 @@ export class Room extends Emitter {
     const helloTimer = setTimeout(() => { if (!pid) { try { conn.close(); } catch { } } }, 15000);
     conn.on('data', m => {
       if (!m || typeof m !== 'object' || this.role !== 'host') return;
+      if (m.t === 'upgrade') {
+        clearTimeout(helloTimer);
+        if (!pid) pid = this._upgrade(conn, m);
+        return;
+      }
       if (m.t === 'hello') {
+        if (pid) return;          // already in (the relay repeats its hello until it hears back)
         clearTimeout(helloTimer);
         if (m.v !== E.PROTO) return drop({ t: 'err', code: 'version', msg: 'This lobby is running a different version of the game. Reload the page to update.' });
         const id = String(m.pid || '');
@@ -211,7 +231,7 @@ export class Room extends Emitter {
         if (id === this.me.pid) return drop({ t: 'err', code: 'dup', msg: 'You are already in this lobby in another tab' });
         const prev = this.conns.get(id);
         if (prev && prev.open && prev._tab !== m.tab) return drop({ t: 'err', code: 'dup', msg: 'You are already in this lobby in another tab' });
-        const r = E.addPlayer(this.state, { pid: id, name: m.name }, Date.now());
+        const r = E.addPlayer(this.state, { pid: id, name: m.name, relay: !!conn.relay }, Date.now());
         if (!r.ok) return drop({ t: 'err', code: 'full', msg: r.err });
         if (prev) {
           this.conns.delete(id);
@@ -247,6 +267,27 @@ export class Room extends Emitter {
       }
     });
     conn.on('error', () => { });
+  }
+
+  /**
+   * A player who came in through the relay has managed a direct connection after all: move them onto it.
+   * Their relay connection is hung up a moment later, once they've switched.
+   */
+  _upgrade(conn, m) {
+    const id = String(m.pid || '');
+    const prev = this.conns.get(id);
+    if (conn.relay || !prev || !prev.open || !prev.relay || prev._tab !== m.tab) {
+      this._send(conn, { t: 'err', code: 'upgrade' });
+      setTimeout(() => { try { conn.close(); } catch { } }, 400);
+      return null;
+    }
+    conn._pid = id; conn._tab = m.tab;
+    this.conns.set(id, conn);
+    this._send(conn, { t: 'upgraded' });
+    setTimeout(() => { try { prev.close(); } catch { } }, 1500);
+    if (this.state.players[id]) this.state.players[id].relay = false;
+    this._changed();
+    return id;
   }
 
   _sendDeck(conn) {
@@ -296,39 +337,119 @@ export class Room extends Emitter {
   }
 
   // ---------- guest side ----------
-  _tryJoin(code, ms = 15000) {
-    return openPeer(null).then(peer => new Promise((resolve, reject) => {
-      if (this.closed) { try { peer.destroy(); } catch { } return reject(netErr('closed', 'Closed')); }
-      const conn = peer.connect(roomPeerId(code), { reliable: true, serialization: 'json', metadata: { pid: this.me.pid } });
-      let joined = false;
-      let failed = false;
+  /**
+   * Connect to the host: straight to their browser if we can, otherwise through the relay. The relay starts
+   * connecting at once, so switching over is quick, and gets used if the direct connection fails or hasn't
+   * opened within RTC_WAIT. Without the matchmaking service at all, the relay is the only way in.
+   */
+  _tryJoin(code, ms = 20000) {
+    return openPeer(null).catch(() => null).then(peer => new Promise((resolve, reject) => {
+      if (this.closed) { if (peer) { try { peer.destroy(); } catch { } } return reject(netErr('closed', 'Closed')); }
+      const hello = { t: 'hello', v: E.PROTO, pid: this.me.pid, tab: this.me.tab, name: this.me.name };
+      const relay = new RelayGuest(code).prepare();
+      let rtc = null, path = null, joined = false, failed = false, slow = 0, relayWhy = '';
+      this._t(`join ${code}${peer ? '' : ' (no matchmaking service)'}`);
       const fail = (c, msg) => {
         if (joined || failed) return;
-        failed = true;
-        clearTimeout(timer);
-        try { peer.destroy(); } catch { }
+        this._t(`join failed: ${c}`);
+        failed = true; clearTimeout(timer); clearTimeout(slow);
+        if (peer) { try { peer.destroy(); } catch { } }
+        relay.close();
         reject(netErr(c, msg));
       };
-      const timer = setTimeout(() => fail('timeout', "Couldn't connect to that lobby. Check the code, or your network may be blocking it."), ms);
-      peer.on('error', e => {
-        if (joined) return;
-        if (e?.type === 'peer-unavailable') fail('notfound', 'No lobby with that code is open');
-        else fail('net', 'Connection problem, try again');
-      });
-      conn.on('open', () => this._send(conn, { t: 'hello', v: E.PROTO, pid: this.me.pid, tab: this.me.tab, name: this.me.name }));
-      conn.on('data', m => {
-        if (!m || typeof m !== 'object') return;
+      const timer = setTimeout(() => fail('timeout', "Couldn't connect to that lobby. Check the code and try again."), ms);
+      const onData = conn => m => {
+        if (!m || typeof m !== 'object' || failed) return;
         if (!joined) {
           if (m.t === 'deck') this._onDeckPart(m);
-          else if (m.t === 'state') { joined = true; clearTimeout(timer); this._guest(peer, conn); this._onGuestMsg(conn, m); resolve(); }
-          else if (m.t === 'err') fail(m.code, m.msg);
+          else if (m.t === 'state') {
+            joined = true; clearTimeout(timer); clearTimeout(slow);
+            if (conn === rtc) relay.close(); else if (rtc) { try { rtc.close(); } catch { } }
+            this.via = conn === rtc ? 'direct' : 'relay';
+            this._t(`joined ${this.via === 'relay' ? 'through the relay (' + relay.via + ')' : 'directly'}`);
+            this._guest(peer, conn); this._onGuestMsg(conn, m); resolve();
+            // the direct connection may only have been unlucky (e.g. tried while a new host was starting up)
+            if (conn === relay && peer && relayWhy !== 'forced') { this._later(8000, () => this._tryUpgrade()); this._later(45000, () => this._tryUpgrade()); }
+          } else if (m.t === 'err') fail(m.code, m.msg);
           return;
         }
         this._onGuestMsg(conn, m);
+      };
+      const deadMsg = () => (peer
+        ? "Couldn't connect to that lobby. Your network may be blocking it."
+        : 'Could not reach the game servers. Check your internet connection.');
+      const useRelay = why => {
+        if (path || joined || failed) return;
+        this._t(`trying the relay: ${why}`);
+        relayWhy = why;
+        if (relay.dead) return fail(peer ? 'timeout' : 'net', deadMsg());
+        path = 'relay';
+        clearTimeout(slow);
+        if (rtc) { try { rtc.close(); } catch { } }
+        this.emit('progress', 'Connecting another way…');
+        relay.hello(hello);
+      };
+      relay.on('data', onData(relay));
+      relay.on('close', () => {
+        if (joined) { if (this.conn === relay) this._lost(); }
+        else if (path === 'relay') fail('timeout', 'Lost the connection to the lobby');
       });
-      conn.on('close', () => { if (!joined) fail('timeout', 'The lobby closed the connection'); else if (this.conn === conn) this._lost(); });
-      conn.on('error', () => { });
+      relay.on('dead', () => { if (path === 'relay' && !joined) fail(peer ? 'timeout' : 'net', deadMsg()); });
+      if (!peer || FORCE_RELAY) { useRelay(peer ? 'forced' : 'no matchmaking service'); return; }
+
+      rtc = peer.connect(roomPeerId(code), { reliable: true, serialization: 'json', metadata: { pid: this.me.pid } });
+      slow = setTimeout(() => useRelay('direct connection is slow'), RTC_WAIT);
+      peer.on('error', e => {
+        if (joined || failed) return;
+        if (e?.type === 'peer-unavailable') fail('notfound', 'No lobby with that code is open');
+        else useRelay(`error ${e?.type}`);     // the direct connection (or the matchmaking service) gave up on us
+      });
+      rtc.on('open', () => {
+        if (path || failed) { try { rtc.close(); } catch { } return; }
+        path = 'direct';
+        this._t('direct connection open');
+        clearTimeout(slow);
+        relay.close();
+        this._send(rtc, hello);
+      });
+      rtc.on('data', onData(rtc));
+      rtc.on('close', () => {
+        if (joined) { if (this.conn === rtc) this._lost(); return; }
+        if (path === 'direct') fail('timeout', 'The lobby closed the connection');
+        else if (!path) useRelay('direct connection failed');
+      });
+      rtc.on('error', () => { });
     }));
+  }
+
+  /**
+   * We came in through the relay, maybe only because the direct connection was unlucky. Try a direct one now,
+   * and if the host takes it, switch over to it and hang up the relay.
+   */
+  _tryUpgrade() {
+    const peer = this.peer, relay = this.conn;
+    if (this.role !== 'guest' || this.closed || !relay || !relay.relay || !peer || peer.destroyed || peer.disconnected || this._upgrading) return;
+    this._upgrading = true;
+    this._t('trying for a direct connection');
+    const rtc = peer.connect(roomPeerId(this.code), { reliable: true, serialization: 'json', metadata: { pid: this.me.pid } });
+    let done = false;
+    const finish = ok => {
+      if (done) return;
+      done = true; clearTimeout(timer); this._upgrading = false;
+      if (!ok) { this._t('no direct connection, staying on the relay'); try { rtc.close(); } catch { } }
+    };
+    const timer = setTimeout(() => finish(false), 10000);
+    rtc.on('open', () => this._send(rtc, { t: 'upgrade', pid: this.me.pid, tab: this.me.tab }));
+    rtc.on('data', m => {
+      if (done) { if (this.conn === rtc) this._onGuestMsg(rtc, m); return; }
+      if (!m || m.t !== 'upgraded' || this.role !== 'guest' || this.conn !== relay) return finish(false);
+      finish(true);
+      this.conn = rtc; this.via = 'direct'; this._lastMsg = Date.now();
+      this._t('switched to a direct connection');
+      relay.close();
+    });
+    rtc.on('close', () => { if (!done) finish(false); else if (this.conn === rtc) this._lost(); });
+    rtc.on('error', () => { });
   }
 
   _guest(peer, conn) {
@@ -338,14 +459,14 @@ export class Room extends Emitter {
     this.conn = conn;
     this._lastMsg = Date.now();
     this._pings = [];
-    const ping = () => this._send(conn, { t: 'ping', c: Date.now() });
+    const ping = () => this._send(this.conn, { t: 'ping', c: Date.now() });
     ping();
     this._every(2000, () => {
-      if (this.conn !== conn) return;
+      if (this.role !== 'guest' || !this.conn) return;
       ping();
       if (Date.now() - this._lastMsg > 10000) this._lost(); // host went quiet
     });
-    this._every(5000, () => { if (this.peer === peer && peer.disconnected && !peer.destroyed) { try { peer.reconnect(); } catch { } } });
+    this._every(5000, () => { if (peer && this.peer === peer && peer.disconnected && !peer.destroyed) { try { peer.reconnect(); } catch { } } });
     this.emit('role', 'guest');
   }
 
@@ -415,10 +536,13 @@ export class Room extends Emitter {
     this.role = null;
     this.emit('role', null);
     this.emit('status', 'Reconnecting to the lobby…');
+    this._t(`lost the host${quick === 'moved' ? ' (they left)' : ''}`);
     if (quick === 'moved') await sleep(600); // give the old host a moment to let go of the code
     const code = last.code;
-    // line up the players who were here, oldest first; the host that just vanished goes last
-    const line = last.order.filter(id => last.players[id]?.on && id !== last.hostPid);
+    // line up the players who were here, oldest first; the host that just vanished goes last, and so do players
+    // on the relay (if they hosted, nobody could reach them directly)
+    const line = last.order.filter(id => last.players[id]?.on && id !== last.hostPid)
+      .sort((a, b) => (last.players[a].relay ? 1 : 0) - (last.players[b].relay ? 1 : 0));
     let rank = line.indexOf(this.me.pid);
     if (rank < 0) rank = 0;
     const deadline = Date.now() + 120000;
@@ -427,7 +551,7 @@ export class Room extends Emitter {
     if (quick === true && last.hostPid === this.me.pid && await this._claim(last)) return;
     while (!this.closed && Date.now() < deadline) {
       try {
-        await this._tryJoin(code, 9000);
+        await this._tryJoin(code, 12000);
         this.recovering = false;
         this.emit('status', null);
         return;
@@ -459,13 +583,14 @@ export class Room extends Emitter {
   /** Try to become the host of the room with the last state we saw. False if someone else holds the code. */
   async _claim(last) {
     let peer;
-    try { peer = await openPeer(roomPeerId(last.code)); } catch (e) { if (e.code !== 'unavailable-id') await sleep(1500); return false; }
+    try { peer = await openPeer(roomPeerId(last.code)); } catch (e) { this._t(`take over hosting: ${e.code === 'unavailable-id' ? 'someone else got there first' : e.code}`); if (e.code !== 'unavailable-id') await sleep(1500); return false; }
     if (this.closed) { try { peer.destroy(); } catch { } return false; }
     const s = clone(last);
     if (!s.players[this.me.pid]) E.addPlayer(s, this.me);
     const wasHost = s.hostPid === this.me.pid;
     E.takeOver(s, this.me.pid, wasHost ? 0 : this.offset);
     this.recovering = false;
+    this._t('took over hosting');
     this._host(peer, s);
     this.emit('status', null);
     if (!wasHost) this.emit('toast', 'You are now hosting this lobby');
@@ -475,10 +600,19 @@ export class Room extends Emitter {
   // ---------- plumbing ----------
   _send(conn, m) { if (conn?.open) { try { conn.send(m); } catch (e) { console.warn('send failed', e); } } }
   _every(ms, fn) { this._timers.push(setInterval(fn, ms)); }
+  _later(ms, fn) { this._timers.push(setTimeout(fn, ms)); }     // cleared by _teardown too (same id list)
+  /** A short log of how connecting went, for the console and for figuring out problems. */
+  _t(msg) {
+    const line = `${new Date().toISOString().slice(11, 23)} ${msg}`;
+    (this.trace ||= []).push(line);
+    if (this.trace.length > 80) this.trace.shift();
+    console.debug('[net]', msg);
+  }
   _teardown(keepFlags) {
     for (const t of this._timers) clearInterval(t);
     this._timers = [];
     if (this.conns) { for (const c of this.conns.values()) { try { c.close(); } catch { } } this.conns = null; }
+    if (this.hub) { const h = this.hub; this.hub = null; h.stop(); }
     if (this.conn) { const c = this.conn; this.conn = null; try { c.close(); } catch { } }
     if (this.peer) { const p = this.peer; this.peer = null; try { p.destroy(); } catch { } }
     if (!keepFlags) this.role = null;

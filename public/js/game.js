@@ -169,6 +169,9 @@ export function initGame(app) {
 
   // ---------- the room connection ----------
 
+  // in the browser console: deckTrace() shows how this tab's connection went
+  window.deckTrace = () => (room && room.trace ? room.trace.join(' | ') : '');
+
   function bind(r) {
     room = r;
     s = null;
@@ -184,6 +187,7 @@ export function initGame(app) {
       r.on('status', t => { netStatus = t; render(); }),
       r.on('error', msg => { app.toast(msg, 3500); viewerKey = ''; renderViewer(); }),
       r.on('toast', msg => app.toast(msg, 3500)),
+      r.on('progress', msg => homeMessage(msg)),
       r.on('role', () => { viewerKey = ''; if (s) render(); }),
       r.on('closed', msg => onClosed(msg)),
     ];
@@ -349,7 +353,7 @@ export function initGame(app) {
     const isHost = s.hostPid === me();
     ui.lobbyPlayers.innerHTML = s.order.map(id => {
       const p = s.players[id];
-      const tags = `${id === s.hostPid ? '<span class="tag">HOST</span>' : ''}${id === me() ? '<span class="tag you">YOU</span>' : ''}${p.on ? '' : '<span class="tag away">AWAY</span>'}`;
+      const tags = `${id === s.hostPid ? '<span class="tag">HOST</span>' : ''}${id === me() ? '<span class="tag you">YOU</span>' : ''}${p.on ? (p.relay ? '<span class="tag relay" title="Connected through the backup relay (a direct connection did not work for them)">RELAY</span>' : '') : '<span class="tag away">AWAY</span>'}`;
       const edit = id === me() ? '<button type="button" class="btn-link" data-rename>Change name</button>' : '';
       const remove = isHost && !p.on && id !== me() ? `<button type="button" class="btn-link danger" data-remove="${esc(id)}">Remove</button>` : '';
       return `<li class="${p.on ? '' : 'away'}"><span class="lp-name">${esc(p.name)}</span>${tags}${edit}${remove}</li>`;

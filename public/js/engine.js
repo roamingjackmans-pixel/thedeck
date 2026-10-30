@@ -60,12 +60,13 @@ export function addPlayer(s, p, now = Date.now()) {
     old.on = true;
     old.offAt = 0;
     old.name = name;
+    old.relay = !!p.relay;
     if (back && !(s.quietUntil > now)) log(s, `${name} is back`, now);
     return { ok: true, back };
   }
   const online = s.order.filter(id => s.players[id].on).length;
   if (online >= MAX_PLAYERS) return no(`This lobby is full (${MAX_PLAYERS} players)`);
-  s.players[pid] = { pid, name, n: ++s.joinSeq, on: true, offAt: 0 };
+  s.players[pid] = { pid, name, n: ++s.joinSeq, on: true, offAt: 0, relay: !!p.relay };
   s.order.push(pid);
   log(s, `${name} joined`, now);
   return { ok: true, back: false };
