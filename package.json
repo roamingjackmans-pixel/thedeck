@@ -1,0 +1,12 @@
+{
+  "name": "thedeck",
+  "version": "1.0.0",
+  "description": "THE DECK: draw a card, do what it says. A party card game with an editable deck.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "test": "node tools/test.mjs"
+  },
+  "engines": { "node": ">=18" }
+}

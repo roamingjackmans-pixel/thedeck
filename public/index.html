@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="THE DECK">
+  <title>THE DECK | josephjackman.com</title>
+  <meta name="description" content="THE DECK: draw a card, do what it says. A party card game for the browser.">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
+  <meta property="og:title" content="THE DECK">
+  <meta property="og:description" content="Draw a card. Do what it says.">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="version.js"></script>
+</head>
+<body>
+  <!-- The secret menu button: invisible in the top-left corner. Hover there for a few seconds (or just tap it). -->
+  <button id="options-button" type="button" class="btn btn-default">Options</button>
+
+  <main class="container">
+    <header class="masthead">
+      <h1>THE DECK</h1>
+      <button id="draw-button" type="button" class="btn btn-primary btn-lg" disabled>Draw a Card</button>
+    </header>
+    <hr>
+
+    <p id="notice" class="notice" role="status" hidden></p>
+
+    <article id="card" class="card" aria-live="polite" hidden>
+      <div id="card-title-wrapper">
+        <h2 id="card-title"></h2>
+        <a class="permalink" href="#" title="Link to this card">&para;</a>
+      </div>
+      <div id="card-text"></div>
+      <div id="card-flavor-text"></div>
+    </article>
+  </main>
+
+  <footer id="footer">
+    <a href="/">josephjackman.com</a>
+    <span aria-hidden="true">&nbsp;&bull;&nbsp;</span>
+    <a href="legal.html">Boring Legal Stuff</a>
+  </footer>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <dialog id="menu" class="menu" aria-labelledby="menu-title">
+    <div class="menu-head">
+      <h2 id="menu-title">Secret Menu</h2>
+      <button type="button" class="close" data-close aria-label="Close">&times;</button>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button type="button" role="tab" id="tab-options" aria-controls="panel-options" aria-selected="true">Options</button>
+      <button type="button" role="tab" id="tab-cards" aria-controls="panel-cards" aria-selected="false" tabindex="-1">Edit Cards</button>
+    </nav>
+
+    <div class="menu-body">
+      <!-- Options: how cards are drawn and which groups are in play -->
+      <section id="panel-options" role="tabpanel" aria-labelledby="tab-options">
+        <div class="control-group">
+          <h3 class="control-label">Draw Style</h3>
+          <label class="radio">
+            <input type="radio" name="draw-style" value="replacement">
+            <span>With Replacement
+              <span class="help-block">Cards will be put back in the deck after they are drawn.</span></span>
+          </label>
+          <label class="radio">
+            <input type="radio" name="draw-style" value="no-replacement" checked>
+            <span>Without Replacement
+              <span class="help-block">Cards will be removed from the deck after they are drawn.</span></span>
+          </label>
+        </div>
+
+        <div class="control-group">
+          <h3 class="control-label">Card Options</h3>
+          <p class="help-block">Uncheck a group to keep its cards out of the deck. A card in more than one group
+            only comes up when all of its groups are checked. Choose a card's groups in <a href="#" data-goto="cards">Edit Cards</a>.</p>
+          <div id="group-list" class="group-list"></div>
+          <form id="add-group-form" class="inline-form" autocomplete="off">
+            <label class="sr-only" for="add-group-name">New group name</label>
+            <input id="add-group-name" type="text" maxlength="80" placeholder="New group, e.g. There's a pool" enterkeyhint="done">
+            <button type="submit" class="btn btn-default">Add Group</button>
+          </form>
+          <p id="add-group-msg" class="form-msg" role="status"></p>
+        </div>
+
+        <div class="control-group">
+          <h3 class="control-label">Reset Shoe</h3>
+          <p id="shoe-status" class="help-block"></p>
+          <button id="reset-shoe" type="button" class="btn btn-warning">Clear Deck State</button>
+        </div>
+
+        <div class="control-group">
+          <h3 class="control-label">Your Deck</h3>
+          <p id="deck-status" class="help-block"></p>
+          <div class="button-row">
+            <button id="export-deck" type="button" class="btn btn-default">Export Deck</button>
+            <button id="import-deck" type="button" class="btn btn-default">Import Deck</button>
+            <button id="reset-deck" type="button" class="btn btn-danger-outline">Restore Original Cards</button>
+          </div>
+          <input id="import-file" type="file" accept=".json,application/json" hidden>
+        </div>
+      </section>
+
+      <!-- Edit Cards: change any card and the groups it's in -->
+      <section id="panel-cards" role="tabpanel" aria-labelledby="tab-cards" hidden>
+        <div class="editor-toolbar">
+          <label class="sr-only" for="card-search">Search cards</label>
+          <input id="card-search" type="search" placeholder="Search cards" autocomplete="off" enterkeyhint="search">
+          <label class="sr-only" for="card-filter">Show cards in</label>
+          <select id="card-filter"></select>
+          <button id="add-card" type="button" class="btn btn-primary">+ Add Card</button>
+        </div>
+        <p id="card-count" class="help-block"></p>
+        <ul id="card-list" class="card-list"></ul>
+      </section>
+    </div>
+
+    <div class="menu-foot">
+      <span id="save-status" class="save-status" role="status"></span>
+      <span id="version" class="version"></span>
+      <button type="button" class="btn btn-primary" data-close>Done</button>
+    </div>
+  </dialog>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

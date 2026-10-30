@@ -1,0 +1,1101 @@
+{
+  "format": "the-deck",
+  "version": 1,
+  "groups": [
+    {
+      "id": "snow",
+      "name": "Snow on the ground"
+    },
+    {
+      "id": "girls",
+      "name": "There are girls present"
+    },
+    {
+      "id": "stranger",
+      "name": "You can find a stranger"
+    }
+  ],
+  "cards": [
+    {
+      "id": 1,
+      "title": "Kiss-Kiss",
+      "text": "You must kiss another player of the opposite sex. If you take a shot, you may choose whom you kiss, otherwise the other players choose.",
+      "flavor": "Pucker up.",
+      "groups": [
+        "girls"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Tattoo",
+      "text": "You must get a sharpie tattoo on your body drawn by another player. If you take a shot, you may choose where you get the tattoo.",
+      "flavor": "Mike Tyson",
+      "groups": []
+    },
+    {
+      "id": 3,
+      "title": "Never Have I Ever…",
+      "text": "Five strikes, loser drinks 5.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 4,
+      "title": "Beer Bitch",
+      "text": "For the remainder of the game, you must get a beer or drink for any player who requests one.",
+      "flavor": "80% of the time this is Joe.",
+      "groups": []
+    },
+    {
+      "id": 5,
+      "title": "Stoop Kid",
+      "text": "You must sit on the stoop of the building for one round. Players will call you back into the room when it is your turn again.",
+      "flavor": "Stoop kid's afraid to leave his stoop!",
+      "groups": []
+    },
+    {
+      "id": 6,
+      "title": "Get out of Jail Free",
+      "text": "You may use this card to save yourself or a fellow player from answering a question or participating in a card.",
+      "flavor": "Don't abuse it.",
+      "groups": []
+    },
+    {
+      "id": 7,
+      "title": "T-Rex",
+      "text": "You must hold your arms in the position of the infamous T-Rex for two rounds. Take a shot to make it last for one round.",
+      "flavor": "I'm a jackoffasaurus rex!!!",
+      "groups": []
+    },
+    {
+      "id": 8,
+      "title": "Remote Control",
+      "text": "You now have the ability to control any other player with commands found on a remote control for one round. Example: Players may be muted for a round.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 9,
+      "title": "Self-Explanatory",
+      "text": "Give someone a dollar or shotgun a beer or take a shot.",
+      "flavor": "Do it!",
+      "groups": []
+    },
+    {
+      "id": 10,
+      "title": "Taboo",
+      "text": "Choose three words. Any player who says one of the three words drinks. This lasts for the remainder of the game.",
+      "flavor": "Card, Turn, Drink.",
+      "groups": []
+    },
+    {
+      "id": 11,
+      "title": "Self-Explanatory",
+      "text": "People wearing a different color shirt than you must drink 5.",
+      "flavor": "You learn to wear a brown button down shirt.",
+      "groups": []
+    },
+    {
+      "id": 12,
+      "title": "Dunce",
+      "text": "You must sit or stand facing the corner for one round.",
+      "flavor": "Give a shot if you wear a cone on your head.",
+      "groups": []
+    },
+    {
+      "id": 13,
+      "title": "Get Spanked",
+      "text": "You must get spanked by another player. If you take a shot, you may choose which player spanks you.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 14,
+      "title": "Social",
+      "text": "Everyone drinks.",
+      "flavor": "Four aces!",
+      "groups": []
+    },
+    {
+      "id": 15,
+      "title": "No Names or Nicknames",
+      "text": "If a player says another player's name or nickname, they drink 2. Lasts 1 round.",
+      "flavor": "Hey, fuck face!",
+      "groups": []
+    },
+    {
+      "id": 16,
+      "title": "Self-Explanatory",
+      "text": "Finish your drink or take off an article of clothing.",
+      "flavor": "Depends on what you're drinking.",
+      "groups": []
+    },
+    {
+      "id": 17,
+      "title": "Copycat",
+      "text": "You must copy every player's card for one round.",
+      "flavor": "Good luck.",
+      "groups": []
+    },
+    {
+      "id": 18,
+      "title": "Dude",
+      "text": "You may only say \"dude\" for the remainder of the game.",
+      "flavor": "Dude!",
+      "groups": []
+    },
+    {
+      "id": 19,
+      "title": "Chug Challenge",
+      "text": "You must challenge any player to chug a drink of your choice. The winner slaps the loser.",
+      "flavor": "Challenge Brian, he's a bitch.",
+      "groups": []
+    },
+    {
+      "id": 20,
+      "title": "JG Wentworth",
+      "text": "You must open a window and yell \"It's my money and I need it now\".",
+      "flavor": "I really do!",
+      "groups": []
+    },
+    {
+      "id": 21,
+      "title": "Shoe Hands",
+      "text": "You must wear your shoes on your hands for one round.",
+      "flavor": "For kids!",
+      "groups": []
+    },
+    {
+      "id": 22,
+      "title": "Speak in an Accent",
+      "text": "You must speak in an accent chosen by the other players for one round. Every time you speak without the accent you must drink.",
+      "flavor": "Smashing.",
+      "groups": []
+    },
+    {
+      "id": 23,
+      "title": "Self-Explanatory",
+      "text": "First person to laugh drinks 6.",
+      "flavor": "Knock knock.",
+      "groups": []
+    },
+    {
+      "id": 24,
+      "title": "Coin Flip",
+      "text": "Heads you drink five, tails you give 7.",
+      "flavor": "If I flip this coin, what's the chance of me getting head?",
+      "groups": []
+    },
+    {
+      "id": 25,
+      "title": "SLOOT",
+      "text": "You must call a person of the opposite sex from your favorites or recently called numbers. The phone must be on speaker. Call them a sloot and hang up without explanation.",
+      "flavor": "When a sloot is blowing me? Definitely not a bad thing.\n-- Thad Castle",
+      "groups": []
+    },
+    {
+      "id": 26,
+      "title": "Pants Time Capsule",
+      "text": "Every player puts one item in your pants. Your eyes must be closed, but players may hand you items so that you may place them in your own pants. At the end of the game, you may remove the items.",
+      "flavor": "We suggest ice.",
+      "groups": []
+    },
+    {
+      "id": 27,
+      "title": "Teamwork",
+      "text": "Everyone must hold hands for an entire round. Hands may only be broken to allow a player to participate in another card.",
+      "flavor": "I'd like to lead you all in some swaying.",
+      "groups": []
+    },
+    {
+      "id": 28,
+      "title": "Swap",
+      "text": "You must swap your shirt and pants. If you are unable or unwilling, you must reverse the order of clothing, i.e. underwear is now the top layer.",
+      "flavor": "Why do superheroes wear their underwear on the outside?",
+      "groups": []
+    },
+    {
+      "id": 29,
+      "title": "Ice Ice Baby",
+      "text": "You must hold an ice cube in each hand until they melt.",
+      "flavor": "Dum dum dum da da dum dum.",
+      "groups": []
+    },
+    {
+      "id": 30,
+      "title": "Player Count",
+      "text": "Count the number of players, then drink that many.",
+      "flavor": "Twelve.",
+      "groups": []
+    },
+    {
+      "id": 31,
+      "title": "Movie Train",
+      "text": "Name a movie. The next player must name an actor in that movie. The next player must name a movie that the actor is in. Repeat pattern until someone loses.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 32,
+      "title": "Phone a Color",
+      "text": "Call a friend, and ask them to name a color with no explanation. Everyone wearing that color must remove that article or clothing or take a shot per article of clothing they keep on.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 33,
+      "title": "Coaster Rule",
+      "text": "You must hold your drink in your hand for two rounds.",
+      "flavor": "At least you can't get fingered…",
+      "groups": []
+    },
+    {
+      "id": 34,
+      "title": "No Touch",
+      "text": "You may not touch your legs or face for one round. Each touch is equal to one drink.",
+      "flavor": "Hopefully your eyes aren't itchy.",
+      "groups": []
+    },
+    {
+      "id": 35,
+      "title": "Sext and Tell",
+      "text": "Send a sexually inappropriate text to someone of the opposite sex from favorites or recently texted numbers. Take a shot to choose what is texted, otherwise the other players decide.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 36,
+      "title": "Troll",
+      "text": "Sit under the table for one round.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 37,
+      "title": "You have been Turned to the Dark Side.",
+      "text": "You must drink anytime someone else does for one round (except shots).",
+      "flavor": "We have cake!",
+      "groups": []
+    },
+    {
+      "id": 38,
+      "title": "Spin the Bottle",
+      "text": "Grab a bottle and give it a spin.",
+      "flavor": "Welcome back to middle school.",
+      "groups": []
+    },
+    {
+      "id": 39,
+      "title": "Misery Loves Company",
+      "text": "You may choose a card that has already been played and give it to another player to repeat.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 40,
+      "title": "Reverse, Reverse!",
+      "text": "The game is now played in the opposite direction around the circle.",
+      "flavor": "←",
+      "groups": []
+    },
+    {
+      "id": 41,
+      "title": "The Janitor",
+      "text": "Clean the table of any empty drinks or food items for the rest of the game.",
+      "flavor": "It's *doctor* Jan Itor.",
+      "groups": []
+    },
+    {
+      "id": 42,
+      "title": "The Understudy",
+      "text": "You must now drink for the person on your left and right for one round.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 43,
+      "title": "Hobbit Leaving the Shire",
+      "text": "Grab three friends and take a lap around the building.",
+      "flavor": "Hobbits don't wear shoes.",
+      "groups": []
+    },
+    {
+      "id": 44,
+      "title": "Stone Age",
+      "text": "Turn off all electricity in the room (lights, music, phones, etc.). Lasts for two rounds.",
+      "flavor": "Someday I want there to be an electric railroad in the stone age.",
+      "groups": []
+    },
+    {
+      "id": 45,
+      "title": "The Contest",
+      "text": "Challenge any player to a contest of your choice. Loser must chug a beer.",
+      "flavor": "Challenge Dan, he's a bitch.",
+      "groups": []
+    },
+    {
+      "id": 46,
+      "title": "Snake Eyes",
+      "text": "Any time a player looks you in the eyes, they must drink one. Lasts for one round.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 47,
+      "title": "Sex Mannequin",
+      "text": "Choose two players and place them in a sex position of your choice. Players must remain in position until it is one of their turns.",
+      "flavor": "The grasshopper.",
+      "groups": []
+    },
+    {
+      "id": 48,
+      "title": "Pregame",
+      "text": "Drink before everyone else's turn for one round.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 49,
+      "title": "Cheers (Mothafucka)",
+      "text": "Everyone of your sex must drink 2.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 50,
+      "title": "Waterfall",
+      "text": "The player on your left starts the waterfall, ending with you.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 51,
+      "title": "New Best Friend",
+      "text": "You must find another person to join the game. It may be a friend or a stranger. For every round the player is not present, drink 5.",
+      "flavor": "",
+      "groups": [
+        "stranger"
+      ]
+    },
+    {
+      "id": 52,
+      "title": "Prohibition",
+      "text": "No player may say anything related to alcohol for two rounds. Players who do must drink two per word. This means you can't say drink, drunk, alcohol types, or name brands.",
+      "flavor": "We sell blocks of dried grapes. But don't put it in water and let it soak for two weeks, because then it would turn into wine, and that would be illegal.",
+      "groups": []
+    },
+    {
+      "id": 53,
+      "title": "Change of Cup",
+      "text": "Players must decide on an unusual drinking container that you must use to drink from for the remainder of the game. The container may be cleaned before use.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 54,
+      "title": "Boob Tap",
+      "text": "Tap the nearest boob.",
+      "flavor": "Boop",
+      "groups": []
+    },
+    {
+      "id": 55,
+      "title": "In the Pocket",
+      "text": "You must place your hands in the pockets of the players to your left and your right for one round.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 56,
+      "title": "TMNT",
+      "text": "Name all four teenage mutant ninja turtles. Drink 4 for each turtle you miss.",
+      "flavor": "The rat's name is Splinter.",
+      "groups": []
+    },
+    {
+      "id": 57,
+      "title": "Paparazzi",
+      "text": "Find a stranger and get a photo with them. If you fail to do so in one round drink 5.",
+      "flavor": "",
+      "groups": [
+        "stranger"
+      ]
+    },
+    {
+      "id": 58,
+      "title": "Truth Card",
+      "text": "Last time you cried?",
+      "flavor": ":'(",
+      "groups": []
+    },
+    {
+      "id": 59,
+      "title": "Truth Card",
+      "text": "What is the most trouble you have been in with the law?",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 60,
+      "title": "Truth Card",
+      "text": "Name a person or celebrity of the same sex you would be gay or lesbian for.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 61,
+      "title": "Truth Card",
+      "text": "Most embarassing drunk story?",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 62,
+      "title": "American Idol",
+      "text": "Sing everything you say for one round. Drink one for everything not sung.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 63,
+      "title": "Homeless Man",
+      "text": "You have one round to collect 67 cents. Drink 7 if unable.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 64,
+      "title": "Maple Syrup Shot",
+      "text": "Take a shot of maple syrup. In the unfortunate event that pure Vermont maple syrup is unavailable, a condiment of the other players' choice must be substituted.",
+      "flavor": "Better to drink Everclear than New Hamsphire maple syrup.",
+      "groups": []
+    },
+    {
+      "id": 65,
+      "title": "Chinese Fire Drill",
+      "text": "Everybody switch positions in the circle.",
+      "flavor": "Firetrucks don't stop for red lights.",
+      "groups": []
+    },
+    {
+      "id": 66,
+      "title": "Crush",
+      "text": "Admit to having or have had a crush on someone in this room. Drink six if you refuse or haven't had a crush.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 67,
+      "title": "The Great Outdoors",
+      "text": "You must go outside the next time you have to use the restroom.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 68,
+      "title": "Heat Wave",
+      "text": "Whatever you are drinking must be placed in the microwave for 20 seconds. Use the appropriate containers (no cans in the microwave).",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 69,
+      "title": "Moose",
+      "text": "Last person to put up antlers drinks 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 70,
+      "title": "Gingivitis",
+      "text": "All gingers must drink 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 71,
+      "title": "For the Love of Boy Bands",
+      "text": "Other players choose a boy band from the 90s. Name all members. Drink four for every missed member.",
+      "flavor": "Everyone will get at least one person if you choose NSYNC.",
+      "groups": []
+    },
+    {
+      "id": 72,
+      "title": "Fall in",
+      "text": "The players to your left and right must join you in standing at attention for one round. Drink four for any break in formation.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 73,
+      "title": "The Floor is Lava",
+      "text": "The floor has become lava to you for one round. Drink three per touch.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 74,
+      "title": "Gettin' Fingered",
+      "text": "Every person's drink who is one finger length from the edge of the table must drink 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 75,
+      "title": "Wild Card",
+      "text": "Make a rule of your choice.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 76,
+      "title": "Wild Card",
+      "text": "Make a rule of your choice.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 77,
+      "title": "Truth Card",
+      "text": "What would you say is each players' best attribute?",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 78,
+      "title": "Wrong Number",
+      "text": "Each player will give you a single digit to enter into your phone. Once you have seven digits, add your area code before and hit dial on speakerphone. For every minute on the phone with the stranger, you can give out five drinks to the other players. Take a shot beforehand and you may choose a different area code than your own.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 79,
+      "title": "Supersize That",
+      "text": "For one round, every time you have to drink, you must drink twice that amount.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 80,
+      "title": "Mike Tyson",
+      "text": "Get a tribal tattoo on your face. Take a shot and you can use a washable marker or eyeliner.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 81,
+      "title": "Starstruck",
+      "text": "Name a famous actor or actress that has starred in numerous films. Starting with you, everyone must go around and name a movie they were in. The first person to fail to name a movie drinks three.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 82,
+      "title": "Over and Out",
+      "text": "You must end every sentence with \"over\" for two rounds. Drink one for every missed over.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 83,
+      "title": "Bad Moonshine",
+      "text": "You must get blindfolded for one round.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 84,
+      "title": "Shut the Front Door",
+      "text": "Drink once for every time you swear. Lasts two rounds.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 85,
+      "title": "Now That's Using your Head",
+      "text": "Keep your forehead on the table for one round.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 86,
+      "title": "Name Chain",
+      "text": "\"You name a famous person. The next person names a famous person starting with the letter of the last name of the person previously said. The first person to mess up drinks four. Example: Bill Clinton, Clint Eastwood, Emma Watson, etc.\"",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 87,
+      "title": "The Cow",
+      "text": "In a double shot glass mix one shot of milk and one shot of alcohol of your choice.",
+      "flavor": "There's an easy way out of this.",
+      "groups": []
+    },
+    {
+      "id": 88,
+      "title": "Boy Meets World",
+      "text": "Call each girl in the room Topanga. Drink 3 every time you mess up.",
+      "flavor": "It's Toh-PAN-Ga you ignorant fool.",
+      "groups": []
+    },
+    {
+      "id": 89,
+      "title": "Chubby Cheeks",
+      "text": "You must go to the fridge and place three items in your mouth. Take a shot to decide which objects, otherwise the other players choose. Items must remain in your mouth for one minute.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 90,
+      "title": "Professor Oak",
+      "text": "You have become professor Oak. You may not say anything nice and you must be unnecessarily critical of everyone's actions and/or attire. Lasts one round.",
+      "flavor": "This is my grandson. He's your rival. Uhh... what's his name again?",
+      "groups": []
+    },
+    {
+      "id": 91,
+      "title": "Blizzard Bra or Boxers",
+      "text": "Go outside and place a snowball-size amount of snow in your boxers or bra. Take a shot and you can pick another player to join you.",
+      "flavor": "",
+      "groups": [
+        "snow"
+      ]
+    },
+    {
+      "id": 92,
+      "title": "Sobriety Checkpoint",
+      "text": "You must pass three sobriety tests.\n1. Stand on one leg and count to ten without falling.\n2. The player on your left makes up a test.\n3. The player on your right makes up a test.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 93,
+      "title": "Sex Change",
+      "text": "If you are a male, you must get eight fingernails painted. If you are a female, you must get a fake unibrow drawn on you. Take a shot, and males can get only three nails and females can get it drawn in eyeliner.",
+      "flavor": "Pointer and thumb-pinky.",
+      "groups": []
+    },
+    {
+      "id": 94,
+      "title": "It's a Me, Mario!",
+      "text": "You must get a mustache that resembles Mario's. Take a shot and it can be drawn in washable marker or eyeliner.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 95,
+      "title": "What?",
+      "text": "You may only speak in questions for one round. Drink once every time you mess up.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 96,
+      "title": "World's Most Interesting Man",
+      "text": "You can only speak in terms of \"I don't always ____, but when I do I ____\" for one round. Drink two every time you fail.",
+      "flavor": "Stay thirsty, my friends.",
+      "groups": []
+    },
+    {
+      "id": 97,
+      "title": "Polyjuice Potion",
+      "text": "You must get a cup and have everyone pour a splash of what they are drinking into your cup. Drink said cup of mixed drinks.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 98,
+      "title": "Twi-Hard's Eternal Love",
+      "text": "Other players choose a player that you must sit in front of and stare into their eyes for one round. Drink one every time you lose eye contact.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 99,
+      "title": "#Hashtag",
+      "text": "You must include the word \"hashtag\" in each sentence. Failures result in a drink.",
+      "flavor": "Let me take a #selfie.",
+      "groups": []
+    },
+    {
+      "id": 100,
+      "title": "Electric Railroad",
+      "text": "Everyone must put a hand on the ceiling. Everyone who takes a hand off of the ceiling (except for the last player) takes a shot.",
+      "flavor": "This is why the green line is late.",
+      "groups": []
+    },
+    {
+      "id": 101,
+      "title": "Massachusetts Hole",
+      "text": "Everyone not from Massachusetts drinks 4. If your name is Dan Etter, take a shot instead.",
+      "flavor": "Fahk you RC.",
+      "groups": []
+    },
+    {
+      "id": 102,
+      "title": "Triple Dan",
+      "text": "Do three shots of decreasing proof alchool within ten seconds.",
+      "flavor": "Oppa Dan style.",
+      "groups": []
+    },
+    {
+      "id": 103,
+      "title": "Minister of Foreign Affairs",
+      "text": "You are the only player allowed to communicate with people not playing the game for the rest of the game.",
+      "flavor": "The Secretary of State is the American equivalent.",
+      "groups": []
+    },
+    {
+      "id": 104,
+      "title": "Green Mountain Boys",
+      "text": "Finish any unfinished drinks on the table.",
+      "flavor": "Leave no man behind.",
+      "groups": []
+    },
+    {
+      "id": 105,
+      "title": "The Royal We",
+      "text": "You must refer to yourself in the magestic plural (*e.g.* We need a refill.) for three rounds. Drink every time you mess up.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 106,
+      "title": "No Pointing",
+      "text": "If you point you drink.",
+      "flavor": "☞",
+      "groups": []
+    },
+    {
+      "id": 107,
+      "title": "Gecco",
+      "text": "Everyone must place three limbs on a vertical surface. The last one to do so drinks 3.",
+      "flavor": "But does London dispersion forces doe.",
+      "groups": []
+    },
+    {
+      "id": 108,
+      "title": "Polite Society",
+      "text": "Every time a player tells someone to drink, the player giving the drink must compliment the other player.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 109,
+      "title": "Diglett",
+      "text": "Dig deep and finish your drink.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 110,
+      "title": "Iced",
+      "text": "Take a knee and chug a Smirnoff ice. If there is not one available, the other players decide what you drink.",
+      "flavor": "Pure Vermont maple syrup.",
+      "groups": []
+    },
+    {
+      "id": 111,
+      "title": "Panhandling",
+      "text": "Perform all actions in slow motion until your next turn.",
+      "flavor": "Root Beer",
+      "groups": []
+    },
+    {
+      "id": 112,
+      "title": "Permission",
+      "text": "Whenever someone opens a drink, they must ask you for permission. If they forget, they must finish the drink.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 113,
+      "title": "Multitasking",
+      "text": "Finish your drink while taking off your shirt (if your shirt is already off, you may take off another article of clothing). Any clothes you spill on must also be taken off.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 114,
+      "title": "Add a Card",
+      "text": "Add a card to the deck.",
+      "flavor": "Whoever is holding the phone can add it for real.",
+      "groups": []
+    },
+    {
+      "id": 115,
+      "title": "New Love",
+      "text": "Kiss the player on your left on the lips. If you refuse, finish your drink and theirs. If they refuse, they finish their drink and yours.",
+      "flavor": "",
+      "groups": [
+        "girls"
+      ]
+    },
+    {
+      "id": 116,
+      "title": "Boring",
+      "text": "Spice up the game. Choose a player to remove an article of clothing.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 117,
+      "title": "Faptitude",
+      "text": "Take a drink from the cup of each player you have masturbated to.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 118,
+      "title": "Question Master",
+      "text": "For one round, players must answer any questions you ask in the form of a question. Drink two for each time they mess up.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 119,
+      "title": "The old Reddit Switcharoo",
+      "text": "Switch a piece of clothing with a player of your choosing.",
+      "flavor": "Ah, the old [Reddit Switcharoo](http://www.reddit.com/r/funny/comments/2314is/i_just_watched_a_girl_hit_a_parked_car_causing/cgsjhb9?context=4).",
+      "groups": []
+    },
+    {
+      "id": 120,
+      "title": "Have you ever?",
+      "text": "Five drinks, everything must be explained. First one out must do a dare.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 121,
+      "title": "Cup Check",
+      "text": "All players must keep one hand over their genitals for one round.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 122,
+      "title": "Love of Science",
+      "text": "If you aren't a major in any field of chemistry, biology, physics, or math or you aren't single, drink.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 123,
+      "title": "Mad Men",
+      "text": "Put on nicer clothes and be unnecessarily mean to all women.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 124,
+      "title": "Pokémon Master",
+      "text": "Name as many of the original 15 pokemon types as you can in 30 seconds. Drink two for each type you miss; if you miss 5 or more, finish your drink and your new name is Joey.",
+      "flavor": "Pika Pika",
+      "groups": []
+    },
+    {
+      "id": 125,
+      "title": "Less boring",
+      "text": "For every shot you take, you may make another player remove an article of clothing.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 126,
+      "title": "Let it breathe",
+      "text": "All players with zippers on their pants must unzip them now. Any player whose pants are already unzipped must drink 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 127,
+      "title": "Scout's Honor",
+      "text": "For one round, you must be completely honest.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 128,
+      "title": "Lose-Lose Situation",
+      "text": "Choose another card. All players must perform that card.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 129,
+      "title": "Carded",
+      "text": "If your ID is not on your person, take a shot.",
+      "flavor": "McLovin",
+      "groups": []
+    },
+    {
+      "id": 130,
+      "title": "Aced",
+      "text": "If you do not have an ace card on your person, remove your pants.",
+      "flavor": "A♣ A♦ A♥ A♠",
+      "groups": []
+    },
+    {
+      "id": 131,
+      "title": "Slut card",
+      "text": "Drink once for every sexual partner you have had.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 132,
+      "title": "Nay thou!",
+      "text": "Every player must point at another player. The player with the most people pointing at him or her must drink 4.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 133,
+      "title": "Vodka for my ladies, Whiskey for a Grown Man",
+      "text": "Men not drinking whiskey take a drink. Ladies drinking whiskey give a drink.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 134,
+      "title": "Lederhosen",
+      "text": "Put on a pair of suspenders. If no suspenders are available, improvise suspenders.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 135,
+      "title": "Jersey Shore Style",
+      "text": "The first person to stop fistpumping must get painted orange, have a six pack drawn on them, or have their hair geled up.",
+      "flavor": "GTL",
+      "groups": []
+    },
+    {
+      "id": 136,
+      "title": "Jinx",
+      "text": "You are jinxed, and cannot speak. When someone says the name of someone who is jinxed, they are jinxed, and the person whose name is said is no longer jinxed.",
+      "flavor": "And you owe me a coke.",
+      "groups": []
+    },
+    {
+      "id": 137,
+      "title": "Tourettes",
+      "text": "You must include a swear word in every sentence. Drink whenever the swear is the first or last word in the sentence.",
+      "flavor": "FUCK!",
+      "groups": []
+    },
+    {
+      "id": 138,
+      "title": "Rock Slide",
+      "text": "Hide under a blanket until your next turn.",
+      "flavor": "It's super effective!",
+      "groups": []
+    },
+    {
+      "id": 139,
+      "title": "Rule",
+      "text": "Make a rule.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 140,
+      "title": "Lick!",
+      "text": "The last person to lick someone takes three drinks. If nobody licks anyone, everyone takes four drinks.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 141,
+      "title": "Don't be Hatin'",
+      "text": "Draw another card. Everyone must do what's on the card.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 142,
+      "title": "Gambling Man or Woman",
+      "text": "Make a bet with another player. Bet at least two drinks.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 143,
+      "title": "Pokémon Test",
+      "text": "Name as many of the original 15 pokémon types as you can in 15 seconds. Drink one for every type you miss, and if you miss 5 or more, finish your drink and your new name is Joey.",
+      "flavor": "STIs are not like pokémon: you don't have to catch them all.",
+      "groups": []
+    },
+    {
+      "id": 144,
+      "title": "Carpool",
+      "text": "Get in a crabwalk position. Choose any number of players to straddle you, and go to the other end of the room. Give out one shot for every player that does not fall off.",
+      "flavor": "I can see your undercarriage.",
+      "groups": []
+    },
+    {
+      "id": 145,
+      "title": "Shirt Ninja",
+      "text": "You have become a ninja, and must wear your shirt as a ninja mask (over your head). Whenever someone looks into your eyes, they become the shirt ninja.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 146,
+      "title": "Big Red Bitch Bag",
+      "text": "Find a paper bag, cut holes in it for eyes, and wear it.",
+      "flavor": "Respect the Bag",
+      "groups": []
+    },
+    {
+      "id": 147,
+      "title": "Ancient Chant",
+      "text": "Who wants to drink from the big container?",
+      "flavor": "Since 1865",
+      "groups": []
+    },
+    {
+      "id": 148,
+      "title": "Slow Clap",
+      "text": "Whenever you make eye contact with somebody, you have to slow clap for 10 seconds.",
+      "flavor": "Best Slab Ever",
+      "groups": []
+    },
+    {
+      "id": 149,
+      "title": "Mr. Pinchy",
+      "text": "You must stand up and hold your hands up as lobster claws for one round.",
+      "flavor": "Dr. Bloopy says that this may be beneficial for your back.",
+      "groups": []
+    },
+    {
+      "id": 150,
+      "title": "Man in the Mountain",
+      "text": "You have to stand with your back against the wall for one round.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 151,
+      "title": "YOOOOOOUUUUU!",
+      "text": "Every time you talk to somebody, you must point to them with both hands and say YOU!",
+      "flavor": "Crank that Soulja Boy",
+      "groups": []
+    },
+    {
+      "id": 152,
+      "title": "Only Socks",
+      "text": "You must remove all of your clothing except for your socks (but you can wear your socks anywhere you want).",
+      "flavor": "I don't stuff.",
+      "groups": []
+    },
+    {
+      "id": 153,
+      "title": "Color Shot",
+      "text": "Take a shot and choose a color. All players must remove all clothing of that color.",
+      "flavor": "",
+      "groups": []
+    }
+  ]
+}
