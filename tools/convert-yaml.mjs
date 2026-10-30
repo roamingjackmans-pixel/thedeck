@@ -1,4 +1,4 @@
-// One-time converter: the original deck's cards.yaml (rchowe.com/deck) -> public/cards.json.
+// One-time converter: the original deck's cards.yaml (rchowe.com/deck) -> public/original-cards.json.
 //   node tools/convert-yaml.mjs <cards.yaml> [js-yaml module path]
 // The original cards held bits of HTML. This turns them into the deck's small, safe formatting
 // (*italic*, **bold**, [link](url), "1. " list lines, real line breaks) so cards are easy to edit on a phone.
@@ -51,7 +51,7 @@ const cards = src.cards.map((c, i) => {
 });
 
 const deck = { format: 'the-deck', version: 1, groups: GROUPS.map(({ id, name }) => ({ id, name })), cards };
-const out = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public', 'cards.json');
+const out = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public', 'original-cards.json');
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, JSON.stringify(deck, null, 2) + '\n');
 console.log(`wrote ${cards.length} cards, ${GROUPS.length} groups -> ${path.relative(process.cwd(), out)}`);

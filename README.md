@@ -26,13 +26,27 @@ New in this version (the **Edit Cards** tab of the secret menu):
   groups is checked in Options. A card in no groups can always come up.
 - **Add groups** (in Options, or with "+ New group" right inside a card), and rename or delete them.
 - **Add and delete cards.**
-- **Export Deck / Import Deck** to copy a deck to another device, and **Restore Original Cards** to undo
-  everything.
+- **Export Deck / Import Deck** to save a copy of a deck, and **Restore Original Cards** to undo everything.
 - "With Replacement" works (it was greyed out on the original). Cards never repeat twice in a row.
 - Dark mode, a full-screen menu on phones, and Space or Enter to draw on a keyboard.
 
-Edits are saved in the browser (localStorage) of the device you make them on. They are not sent anywhere and
-other people's phones keep the original deck.
+### Sharing edits with everyone
+
+Everyone plays the same shared deck, `public/cards.json`. Edits are saved on the device first. A device
+connected to GitHub then **publishes** them when the secret menu closes (or with **Publish Now**): it commits a
+new `cards.json`, GitHub Pages redeploys in about a minute, and every other phone picks up the new deck on its
+own (pages check for a newer deck every minute and whenever they come back to the screen).
+
+To connect a device: secret menu → Options → **Your Deck** → **Connect This Device**. The link there opens
+GitHub's token page with the name, permission (Contents: read and write) and expiry already filled in. Choose
+**Only select repositories → thedeck**, generate the token and paste it in. The token is stored only in that
+browser. It expires after a year; when it does, publishing says so, and you connect again with a new one.
+
+Devices that aren't connected can still edit, but their changes stay on that device until they're discarded.
+Each published deck has a revision number, so if two connected devices edit at once the second one is asked
+before it replaces the first one's changes. Every publish is a commit, so old versions are in the git history.
+
+Which groups are switched on, the draw style and the cards already drawn stay per device.
 
 ### Card formatting
 
@@ -54,7 +68,8 @@ npm test
 ```
 
 Checks the drawing rules (no repeats, groups switched off, reshuffling), the editing rules (groups, cards,
-imports) and that card formatting can't run code.
+imports), publishing against a pretend GitHub (revisions, two devices publishing at once, error messages),
+that card formatting can't run code, and that the shared deck file is well formed.
 
 ## Deploying
 
@@ -63,16 +78,19 @@ It shows up at `josephjackman.com/thedeck/` because this repo is named `thedeck`
 (`roamingjackmans-pixel.github.io`) has the `josephjackman.com` custom domain. The workflow also stamps the
 version and adds `?v=<commit>` to every file URL so phones never mix old and new code.
 
-To change the deck everyone starts with, edit `public/cards.json` and push.
+Publishing from the secret menu commits `public/cards.json` to `main`, which runs this same workflow. If you
+edit the repo by hand, pull first: the deck may have been published from a phone since.
 
 ## Project layout
 
 ```
 public/              the site (this folder is what gets published)
   index.html, legal.html, css/style.css, version.js
-  cards.json         the original 153 cards and 3 groups
-  js/app.js          main screen: drawing, showing cards, links
-  js/menu.js         the secret menu: options, groups, card editor, export/import
+  cards.json         the shared deck everyone plays (changed by publishing)
+  original-cards.json  the original 153 cards and 3 groups, for "Restore Original Cards"
+  js/app.js          main screen: drawing, showing cards, links, keeping the deck in sync
+  js/menu.js         the secret menu: options, groups, card editor, publishing, export/import
+  js/sync.js         publishing to GitHub
   js/deck.js         drawing and editing rules (no page code, so it can be tested)
   js/markup.js       safe card formatting
   js/store.js        saving to this browser

@@ -4,21 +4,38 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import * as Deck from '../public/js/deck.js';
+import * as Sync from '../public/js/sync.js';
 import { render, inline, plain } from '../public/js/markup.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 let passed = 0;
+const pending = [];
 const test = (name, fn) => {
-  try { fn(); passed++; } catch (err) { console.error(`FAIL ${name}\n`, err); process.exitCode = 1; }
+  const fail = err => { console.error(`FAIL ${name}\n`, err); process.exitCode = 1; };
+  try {
+    const result = fn();
+    if (result?.then) pending.push(result.then(() => { passed++; }, fail));
+    else passed++;
+  } catch (err) { fail(err); }
 };
 
 // A seeded random number generator so failures can be reproduced.
 const seeded = (seed = 1) => () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
 
-const original = Deck.normalizeDeck(JSON.parse(fs.readFileSync(path.join(root, 'public', 'cards.json'), 'utf8')));
+const readJson = file => JSON.parse(fs.readFileSync(path.join(root, 'public', file), 'utf8'));
+const original = Deck.normalizeDeck(readJson('original-cards.json'));
 const clone = () => structuredClone(original);
 
 // ---------- the card data ----------
+
+// cards.json is the deck everyone plays. It changes whenever someone publishes from the secret menu,
+// so it is only checked for being a well-formed deck (a broken one would stop the site deploying).
+test('the shared deck is a well-formed deck', () => {
+  const raw = readJson('cards.json');
+  assert.equal(raw.format, 'the-deck');
+  assert.ok(Number.isInteger(raw.revision) && raw.revision >= 1, 'has a revision number');
+  assert.deepEqual(Deck.normalizeDeck(raw), { groups: raw.groups, cards: raw.cards }, 'nothing in it needs fixing');
+});
 
 test('the original deck has all 153 cards and 3 groups', () => {
   assert.equal(original.cards.length, 153);
@@ -194,4 +211,84 @@ test('every original card renders without leftover markup', () => {
   assert.match(render(sobriety.text), /<ol><li>Stand on one leg/);
 });
 
+// ---------- publishing (against a pretend GitHub) ----------
+
+function fakeGitHub({ revision = 3, conflictOnce = false, status = null } = {}) {
+  const repo = { sha: 'sha-1', text: Sync.deckFileText(original, revision, '2026-01-01T00:00:00Z') };
+  const calls = [];
+  let conflicts = conflictOnce ? 1 : 0;
+  const fetch = async (url, init) => {
+    calls.push({ url, method: init.method, headers: init.headers, body: init.body && JSON.parse(init.body) });
+    const reply = (code, body) => ({ ok: code < 300, status: code, json: async () => body });
+    if (status) return reply(status, { message: 'nope' });
+    if (url.endsWith('/user')) return reply(200, { login: 'someone' });
+    if (init.method === 'GET') return reply(200, { sha: repo.sha, content: Sync.toBase64(repo.text).replace(/(.{60})/g, '$1\n') });
+    const body = JSON.parse(init.body);
+    if (conflicts-- > 0) {
+      // Someone else publishes first.
+      repo.sha = 'sha-other';
+      repo.text = Sync.deckFileText(original, revision + 1);
+      return reply(409, { message: 'sha mismatch' });
+    }
+    if (body.sha !== repo.sha) return reply(409, { message: 'sha mismatch' });
+    repo.sha = `sha-${calls.length}`;
+    repo.text = Sync.fromBase64(body.content);
+    return reply(201, { content: { sha: repo.sha } });
+  };
+  return { fetch, calls, repo };
+}
+
+test('text survives the trip through base64, including symbols', () => {
+  const s = 'A♣ A♦ ☞ Pokémon “quotes” …\n';
+  assert.equal(Sync.fromBase64(Sync.toBase64(s)), s);
+  assert.equal(Sync.fromBase64(Sync.toBase64('x'.repeat(100000))).length, 100000);
+});
+
+test('publishing commits the deck as the next revision', async () => {
+  const gh = fakeGitHub({ revision: 3 });
+  const deck = clone();
+  deck.cards[0].title = 'Kiss-Kiss ♥';
+  const result = await Sync.publishDeck('tok', deck, { baseRevision: 3, fetch: gh.fetch });
+  assert.equal(result.revision, 4);
+  const put = gh.calls.find(c => c.method === 'PUT');
+  assert.match(put.url, /\/repos\/roamingjackmans-pixel\/thedeck\/contents\/public\/cards\.json$/);
+  assert.equal(put.headers.Authorization, 'Bearer tok');
+  assert.equal(put.body.sha, 'sha-1');
+  assert.equal(put.body.branch, 'main');
+  const saved = JSON.parse(gh.repo.text);
+  assert.equal(saved.revision, 4);
+  assert.equal(saved.cards[0].title, 'Kiss-Kiss ♥');
+  assert.deepEqual(Deck.normalizeDeck(saved), deck, 'the committed file is a clean deck');
+});
+
+test('publishing notices when another device published first', async () => {
+  const gh = fakeGitHub({ revision: 5 });
+  const r = await Sync.publishDeck('tok', clone(), { baseRevision: 4, fetch: gh.fetch });
+  assert.deepEqual(r, { conflict: true, revision: 5 });
+  assert.ok(!gh.calls.some(c => c.method === 'PUT'), 'nothing was written');
+  const forced = await Sync.publishDeck('tok', clone(), { baseRevision: 4, force: true, fetch: gh.fetch });
+  assert.equal(forced.revision, 6);
+});
+
+test('a publish that races another one re-checks instead of overwriting', async () => {
+  const gh = fakeGitHub({ revision: 2, conflictOnce: true });
+  const r = await Sync.publishDeck('tok', clone(), { baseRevision: 2, fetch: gh.fetch });
+  assert.deepEqual(r, { conflict: true, revision: 3 });
+});
+
+test('GitHub errors become readable messages', async () => {
+  await assert.rejects(Sync.publishDeck('bad', clone(), { fetch: fakeGitHub({ status: 401 }).fetch }), /didn't accept the token/);
+  await assert.rejects(Sync.publishDeck('tok', clone(), { fetch: fakeGitHub({ status: 403 }).fetch }), /can't edit the thedeck repo/);
+  await assert.rejects(Sync.publishDeck('tok', clone(), { fetch: async () => { throw new TypeError('offline'); } }), /Couldn't reach GitHub/);
+  assert.equal(await Sync.checkToken('tok', { fetch: fakeGitHub().fetch }), 'someone');
+});
+
+test('the token link fills in the right settings', () => {
+  const url = new URL(Sync.TOKEN_PAGE);
+  assert.equal(url.origin + url.pathname, 'https://github.com/settings/personal-access-tokens/new');
+  assert.equal(url.searchParams.get('contents'), 'write');
+  assert.equal(url.searchParams.get('target_name'), 'roamingjackmans-pixel');
+});
+
+await Promise.all(pending);
 console.log(process.exitCode ? 'Some tests failed.' : `All ${passed} tests passed.`);

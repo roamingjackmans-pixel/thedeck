@@ -183,9 +183,10 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 20px 0; }
   left: 50%;
   bottom: calc(24px + env(safe-area-inset-bottom));
   z-index: 50;
-  max-width: calc(100% - 32px);
+  width: max-content;
+  max-width: min(520px, calc(100% - 32px));
   padding: 10px 16px;
-  border-radius: 999px;
+  border-radius: 18px;
   background: var(--toast-bg);
   color: var(--toast-text);
   font-size: 15px;
@@ -241,7 +242,7 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 20px 0; }
 .btn-link:hover { text-decoration: underline; }
 .btn-link.danger { color: var(--danger); }
 
-input[type="text"], input[type="search"], select, textarea {
+input[type="text"], input[type="search"], input[type="password"], select, textarea {
   min-height: 38px;
   padding: 6px 10px;
   border: 1px solid var(--border-strong);
@@ -266,6 +267,7 @@ dialog.menu {
   width: min(640px, calc(100% - 20px));
   max-height: calc(100% - 60px);
   padding: 0;
+  overflow: hidden; /* only .menu-body scrolls, so the header and Done button always stay put */
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 6px;
   background: var(--panel);
@@ -321,6 +323,7 @@ dialog.menu::backdrop { background: rgba(0, 0, 0, 0.5); }
 }
 
 .menu-body {
+  position: relative; /* keeps the hidden screen-reader labels inside the scrolling area */
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
@@ -399,6 +402,23 @@ dialog.menu::backdrop { background: rgba(0, 0, 0, 0.5); }
 .form-msg:empty { display: none; }
 
 .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.button-row:not(:has(> :not([hidden]))) { display: none; }
+
+.draft-actions { margin-bottom: 12px; }
+
+.sync-box {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+.sync-box .help-block { margin-top: 0; }
+.connect-form { margin-top: 10px; }
+.connect-form .help-block { margin: 8px 0 0; }
+.connect-form input { font-family: ui-monospace, Menlo, Consolas, monospace; }
+.steps { margin: 0 0 10px; padding-left: 1.4em; font-size: 14px; line-height: 1.5; }
+.steps li { margin-bottom: 4px; }
 
 /* ---------- card editor ---------- */
 

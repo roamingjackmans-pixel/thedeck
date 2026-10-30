@@ -97,7 +97,40 @@
 
         <div class="control-group">
           <h3 class="control-label">Your Deck</h3>
-          <p id="deck-status" class="help-block"></p>
+          <p id="deck-status" class="help-block" role="status"></p>
+          <div class="button-row draft-actions">
+            <button id="publish-now" type="button" class="btn btn-primary">Publish Now</button>
+            <button id="discard-edits" type="button" class="btn btn-default">Discard My Changes</button>
+          </div>
+
+          <div class="sync-box">
+            <p id="sync-status" class="help-block"></p>
+            <div class="button-row">
+              <button id="connect-github" type="button" class="btn btn-default">Connect This Device</button>
+              <button id="disconnect-github" type="button" class="btn btn-link">Disconnect this device</button>
+            </div>
+            <form id="connect-form" class="connect-form" autocomplete="off" hidden>
+              <ol class="steps">
+                <li>Open <a id="token-link" href="#" target="_blank" rel="noopener noreferrer">GitHub's new token page</a>.
+                  The name, permission and expiry are filled in for you.</li>
+                <li>Under <strong>Repository access</strong>, choose <strong>Only select repositories</strong>
+                  and pick <strong>thedeck</strong>.</li>
+                <li>Check that <strong>Contents</strong> says <strong>Read and write</strong>, then click
+                  <strong>Generate token</strong>.</li>
+                <li>Copy the token and paste it here.</li>
+              </ol>
+              <div class="inline-form">
+                <label class="sr-only" for="token-input">GitHub token</label>
+                <input id="token-input" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false" autocapitalize="off">
+                <button type="submit" class="btn btn-primary">Connect</button>
+                <button type="button" id="connect-cancel" class="btn btn-link">Cancel</button>
+              </div>
+              <p id="connect-msg" class="form-msg" role="status"></p>
+              <p class="help-block">The token is saved only in this browser. Anyone using this browser could change
+                the deck, so only connect your own phone or computer.</p>
+            </form>
+          </div>
+
           <div class="button-row">
             <button id="export-deck" type="button" class="btn btn-default">Export Deck</button>
             <button id="import-deck" type="button" class="btn btn-default">Import Deck</button>

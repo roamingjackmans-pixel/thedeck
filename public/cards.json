@@ -1,6 +1,8 @@
 {
   "format": "the-deck",
   "version": 1,
+  "revision": 1,
+  "updated": null,
   "groups": [
     {
       "id": "snow",

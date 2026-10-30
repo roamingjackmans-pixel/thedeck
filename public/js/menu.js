@@ -1,8 +1,10 @@
 // The secret menu: the original's options (draw style, card groups, reset shoe), plus
 // a card editor where any card can be changed and put into any number of groups,
-// and tools to add, rename and delete groups, add and delete cards, and export or import the deck.
+// tools to add, rename and delete groups, add and delete cards, export or import the deck,
+// and publishing those changes for everyone.
 import { inline, render, plain, escapeHtml as esc } from './markup.js';
 import * as Deck from './deck.js';
+import { TOKEN_PAGE } from './sync.js';
 
 const PREVIEW_COUNT = 6; // card titles listed under each group before "+ N more"
 
@@ -25,6 +27,16 @@ export function initMenu(app) {
     importDeck: $('import-deck'),
     importFile: $('import-file'),
     resetDeck: $('reset-deck'),
+    publishNow: $('publish-now'),
+    discardEdits: $('discard-edits'),
+    syncStatus: $('sync-status'),
+    connectGithub: $('connect-github'),
+    disconnectGithub: $('disconnect-github'),
+    connectForm: $('connect-form'),
+    connectCancel: $('connect-cancel'),
+    connectMsg: $('connect-msg'),
+    tokenInput: $('token-input'),
+    tokenLink: $('token-link'),
     search: $('card-search'),
     filter: $('card-filter'),
     addCard: $('add-card'),
@@ -63,17 +75,26 @@ export function initMenu(app) {
 
   // ---------- open, close, tabs ----------
 
+  let isOpen = false;
   function open(which = 'options') {
     syncDrawStyle();
     selectTab(which);
     if (!dlg.open) dlg.showModal();
+    isOpen = true;
   }
-  function close() { dlg.close(); }
-
-  dlg.addEventListener('close', () => {
-    app.flushDeck();
-    app.refreshCard();
-  });
+  function close() {
+    dlg.close();
+    afterClose();
+  }
+  // Runs once per close however the menu was closed (Done, ×, backdrop, Escape). Called directly
+  // as well as from the events, because some browsers are slow or unreliable at firing "close".
+  function afterClose() {
+    if (!isOpen || dlg.open) return;
+    isOpen = false;
+    app.menuClosed();
+  }
+  dlg.addEventListener('close', afterClose);
+  dlg.addEventListener('cancel', () => setTimeout(afterClose, 0)); // Escape
   dlg.addEventListener('click', e => {
     if (e.target === dlg) return close(); // the dimmed backdrop
     if (e.target.closest('[data-close]')) return close();
@@ -237,13 +258,80 @@ export function initMenu(app) {
     app.toast('Deck state cleared. Every card is back in.');
   });
 
+  // ---------- Your Deck: publishing for everyone ----------
+
+  const when = iso => new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
   function renderDeckStatus() {
+    const s = app.state;
     const n = deck().cards.length;
-    ui.deckStatus.textContent = app.state.custom
-      ? `You've edited this deck (${n} cards). Edits are saved in this browser, on this device only. Use Export Deck to copy them to another device.`
-      : `You're playing the original ${n} cards. Any edits you make are saved in this browser, on this device.`;
-    ui.resetDeck.disabled = !app.state.custom || !app.state.original;
+    const cards = `${n} card${n === 1 ? '' : 's'}`;
+    let text;
+    if (s.publishing) text = 'Publishing your changes for everyone…';
+    else if (!s.custom) text = `Everyone is playing the same deck: ${cards}${s.shared?.updated ? `, last changed ${when(s.shared.updated)}` : ''}. Edits you make here are shared with everyone once you publish them.`;
+    else if (s.github) text = `You have changes that aren't published yet (${cards}). They publish for everyone when you close this menu.`;
+    else text = `Your changes (${cards}) are saved on this device only. Connect this device below to publish them for everyone, or discard them to go back to the shared deck.`;
+    if (s.custom && !s.publishing && s.shared && s.shared.revision > s.baseRevision) {
+      text += ' Heads up: the shared deck was changed from another device after you started editing here, and publishing will replace those changes.';
+    }
+    ui.deckStatus.textContent = text;
+    ui.publishNow.hidden = !(s.custom && s.github);
+    ui.publishNow.disabled = s.publishing;
+    ui.discardEdits.hidden = !s.custom;
+    ui.discardEdits.disabled = s.publishing;
+    ui.syncStatus.textContent = s.github
+      ? `This device publishes changes for everyone${s.github.login ? ` (connected to GitHub as ${s.github.login})` : ''}.`
+      : 'Only a device connected to GitHub can publish changes for everyone. Everyone else gets them automatically.';
+    ui.connectGithub.hidden = !!s.github || !ui.connectForm.hidden;
+    ui.disconnectGithub.hidden = !s.github;
   }
+  app.onSyncChange = () => { if (dlg.open) renderDeckStatus(); };
+
+  ui.publishNow.addEventListener('click', () => app.publish());
+
+  ui.discardEdits.addEventListener('click', () => {
+    if (!confirm("Discard this device's changes and go back to the deck everyone is playing?")) return;
+    app.discardEdits();
+    openCardId = null;
+    renderOptions();
+    app.toast('Changes discarded');
+  });
+
+  ui.tokenLink.href = TOKEN_PAGE;
+  ui.connectGithub.addEventListener('click', () => {
+    ui.connectForm.hidden = false;
+    ui.connectGithub.hidden = true;
+    ui.connectMsg.textContent = '';
+    ui.tokenInput.focus();
+  });
+  ui.connectCancel.addEventListener('click', () => {
+    ui.connectForm.hidden = true;
+    ui.tokenInput.value = '';
+    renderDeckStatus();
+  });
+  ui.connectForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const button = ui.connectForm.querySelector('[type="submit"]');
+    button.disabled = true;
+    ui.connectMsg.textContent = 'Checking the token with GitHub…';
+    try {
+      const login = await app.connect(ui.tokenInput.value);
+      ui.tokenInput.value = '';
+      ui.connectForm.hidden = true;
+      ui.connectMsg.textContent = '';
+      renderDeckStatus();
+      app.toast(`Connected as ${login}`);
+    } catch (err) {
+      ui.connectMsg.textContent = err.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+  ui.disconnectGithub.addEventListener('click', () => {
+    if (!confirm('Disconnect this device? It will stop publishing changes for everyone.')) return;
+    app.disconnect();
+    renderDeckStatus();
+  });
 
   ui.exportDeck.addEventListener('click', () => {
     app.flushDeck();
@@ -272,16 +360,25 @@ export function initMenu(app) {
     }
     if (!imported.cards.length) { alert('That deck has no cards in it.'); return; }
     const g = imported.groups.length;
-    if (!confirm(`Replace your deck with the ${imported.cards.length} cards and ${g} group${g === 1 ? '' : 's'} in "${file.name}"?`)) return;
-    app.replaceDeck(imported, { custom: true });
+    const shareNote = app.state.github ? ' It will be published for everyone when you close this menu.' : '';
+    if (!confirm(`Replace your deck with the ${imported.cards.length} cards and ${g} group${g === 1 ? '' : 's'} in "${file.name}"?${shareNote}`)) return;
+    app.replaceDeck(imported);
     openCardId = null;
     renderOptions();
     app.toast('Deck imported');
   });
 
-  ui.resetDeck.addEventListener('click', () => {
-    if (!confirm('Restore the original cards? This removes every edit, added card and added group on this device. (Export Deck first if you want a copy.)')) return;
-    if (!app.restoreOriginal()) { alert("Couldn't load the original cards. Check your connection and try again."); return; }
+  ui.resetDeck.addEventListener('click', async () => {
+    const shareNote = app.state.github ? ' This will be published for everyone when you close this menu.' : '';
+    if (!confirm(`Go back to the original 153 cards and 3 groups? Every edit, added card and added group is replaced.${shareNote} (Export Deck first if you want a copy.)`)) return;
+    let original;
+    try {
+      original = await app.loadOriginal();
+    } catch {
+      alert("Couldn't load the original cards. Check your connection and try again.");
+      return;
+    }
+    app.replaceDeck(original);
     openCardId = null;
     renderOptions();
     app.toast('Original cards restored');
