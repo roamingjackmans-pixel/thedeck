@@ -94,7 +94,7 @@ a:hover { color: var(--primary-hover); }
   --felt-2: #1b6440;
   --felt-3: #0b3722;
   --on-felt: #f4f7f1;
-  --on-felt-muted: #b8d2c1;
+  --on-felt-muted: rgba(255, 255, 255, 0.72);
   --gold: #f2c14e;
   --gold-text: #2c1d00;
   --card-paper: #fffdf7;
@@ -121,6 +121,11 @@ body.viewing { overflow: hidden; }
 }
 /* The left end stays clear for the invisible secret menu button. */
 .topbar-spacer { flex: 0 0 64px; }
+.gear-btn { display: grid; place-items: center; width: 38px; height: 36px; padding: 0; }
+.home-gear { position: absolute; top: calc(12px + env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); z-index: 2; }
+#home { position: relative; }
+@media (max-width: 420px) { .code-word { display: none; } }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 .topbar-title { flex: 1; text-align: center; font: 700 18px/1 Georgia, "Times New Roman", serif; letter-spacing: 0.14em; }
 
 .back-btn, .icon-btn, .code-pill {
@@ -183,10 +188,9 @@ body.viewing { overflow: hidden; }
   border-radius: 3.5cqi;
   pointer-events: none;
 }
-.pc-corner { position: absolute; color: var(--card-ink); font: 400 10cqi/1 Georgia, serif; }
-.pc-face.red .pc-corner { color: var(--card-red); }
-.pc-corner.tl { top: 6cqi; left: 7cqi; }
-.pc-corner.br { right: 7cqi; bottom: 6cqi; transform: rotate(180deg); }
+.pc-corner { position: absolute; width: 10.5cqi; height: 12.1cqi; overflow: visible; }
+.pc-corner.tl { top: 5.5cqi; left: 6cqi; }
+.pc-corner.br { right: 6cqi; bottom: 5.5cqi; transform: rotate(180deg); }
 .pc-body {
   position: absolute;
   inset: 17cqi 10cqi 15cqi;
@@ -223,7 +227,7 @@ body.viewing { overflow: hidden; }
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 4;
 }
-.pc-mini .pc-corner { font-size: 13cqi; }
+.pc-mini .pc-corner { width: 14cqi; height: 16.2cqi; }
 
 .pc-back {
   border: 1px solid rgba(0, 0, 0, 0.35);
@@ -236,10 +240,7 @@ body.viewing { overflow: hidden; }
   inset: 5cqi;
   border: 1.4cqi solid var(--card-paper);
   border-radius: 4cqi;
-  background-color: var(--back-1);
-  background-image:
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.17) 0 1.2cqi, transparent 1.2cqi 6cqi),
-    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.17) 0 1.2cqi, transparent 1.2cqi 6cqi);
+  background: var(--back-1) url("../img/back.svg") center / 100% 100% no-repeat;
 }
 .pc-emblem {
   position: absolute;
@@ -477,6 +478,63 @@ body.viewing { overflow: hidden; }
 .game-log { display: flex; flex-direction: column; gap: 2px; margin: 0 0 12px; padding: 0; color: var(--on-felt-muted); font-size: 13px; text-align: center; list-style: none; }
 .game-log li:first-child { color: var(--on-felt); font-size: 14px; }
 
+/* ----- settings ----- */
+
+dialog.settings {
+  width: min(440px, calc(100% - 24px));
+  padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--felt-3) 88%, #000);
+  color: var(--on-felt);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+dialog.settings::backdrop { background: rgba(0, 0, 0, 0.5); }
+.settings-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.settings-head h2 { margin: 0; font: 700 22px/1.2 Georgia, serif; }
+.settings .close { color: var(--on-felt); opacity: 0.7; }
+.settings-note { margin: 12px 0 16px; color: var(--on-felt-muted); font-size: 13px; }
+
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 12px 10px; }
+.swatch {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.swatch-felt {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.35;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  background: radial-gradient(ellipse 130% 90% at 50% 0%, var(--sw1), var(--sw2) 55%, var(--sw3));
+}
+.swatch:hover .swatch-felt { transform: translateY(-2px); }
+.swatch[aria-pressed="true"] .swatch-felt { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+.swatch[aria-pressed="true"] .swatch-felt::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.swatch-custom:not(.has-color) .swatch-felt { background: conic-gradient(#e53935, #fdd835, #43a047, #1e88e5, #8e24aa, #e53935); }
+.swatch-custom input { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; opacity: 0; cursor: pointer; }
+.menu .swatch-felt { border-color: rgba(0, 0, 0, 0.15); }
+
 /* ----- the card viewer ----- */
 
 .viewer {
@@ -486,7 +544,7 @@ body.viewing { overflow: hidden; }
   display: flex;
   padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
   overflow-y: auto;
-  background: rgba(4, 24, 14, 0.74);
+  background: color-mix(in srgb, var(--felt-3) 78%, transparent);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
@@ -508,19 +566,26 @@ body.viewing { overflow: hidden; }
 
 body.in-room .card-editor [data-act="show-card"] { display: none; }
 
-/* The secret menu button: invisible until you hover in the corner for a while. */
+/* The secret menu: an invisible spot in the top-left corner. Tap it 7 times in a row (app.js). */
 #options-button {
   position: absolute;
-  top: calc(10px + env(safe-area-inset-top));
-  left: calc(10px + env(safe-area-inset-left));
+  top: env(safe-area-inset-top);
+  left: env(safe-area-inset-left);
   z-index: 5;
-  opacity: 0;
-  transition: opacity 0.25s;
-  transition-delay: 0.5s;
+  width: 64px;
+  height: 56px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  font-size: 1px;
   cursor: default;
+  opacity: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
-#options-button:hover { opacity: 1; transition-delay: 2.5s; }
-#options-button:focus-visible { opacity: 1; transition-delay: 0s; }
 
 .toast {
   position: fixed;
@@ -884,5 +949,5 @@ dialog.menu::backdrop { background: rgba(0, 0, 0, 0.5); }
 .pv-flavor { margin-top: 6px; color: var(--flavor); font-style: italic; overflow-wrap: anywhere; }
 
 @media (prefers-reduced-motion: reduce) {
-  *:not(#options-button), *::before, *::after { animation: none !important; transition: none !important; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
 }

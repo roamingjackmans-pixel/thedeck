@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import * as Deck from '../public/js/deck.js';
 import * as Sync from '../public/js/sync.js';
 import * as E from '../public/js/engine.js';
+import * as T from '../public/js/theme.js';
 import { render, inline, plain } from '../public/js/markup.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -454,6 +455,26 @@ test('cards added to or deleted from the host deck mid-game join or leave the dr
   assert.ok(s.game.shoe.includes(added.id));
   assert.equal(s.game.shoe.length, 153);
   assert.equal(new Set(s.game.shoe).size, 153);
+});
+
+// ---------- table colors ----------
+
+test('there are several table colors, and any picked color becomes a readable mat', () => {
+  assert.ok(T.TABLES.length >= 8);
+  assert.equal(new Set(T.TABLES.map(t => t.id)).size, T.TABLES.length);
+  const lightness = hex => {
+    const n = parseInt(hex.slice(1), 16);
+    const c = [n >> 16, (n >> 8) & 255, n & 255].map(v => v / 255);
+    return (Math.max(...c) + Math.min(...c)) / 2;
+  };
+  for (const pick of ['#ffffff', '#ffff00', '#000000', '#1b6440', '#ff69b4', 'nonsense']) {
+    const t = T.customTable(pick);
+    assert.equal(t.colors.length, 3);
+    for (const c of t.colors) assert.match(c, /^#[0-9a-f]{6}$/);
+    assert.ok(lightness(t.colors[1]) <= 0.43, `${pick} is dark enough for white writing`);
+    assert.ok(lightness(t.colors[0]) >= lightness(t.colors[1]) && lightness(t.colors[1]) >= lightness(t.colors[2]), 'light to dark');
+  }
+  assert.equal(T.customTable('#1b6440').colors[1], '#1b6440', 'a dark color is kept as it is');
 });
 
 await Promise.all(pending);

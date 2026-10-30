@@ -7,6 +7,12 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    try {
+      var t = JSON.parse(localStorage.getItem('thedeck.table'));
+      if (t && t.colors && t.colors.length === 3) t.colors.forEach(function (c, i) { document.documentElement.style.setProperty('--felt-' + (i + 1), c); });
+    } catch (e) {}
+  </script>
   <style>
     .legal { flex: 1; width: 100%; max-width: 720px; margin: 0 auto; padding: calc(16px + env(safe-area-inset-top)) 18px 10px; line-height: 1.5; }
     .legal h2 { margin: 24px 0 8px; font: 700 26px/1.2 Georgia, "Times New Roman", serif; }

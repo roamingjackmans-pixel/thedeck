@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 225 325">
+  <!-- The back of every card: a blue lattice with two jokers having a drink, top and bottom like a court card.
+       The "THE DECK" badge in the middle is drawn by the page (css .pc-emblem). -->
+  <defs>
+    <pattern id="lattice" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="12" height="12" fill="#1f4f8f"/>
+      <path d="M0 0H12M0 0V12" stroke="#ffffff" stroke-opacity="0.16" stroke-width="2.4"/>
+    </pattern>
+
+    <!-- collar, head and grin, shared by both jokers (head centre at 0,0) -->
+    <g id="head" stroke="#1a1a2e" stroke-linejoin="round">
+      <path d="M-31 24 Q-26 35 -20.7 24 Q-15.5 35 -10.3 24 Q-5.2 35 0 24 Q5.2 35 10.3 24 Q15.5 35 20.7 24 Q26 35 31 24 L28 19 L-28 19 Z" fill="#fffdf7" stroke-width="1.6"/>
+      <circle r="21" fill="#ffe2c4" stroke-width="1.8"/>
+      <circle cx="-11" cy="6" r="4.5" fill="#ff8fa3" stroke="none" opacity="0.75"/>
+      <circle cx="11" cy="6" r="4.5" fill="#ff8fa3" stroke="none" opacity="0.75"/>
+      <path d="M-13 -2 q4 -5 8 0 M5 -2 q4 -5 8 0" fill="none" stroke-width="2.1" stroke-linecap="round"/>
+      <circle cy="3" r="3" fill="#e5383b" stroke-width="1"/>
+      <path d="M-9 9 Q0 20 9 9 Z" fill="#7a1b2a" stroke-width="1.4"/>
+      <path d="M-5 13.5 Q0 16.5 5 13.5" fill="none" stroke="#ff8fa3" stroke-width="1.6" stroke-linecap="round"/>
+    </g>
+
+    <!-- a beer mug, centred on the glass, handle on the left -->
+    <g id="beer" stroke="#1a1a2e" stroke-linejoin="round">
+      <path d="M-7 -4 h-4.5 a3 3 0 0 0 -3 3 v6 a3 3 0 0 0 3 3 h4.5" fill="none" stroke-width="2.4"/>
+      <rect x="-7" y="-10" width="14" height="19" rx="2.5" fill="#f6b21b" stroke-width="1.6"/>
+      <rect x="-4.5" y="-6" width="2" height="12" rx="1" fill="#ffffff" stroke="none" opacity="0.55"/>
+      <path d="M-8.5 -9 q-1 -5 4 -5 q2 -4 6 -1.5 q4 -2 6 2 q3 1 1.5 4.5 q-1 1.5 -3 1 h-12.5 q-2.5 0 -2 -1 z" fill="#fffdf7" stroke-width="1.4"/>
+      <circle cx="4" cy="-19.5" r="1.7" fill="#fffdf7" stroke="none"/>
+      <circle cx="9" cy="-17" r="1.3" fill="#fffdf7" stroke="none"/>
+    </g>
+
+    <!-- a martini with an olive, centred on the glass -->
+    <g id="martini" stroke="#1a1a2e" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M-12 -12 L12 -12 L0 1.5 Z" fill="#e3f2fa" stroke-width="1.6"/>
+      <path d="M-9 -9.6 L9 -9.6 L0 0 Z" fill="#cfe8a8" stroke="none"/>
+      <path d="M9 -21 L-2 -6" fill="none" stroke="#8b5a2b" stroke-width="1.4"/>
+      <circle cx="-1" cy="-7.2" r="2.9" fill="#6b8e23" stroke="#2f3f10" stroke-width="0.8"/>
+      <circle cx="-0.2" cy="-7.9" r="1" fill="#d62828" stroke="none"/>
+      <path d="M0 1.5 V13" fill="none" stroke-width="1.9"/>
+      <ellipse cy="13.6" rx="6.2" ry="1.9" fill="#e3f2fa" stroke-width="1.4"/>
+    </g>
+  </defs>
+
+  <rect width="225" height="325" fill="url(#lattice)"/>
+  <rect x="7" y="7" width="211" height="311" rx="9" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.5"/>
+
+  <!-- top joker: red and gold, raising a beer -->
+  <g transform="translate(112.5 82)" stroke="#1a1a2e" stroke-linejoin="round">
+    <path d="M-32 30 L32 30 L40 66 L-40 66 Z" fill="#c8102e" stroke-width="1.6"/>
+    <path d="M-16 30 L-4 48 L-16 66 L-28 48 Z M16 30 L28 48 L16 66 L4 48 Z" fill="#f2c14e" stroke="none"/>
+    <path d="M23 37 Q41 30 36 9" fill="none" stroke-width="11" stroke-linecap="round"/>
+    <path d="M23 37 Q41 30 36 9" fill="none" stroke="#f2c14e" stroke-width="8" stroke-linecap="round"/>
+    <use href="#head"/>
+    <path d="M-21 -11 Q-40 -17 -50 -40 Q-26 -35 -5 -19 Z" fill="#c8102e" stroke-width="1.6"/>
+    <path d="M21 -11 Q40 -17 50 -40 Q26 -35 5 -19 Z" fill="#c8102e" stroke-width="1.6"/>
+    <path d="M-9 -18 Q-7 -40 0 -54 Q8 -40 9 -18 Z" fill="#f2c14e" stroke-width="1.6"/>
+    <path d="M-22 -9 Q0 -24 22 -9 L21 -3 Q0 -17 -21 -3 Z" fill="#fffdf7" stroke-width="1.5"/>
+    <circle cx="-50" cy="-40" r="5" fill="#f2c14e" stroke-width="1.5"/>
+    <circle cx="0" cy="-54" r="5" fill="#f2c14e" stroke-width="1.5"/>
+    <circle cx="50" cy="-40" r="5" fill="#f2c14e" stroke-width="1.5"/>
+    <use href="#beer" transform="translate(45 -3) rotate(-14)"/>
+    <circle cx="35.5" cy="5" r="5.5" fill="#ffe2c4" stroke-width="1.5"/>
+  </g>
+
+  <!-- bottom joker (upside down, like a court card): purple and gold, with a martini -->
+  <g transform="rotate(180 112.5 162.5) translate(112.5 82)" stroke="#1a1a2e" stroke-linejoin="round">
+    <path d="M-32 30 L32 30 L40 66 L-40 66 Z" fill="#6a3d9a" stroke-width="1.6"/>
+    <path d="M-16 30 L-4 48 L-16 66 L-28 48 Z M16 30 L28 48 L16 66 L4 48 Z" fill="#f2c14e" stroke="none"/>
+    <path d="M23 37 Q42 31 40 10" fill="none" stroke-width="11" stroke-linecap="round"/>
+    <path d="M23 37 Q42 31 40 10" fill="none" stroke="#f2c14e" stroke-width="8" stroke-linecap="round"/>
+    <use href="#head"/>
+    <path d="M-21 -11 Q-40 -17 -50 -40 Q-26 -35 -5 -19 Z" fill="#6a3d9a" stroke-width="1.6"/>
+    <path d="M21 -11 Q40 -17 50 -40 Q26 -35 5 -19 Z" fill="#6a3d9a" stroke-width="1.6"/>
+    <path d="M-9 -18 Q-7 -40 0 -54 Q8 -40 9 -18 Z" fill="#2a9d8f" stroke-width="1.6"/>
+    <path d="M-22 -9 Q0 -24 22 -9 L21 -3 Q0 -17 -21 -3 Z" fill="#fffdf7" stroke-width="1.5"/>
+    <circle cx="-50" cy="-40" r="5" fill="#f2c14e" stroke-width="1.5"/>
+    <circle cx="0" cy="-54" r="5" fill="#f2c14e" stroke-width="1.5"/>
+    <circle cx="50" cy="-40" r="5" fill="#f2c14e" stroke-width="1.5"/>
+    <use href="#martini" transform="translate(42 -8) rotate(10) scale(1.35)"/>
+    <circle cx="40.5" cy="4" r="5.5" fill="#ffe2c4" stroke-width="1.5"/>
+  </g>
+</svg>

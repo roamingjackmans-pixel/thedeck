@@ -29,6 +29,17 @@ Draw a card, do what it says. A party card game for the browser, rebuilt from
   deck, which is sent to each phone when it joins.
 - **Play on One Phone** is the original game: tap the deck, do what it says, pass the phone.
 
+## The look
+
+- A felt card table. Tap the **⚙ Settings** button (top right) to pick the **table color**: green, blue, navy,
+  teal, purple, pink, red, orange, brown, black, or **any color** from a color picker (very light picks are
+  darkened so the writing stays readable). Each phone keeps its own choice. The same picker is in the secret
+  menu.
+- Cards look like playing cards, but instead of suits their corners have **drinks**: beers, shots, wine bottles
+  and martinis (`public/js/cards.js` picks one per card).
+- The **card backs** still say THE DECK, with two jokers having a drink, top and bottom like a court card
+  (`public/img/back.svg`).
+
 ## What it does
 
 Everything the original did:
@@ -36,8 +47,9 @@ Everything the original did:
 - **Draw a Card** shows a random card: a title, what to do, and sometimes flavor text.
 - Cards are drawn **without replacement**: every card comes up once before any repeats. The half-used deck is
   remembered for 24 hours, so reloading the page doesn't start over.
-- A hidden **Options** button sits in the top-left corner. Hover there for a few seconds and it fades in, or
-  just tap the corner on a phone. (Screens keep that corner clear, so it never sits on top of a real button.)
+- The secret **Options** menu hides in the top-left corner: **tap the corner 7 times in a row** (each tap within
+  1.5 seconds of the last; a tap anywhere else starts the count over). Nothing shows there, and screens keep
+  that corner clear so it never sits on top of a real button. (The original revealed a button on hover.)
 - In Options: **Draw Style** (with or without replacement), **Card Options** (uncheck a group such as
   "There are girls present" to keep its cards out of the deck) and **Reset Shoe** (put every card back).
   When you're hosting a lobby, the Card Options and Draw Style are the lobby's rules.
@@ -128,6 +140,8 @@ public/              the site (this folder is what gets published)
   js/deck.js         drawing and editing rules (no page code, so it can be tested)
   js/markup.js       safe card formatting
   js/store.js        saving to this browser
+  js/theme.js        table colors and the Settings popup
+  img/back.svg       the card back (jokers drinking)
   vendor/peerjs.min.js  PeerJS 1.5.5
 tools/
   serve.mjs          local server

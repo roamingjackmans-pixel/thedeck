@@ -16,6 +16,7 @@ import * as Sync from './sync.js';
 import { initMenu } from './menu.js';
 import { initSolo } from './solo.js';
 import { initGame } from './game.js';
+import { initSettings } from './theme.js';
 
 const $ = id => document.getElementById(id);
 const ui = {
@@ -310,6 +311,26 @@ const app = {
 
 let menu = null;
 
+/**
+ * The secret menu opens after 7 taps in a row on the invisible spot in the top-left corner.
+ * Taps have to come within 1.5 seconds of each other, and a tap anywhere else starts the count over.
+ */
+const SECRET_TAPS = 7;
+const SECRET_GAP_MS = 1500;
+function openOnSevenTaps() {
+  let taps = 0;
+  let last = 0;
+  document.addEventListener('pointerdown', e => { if (!ui.options.contains(e.target)) taps = 0; }, true);
+  ui.options.addEventListener('click', () => {
+    const now = Date.now();
+    taps = now - last <= SECRET_GAP_MS ? taps + 1 : 1;
+    last = now;
+    if (taps < SECRET_TAPS) return;
+    taps = 0;
+    menu.open();
+  });
+}
+
 // ---------- start up ----------
 
 const cardIdFromHash = () => {
@@ -323,6 +344,7 @@ window.addEventListener('hashchange', () => {
 });
 
 async function start() {
+  initSettings();
   solo = initSolo(app);
   game = initGame(app);
   const resumed = game.boot(); // straight back into a lobby after a reload, or ?room=12345
@@ -374,7 +396,7 @@ async function start() {
 
   lastCheck = Date.now();
   menu = initMenu(app);
-  ui.options.addEventListener('click', () => menu.open());
+  openOnSevenTaps();
   solo.enable();
   game.ready();
 

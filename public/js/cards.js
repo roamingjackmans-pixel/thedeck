@@ -1,10 +1,11 @@
 // Drawing cards that look like real playing cards: faces, backs, piles, and the flip when a card turns over.
 import { inline, render, escapeHtml as esc } from './markup.js';
 
-const SUITS = ['♠', '♥', '♣', '♦'];
-/** Every card gets a suit for its corners, so the deck looks like a real one. ♥ and ♦ are red. */
-export const suitOf = card => SUITS[((card?.id ?? 0) % 4 + 4) % 4];
-const isRed = suit => suit === '♥' || suit === '♦';
+// Instead of suits, every card has a drink in its corners: beers, shots, wine bottles and martinis.
+// The pictures are an SVG sprite in index.html (#d-beer, #d-shot, #d-wine, #d-martini).
+const DRINKS = ['beer', 'shot', 'wine', 'martini'];
+export const drinkOf = card => DRINKS[((card?.id ?? 0) % 4 + 4) % 4];
+const corner = (drink, where) => `<svg class="pc-corner ${where}" aria-hidden="true"><use href="#d-${drink}"/></svg>`;
 
 /**
  * A card face. size: 'big' (full text) or 'mini' (title only, for hands and piles).
@@ -14,16 +15,15 @@ export function faceHtml(card, { size = 'big', extra = '', permalink = false } =
   if (!card) {
     return `<div class="pc pc-face pc-${size} pc-missing ${extra}"><div class="pc-body"><p class="pc-text">This card was deleted from the deck.</p></div></div>`;
   }
-  const suit = suitOf(card);
+  const drink = drinkOf(card);
   const link = permalink ? `<a class="permalink" href="#card-${card.id}" title="Link to this card" aria-label="Link to this card">¶</a>` : '';
   const body = size === 'mini'
     ? `<h3 class="pc-title">${inline(card.title)}</h3>`
     : `<h3 class="pc-title">${inline(card.title)}</h3>
        <div class="pc-text">${render(card.text)}</div>
        ${card.flavor ? `<div class="pc-flavor">${render(card.flavor)}</div>` : ''}`;
-  return `<div class="pc pc-face pc-${size}${isRed(suit) ? ' red' : ''} ${extra}" data-card="${card.id}">
-    <span class="pc-corner tl" aria-hidden="true">${suit}</span>
-    <span class="pc-corner br" aria-hidden="true">${suit}</span>
+  return `<div class="pc pc-face pc-${size} ${extra}" data-card="${card.id}">
+    ${corner(drink, 'tl')}${corner(drink, 'br')}
     <div class="pc-body">${body}</div>${link}
   </div>`;
 }
