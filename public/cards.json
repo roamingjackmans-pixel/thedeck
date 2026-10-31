@@ -1,8 +1,8 @@
 {
   "format": "the-deck",
   "version": 1,
-  "revision": 3,
-  "updated": "2026-10-31T04:15:06.058Z",
+  "revision": 4,
+  "updated": "2026-10-31T04:23:18.544Z",
   "groups": [
     {
       "id": "snow",
@@ -511,7 +511,7 @@
     },
     {
       "id": 65,
-      "title": "Chinese Fire Drill",
+      "title": "Fire Drill",
       "text": "Everybody switch positions in the circle.",
       "flavor": "Firetrucks don't stop for red lights.",
       "groups": [
