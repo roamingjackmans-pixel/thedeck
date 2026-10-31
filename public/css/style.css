@@ -229,6 +229,56 @@ body.viewing { overflow: hidden; }
 }
 .pc-mini .pc-corner { width: 14cqi; height: 16.2cqi; }
 
+/* Sealed cards: a wax seal where the inside goes, until the card is given to someone. */
+.pc-seal {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  width: 100%;
+  margin: 0.55em 0 0;
+  padding: 0.5em 0.7em;
+  border: max(1px, 0.4cqi) dashed #b9ab8f;
+  border-radius: 0.6em;
+  background: #f6efe1;
+  color: #5b5142;
+  font: inherit;
+  font-size: 0.8em;
+  line-height: 1.3;
+  text-align: left;
+}
+button.pc-seal { cursor: pointer; }
+button.pc-seal:hover { background: #f1e5cd; }
+.wax, .mini-seal {
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e0475d, #a3122a 60%, #7a0b1f);
+  box-shadow: 0 0 0 0.16em #b51a33, 0 0.12em 0.25em rgba(0, 0, 0, 0.35);
+}
+.wax {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.5em;
+  height: 2.5em;
+  color: #ffd9de;
+  font: 700 0.85em/1 Georgia, serif;
+}
+.mini-seal { position: absolute; bottom: 7cqi; left: 50%; width: 16cqi; height: 16cqi; margin-left: -8cqi; font-size: 9cqi; }
+.pc-inside {
+  width: 100%;
+  margin: 0.55em 0 0;
+  padding: 0.45em 0.7em 0.55em;
+  border: max(1px, 0.4cqi) solid #d8b65a;
+  border-radius: 0.6em;
+  background: #fff4d6;
+}
+.pc-inside-label { display: block; margin-bottom: 0.1em; color: #94700f; font-size: 0.68em; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.pc-inside.opening { animation: unseal 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+.flip.fresh .pc-inside.opening { animation-delay: 0.6s; } /* after the card has turned over */
+@keyframes unseal {
+  from { opacity: 0; transform: scale(0.6) rotate(-4deg); }
+  to { opacity: 1; transform: none; }
+}
+
 .pc-back {
   border: 1px solid rgba(0, 0, 0, 0.35);
   background: var(--back-1);
@@ -429,6 +479,10 @@ body.viewing { overflow: hidden; }
 .rule-check input { flex-shrink: 0; width: 20px; height: 20px; margin: 0; accent-color: var(--gold); }
 .rule-check small { margin-left: auto; color: var(--on-felt-muted); white-space: nowrap; }
 .rule-check:has(input:disabled) { cursor: default; }
+.rules-sub { margin: 14px 0 8px; color: var(--on-felt); font-size: 15px; font-weight: 700; }
+.rules-sub:first-of-type { margin-top: 0; }
+.rule-place { display: flex; flex-direction: column; gap: 8px; }
+.rule-place .rules-help { margin: 2px 0 0; }
 .lobby-wait { margin: 12px 0 0; color: var(--on-felt-muted); text-align: center; }
 .area-label { margin: 0 0 8px; color: var(--on-felt-muted); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
 
@@ -564,6 +618,16 @@ dialog.settings::backdrop { background: rgba(0, 0, 0, 0.5); }
 .give-list small { color: #666; font-weight: 400; }
 .viewer-note { margin: 0; color: var(--on-felt-muted); font-size: 14px; text-align: center; }
 .rules-panel.in-viewer { margin: 0; }
+.give-prompt {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--card-paper);
+  color: var(--card-ink);
+  font: 16px/1.35 Georgia, "Times New Roman", serif;
+  text-align: center;
+}
+.give-prompt p { margin: 0; }
 
 body.in-room .card-editor [data-act="show-card"] { display: none; }
 
@@ -784,6 +848,8 @@ dialog.menu::backdrop { background: rgba(0, 0, 0, 0.5); }
 .group-line .checkbox { flex: 1 1 200px; margin: 0; }
 .group-name { font-weight: 500; overflow-wrap: anywhere; }
 .group-row.is-off .group-name { color: var(--muted); }
+.group-place { display: flex; flex: 1 1 200px; flex-direction: column; }
+.group-place small { color: var(--muted); font-size: 13px; }
 .group-actions { display: flex; gap: 6px; font-size: 13px; }
 .group-line .rename-form { flex: 1 1 100%; }
 
@@ -948,6 +1014,9 @@ dialog.menu::backdrop { background: rgba(0, 0, 0, 0.5); }
 .preview ol, .preview ul { margin: 0.5em 0; padding-left: 1.5em; }
 .preview .red-suit { color: var(--red-suit); font-style: normal; }
 .pv-flavor { margin-top: 6px; color: var(--flavor); font-style: italic; overflow-wrap: anywhere; }
+.pv-inside { margin-top: 8px; padding: 8px 10px; border: 1px dashed var(--border-strong); border-radius: 6px; overflow-wrap: anywhere; }
+.pv-inside-label { display: block; margin-bottom: 2px; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.chip-sealed { background: color-mix(in srgb, var(--danger) 16%, var(--panel)); color: var(--danger); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

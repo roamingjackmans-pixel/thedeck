@@ -18,6 +18,15 @@ Draw a card, do what it says. A party card game for the browser, rebuilt from
     can show it, pass it on, or keep it.
   - **Add to Hand**: keep it. Cards in your hand can be shown, given away or discarded **any time**, even when
     it isn't your turn.
+- **Sealed cards** (50 of them, with a red wax seal): whoever draws one only sees the outside, such as "Give this
+  card to the player most likely to have sent a nude to the wrong person", and has to **Give to Player** (or keep
+  it sealed in their hand for later). The inside opens on the phone of the player it's given to, and tells them
+  what happens: a question, a dare, or a twist on the player who picked them. When they show it to everyone,
+  the table says who picked who ("Sam picked Alex").
+- **Where are you playing?** The host picks **Together in one room** or **On a video call** in the lobby rules.
+  On a call, the 50 video call cards come up (show us your fridge, freeze like your video's stuck, scavenger
+  hunts around your home) and the 41 cards that need everyone in one room (kissing, spanking, holding hands,
+  passing drinks round) stay out. In one room it's the other way round.
 - **End Turn** moves every face-up card on the table to the discard pile and passes the turn on. You can also
   draw again before ending your turn (for cards like "Draw another card").
 - When the deck runs out, the discard pile is **shuffled back in**, like a real deck.
@@ -35,7 +44,8 @@ Draw a card, do what it says. A party card game for the browser, rebuilt from
   The relay servers are public, so what goes through them (names, cards, turns) isn't private. Add
   `?forcerelay` to the address to test it; `deckTrace()` in the browser console shows how a tab connected.
   Horse Race's [connection check](https://josephjackman.com/horserace/check.html) tests a phone for all of this.
-- **Play on One Phone** is the original game: tap the deck, do what it says, pass the phone.
+- **Play on One Phone** is the original game: tap the deck, do what it says, pass the phone. A sealed card says
+  to pass the phone to the right player, who taps the seal to open it.
 
 ## The look
 
@@ -58,15 +68,28 @@ Everything the original did:
 - The secret **Options** menu hides in the top-left corner: **tap the corner 7 times in a row** (each tap within
   1.5 seconds of the last; a tap anywhere else starts the count over). Nothing shows there, and screens keep
   that corner clear so it never sits on top of a real button. (The original revealed a button on hover.)
-- In Options: **Draw Style** (with or without replacement), **Card Options** (uncheck a group such as
-  "There are girls present" to keep its cards out of the deck) and **Reset Shoe** (put every card back).
-  When you're hosting a lobby, the Card Options and Draw Style are the lobby's rules.
+- In Options: **Draw Style** (with or without replacement), **Where Are You Playing?** (one room or a video
+  call), **Card Options** (uncheck a group such as "There are girls present" to keep its cards out of the deck)
+  and **Reset Shoe** (put every card back). When you're hosting a lobby, these are the lobby's rules.
 - The ¶ in a card's corner is a link to that card (`#card-12`). Clicking it copies the link.
-- All 153 original cards and the original three groups.
+- All 153 original cards and the original three groups, plus 200 new ones: 100 more party cards (dirty truths,
+  weird reasons to drink, dares), the 50 sealed give-away cards and the 50 video call cards.
+
+The deck's groups:
+
+| Group | Cards | What it does |
+| --- | --- | --- |
+| Snow on the ground, There are girls present, You can find a stranger | the originals' | Uncheck to leave those cards out |
+| Same room only | 41 | Left out when playing on a video call |
+| Video call only | 50 | Only come up when playing on a video call |
+
+The last two follow "Where are you playing?", so they have no checkbox. Put any card in them from the editor.
 
 New in this version (the **Edit Cards** tab of the secret menu):
 
-- **Edit any card**: title, text and flavor text, with a live preview.
+- **Edit any card**: title, text and flavor text, with a live preview. Fill in a card's **Sealed part** to make
+  it a sealed give-away card (and empty it to make it an ordinary card again). The card list can show just the
+  sealed cards.
 - **Put a card in any number of groups** by tapping group pills. A card only comes up when every one of its
   groups is checked in Options. A card in no groups can always come up.
 - **Add groups** (in Options, or with "+ New group" right inside a card), and rename or delete them.
@@ -112,9 +135,9 @@ Open http://localhost:8091.
 npm test
 ```
 
-Checks the drawing rules (no repeats, groups switched off, reshuffling), the multiplayer rules (private draws,
-passing cards on, playing out of turn, ending turns, reshuffling the discard pile, dropped players, host
-takeover), the editing rules (groups, cards, imports), publishing against a pretend GitHub (revisions, two
+Checks the drawing rules (no repeats, groups switched off, reshuffling, one room or a video call), the
+multiplayer rules (private draws, passing cards on, sealed cards opening when given, playing out of turn, ending
+turns, reshuffling the discard pile, dropped players, host takeover), the editing rules (groups, cards, imports), publishing against a pretend GitHub (revisions, two
 devices publishing at once, error messages), that card formatting can't run code, and that the shared deck file
 is well formed.
 

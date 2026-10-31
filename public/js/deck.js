@@ -1,10 +1,27 @@
 // The deck's rules, kept free of the page so they can be tested (tools/test.mjs).
 //
-// A deck is { groups: [{ id, name }], cards: [{ id, title, text, flavor, groups: [groupId…] }] }.
+// A deck is { groups: [{ id, name }], cards: [{ id, title, text, flavor, secret?, groups: [groupId…] }] }.
 // Groups work like the original site's "requirements": a card only comes up when every group it is in
 // is switched on in the secret menu. A card in no groups can always come up.
+//
+// A card with a secret is a sealed card: whoever draws it sees only the outside ("Give this card to the
+// player who…"), and the secret opens on the phone of the player it's given to.
+//
+// Two groups aren't switched on and off by hand. They follow "Where are you playing?":
+//   same-room   cards that need everyone in one room (left out on a video call)
+//   video-call  cards made for playing over a video call (only come up on one)
 
 export const FORMAT = 'the-deck';
+export const PLACE = { room: 'same-room', call: 'video-call' };
+export const isPlaceGroup = id => id === PLACE.room || id === PLACE.call;
+export const isSealed = card => !!card?.secret;
+
+/** The groups that are really switched off: the unchecked ones, plus the place that doesn't apply. */
+export function playOff(off, remote = false) {
+  const set = new Set([...off].filter(id => !isPlaceGroup(id)));
+  set.add(remote ? PLACE.room : PLACE.call);
+  return set;
+}
 export const SHOE_LIFETIME_MS = 24 * 60 * 60 * 1000; // like the original, a half-used deck is kept for a day
 const MAX_NAME = 80;
 const MAX_TITLE = 120;
@@ -46,6 +63,8 @@ export function normalizeDeck(raw) {
       flavor: str(c.flavor ?? c.flavor_text, MAX_TEXT).trim(),
       groups: [...new Set((Array.isArray(c.groups) ? c.groups : []).filter(id => groupIds.has(id)))],
     };
+    const secret = str(c.secret, MAX_TEXT).trim();
+    if (secret) card.secret = secret;
     if (!card.title && !card.text) continue;
     if (!card.title) card.title = 'Untitled card';
     if (Number.isInteger(card.id) && card.id > 0 && !cardIds.has(card.id)) cardIds.add(card.id);

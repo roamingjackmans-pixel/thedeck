@@ -10,11 +10,14 @@
 //   - Cards in your hand can be shown, given away or discarded at any time, even when it isn't your turn.
 //   - Ending your turn moves every face-up card on the table to the discard pile.
 //   - When the deck runs out, the discard pile is shuffled to make a new deck, like a real one.
-//   - The host sets the rules: which card groups are in play, and the draw style.
-import { isEligible, shuffle } from './deck.js';
+//   - The host sets the rules: which card groups are in play, the draw style, and whether everyone is in
+//     one room or on a video call (that switches the "Same room only" and "Video call only" cards).
+//   - Sealed cards (cards with a secret) open when they're given to someone: the card copy remembers it
+//     (open: true) wherever it goes next, and who gave it, so the table can say who picked who.
+import { isEligible, isSealed, playOff, shuffle } from './deck.js';
 import { plain } from './markup.js';
 
-export const PROTO = 1;                  // bump when the message format or the rules change
+export const PROTO = 2;                 // bump when the message format or the rules change
 export const MAX_PLAYERS = 16;
 export const AUTO_SKIP_MS = 20000;       // someone who drops out on their turn is skipped after this long
 const LOG_KEEP = 40;
@@ -39,7 +42,7 @@ export function newRoom(code, host, now = Date.now(), rules = {}) {
   const s = {
     v: PROTO, code, hostPid: host.pid, created: now,
     players: {}, order: [], joinSeq: 0,
-    phase: 'lobby', rules: { off: [], replacement: false }, game: null, gameNo: 0,
+    phase: 'lobby', rules: { off: [], replacement: false, remote: false }, game: null, gameNo: 0,
     log: [], logId: 0, showSeq: 0, deckKey: 0, quietUntil: 0,
   };
   setRules(s, rules);
@@ -103,7 +106,11 @@ function setRules(s, r, deck) {
     s.rules.off = [...new Set(r.off.map(String))].filter(id => !known || known.has(id)).slice(0, 100);
   }
   if (typeof r.replacement === 'boolean') s.rules.replacement = r.replacement;
+  if (typeof r.remote === 'boolean') s.rules.remote = r.remote;
 }
+
+/** The groups whose cards can't come up under the room's rules. */
+const roomOff = s => playOff(s.rules.off, s.rules.remote);
 
 // ---------- the game ----------
 
@@ -142,7 +149,7 @@ function passTurn(s, now) {
 function toDiscard(s, card, rand) {
   const g = s.game;
   if (s.rules.replacement) g.shoe.splice(Math.floor(rand() * (g.shoe.length + 1)), 0, card.id);
-  else g.discard.push({ uid: card.uid, id: card.id });
+  else g.discard.push({ uid: card.uid, id: card.id, ...(card.open ? { open: true } : {}) });
 }
 
 function clearTable(s, rand) {
@@ -153,7 +160,7 @@ function clearTable(s, rand) {
 /** Takes the top card that's in play (its groups are all on). Cards whose groups are off stay put. */
 function takeTop(s, byId) {
   const g = s.game;
-  const off = new Set(s.rules.off);
+  const off = roomOff(s);
   g.shoe = g.shoe.filter(id => byId.has(id)); // forget cards deleted from the deck
   for (let i = g.shoe.length - 1; i >= 0; i--) {
     const card = byId.get(g.shoe[i]);
@@ -169,6 +176,8 @@ const take = (list, uid) => {
 const listFor = (g, kind, pid) => (g[kind][pid] ||= []);
 /** A card the player holds: one waiting on their screen, or one in their hand. */
 const takeHeld = (g, pid, uid) => take(listFor(g, 'pending', pid), uid) || take(listFor(g, 'hands', pid), uid);
+/** What a card copy takes with it when it moves: whether its seal is open, and who gave it. */
+const carry = c => (c.open ? { open: true, ...(c.from ? { from: c.from } : {}) } : {});
 
 /** Applies a player's action. Returns { ok } or { ok: false, err } with a message to show them. */
 export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.random) {
@@ -257,7 +266,7 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
     case 'show': {
       const card = takeHeld(g, pid, uid);
       if (!card) return no("That card isn't yours any more");
-      g.table.push({ uid: card.uid, id: card.id, by: pid, at: now, seq: ++s.showSeq });
+      g.table.push({ uid: card.uid, id: card.id, by: pid, at: now, seq: ++s.showSeq, ...carry(card) });
       log(s, `${me} showed everyone "${titleOf(deck, card.id)}"`, now, { by: pid, card: card.id });
       return ok;
     }
@@ -267,14 +276,15 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
       if (to === pid) return no("You can't give a card to yourself");
       const card = takeHeld(g, pid, uid);
       if (!card) return no("That card isn't yours any more");
-      listFor(g, 'pending', to).push({ uid: card.uid, id: card.id, from: pid });
-      log(s, `${me} gave a card to ${nameOf(s, to)}`, now, { by: pid, to });
+      const sealed = !card.open && isSealed(deck?.cards.find(c => c.id === card.id));
+      listFor(g, 'pending', to).push({ uid: card.uid, id: card.id, from: pid, open: true });
+      log(s, sealed ? `${me} gave ${nameOf(s, to)} a sealed card` : `${me} gave a card to ${nameOf(s, to)}`, now, { by: pid, to });
       return ok;
     }
     case 'keep': {
       const card = take(listFor(g, 'pending', pid), uid);
       if (!card) return no("That card isn't yours any more");
-      listFor(g, 'hands', pid).push({ uid: card.uid, id: card.id });
+      listFor(g, 'hands', pid).push({ uid: card.uid, id: card.id, ...carry(card) });
       log(s, `${me} put a card in their hand`, now, { by: pid });
       return ok;
     }
@@ -293,7 +303,7 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
       const onTable = g.table.find(c => c.uid === uid);
       if (!onTable || onTable.by !== pid) return no("That card isn't yours to take");
       take(g.table, uid);
-      listFor(g, 'hands', pid).push({ uid: onTable.uid, id: onTable.id });
+      listFor(g, 'hands', pid).push({ uid: onTable.uid, id: onTable.id, ...carry(onTable) });
       log(s, `${me} took "${titleOf(deck, onTable.id)}" back into their hand`, now, { by: pid });
       return ok;
     }
@@ -358,7 +368,7 @@ export const handOf = (s, pid) => s.game?.hands[pid] || [];
 export function drawable(s, deck) {
   const g = s.game;
   if (!g || !deck) return 0;
-  const off = new Set(s.rules.off);
+  const off = roomOff(s);
   const byId = new Map(deck.cards.map(c => [c.id, c]));
   return g.shoe.filter(id => byId.has(id) && isEligible(byId.get(id), off)).length;
 }

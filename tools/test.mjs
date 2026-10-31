@@ -37,6 +37,41 @@ test('the shared deck is a well-formed deck', () => {
   assert.equal(raw.format, 'the-deck');
   assert.ok(Number.isInteger(raw.revision) && raw.revision >= 1, 'has a revision number');
   assert.deepEqual(Deck.normalizeDeck(raw), { groups: raw.groups, cards: raw.cards }, 'nothing in it needs fixing');
+  for (const c of raw.cards) {
+    assert.ok(!(c.groups.includes(Deck.PLACE.room) && c.groups.includes(Deck.PLACE.call)), `card ${c.id} can come up somewhere`);
+    for (const html of [inline(c.title), render(c.text), render(c.secret || ''), render(c.flavor)]) {
+      assert.ok(!/\*\*|\]\(/.test(html), `card ${c.id} has no leftover markup: ${html}`);
+    }
+  }
+});
+
+test('sealed cards keep their secret, and an empty one makes an ordinary card', () => {
+  const d = Deck.normalizeDeck({ cards: [
+    { id: 1, title: 'Worst Kisser', text: 'Give this to…', secret: '  Drink 3.  ' },
+    { id: 2, title: 'Plain', text: 'x', secret: '   ' },
+  ] });
+  assert.equal(d.cards[0].secret, 'Drink 3.');
+  assert.ok(Deck.isSealed(d.cards[0]));
+  assert.equal('secret' in d.cards[1], false);
+  assert.ok(!Deck.isSealed(d.cards[1]));
+});
+
+test('"Where are you playing?" switches the same-room and video call cards', () => {
+  const deck = {
+    groups: [{ id: 'snow', name: 'Snow' }, { id: Deck.PLACE.room, name: 'Same room only' }, { id: Deck.PLACE.call, name: 'Video call only' }],
+    cards: [
+      { id: 1, title: 'Anywhere', text: 'x', flavor: '', groups: [] },
+      { id: 2, title: 'Kiss', text: 'x', flavor: '', groups: [Deck.PLACE.room] },
+      { id: 3, title: 'Fridge Tour', text: 'x', flavor: '', groups: [Deck.PLACE.call] },
+      { id: 4, title: 'Snow call', text: 'x', flavor: '', groups: ['snow', Deck.PLACE.call] },
+    ],
+  };
+  const ids = off => deck.cards.filter(c => Deck.isEligible(c, off)).map(c => c.id);
+  assert.deepEqual(ids(Deck.playOff(new Set(), false)), [1, 2], 'in one room: no video call cards');
+  assert.deepEqual(ids(Deck.playOff(new Set(), true)), [1, 3, 4], 'on a call: no same-room cards');
+  assert.deepEqual(ids(Deck.playOff(new Set(['snow']), true)), [1, 3], 'other groups still count');
+  assert.deepEqual(ids(Deck.playOff(new Set([Deck.PLACE.call]), true)), [1, 3, 4], "the place groups can't be unchecked by hand");
+  assert.equal(Deck.cardsLeft(deck, [1, 2, 3, 4], Deck.playOff(new Set(), true)).playable, 3);
 });
 
 test('the original deck has all 153 cards and 3 groups', () => {
@@ -455,6 +490,50 @@ test('cards added to or deleted from the host deck mid-game join or leave the dr
   assert.ok(s.game.shoe.includes(added.id));
   assert.equal(s.game.shoe.length, 153);
   assert.equal(new Set(s.game.shoe).size, 153);
+});
+
+test('a sealed card stays sealed until it is given, then stays open wherever it goes', () => {
+  const deck = { groups: [], cards: [{ id: 1, title: 'Worst Kisser', text: 'Give this to the worst kisser.', flavor: '', groups: [], secret: 'Drink 3.' }] };
+  const { s, act } = table(['Host', 'Sam', 'Alex'], deck);
+  act('p0', { k: 'start' });
+  mustOk(act('p0', { k: 'draw' }));
+  const [drawn] = E.pendingOf(s, 'p0');
+  assert.ok(!drawn.open, 'sealed for whoever drew it');
+  mustOk(act('p0', { k: 'keep', uid: drawn.uid }));
+  assert.ok(!E.handOf(s, 'p0')[0].open, 'still sealed in their hand');
+  mustOk(act('p0', { k: 'give', uid: drawn.uid, to: 'p1' }));
+  assert.match(s.log.at(-1).text, /Host gave Sam a sealed card/);
+  const got = E.pendingOf(s, 'p1')[0];
+  assert.deepEqual([got.open, got.from], [true, 'p0'], 'open for Sam, who knows who picked them');
+  mustOk(act('p1', { k: 'show', uid: got.uid }));
+  assert.deepEqual([s.game.table[0].open, s.game.table[0].from, s.game.table[0].by], [true, 'p0', 'p1'], 'the table says who picked who');
+  mustOk(act('p1', { k: 'takeback', uid: got.uid }));
+  assert.ok(E.handOf(s, 'p1')[0].open);
+  mustOk(act('p1', { k: 'discard', uid: got.uid }));
+  assert.ok(s.game.discard.at(-1).open);
+});
+
+test('the host decides whether everyone is in one room or on a video call', () => {
+  const deck = {
+    groups: [{ id: Deck.PLACE.room, name: 'Same room only' }, { id: Deck.PLACE.call, name: 'Video call only' }],
+    cards: [
+      { id: 1, title: 'Kiss', text: 'x', flavor: '', groups: [Deck.PLACE.room] },
+      { id: 2, title: 'Fridge Tour', text: 'x', flavor: '', groups: [Deck.PLACE.call] },
+    ],
+  };
+  const drawOne = remote => {
+    const { s, act } = table(['Host', 'Sam'], deck);
+    mustOk(act('p0', { k: 'rules', remote }));
+    assert.equal(s.rules.remote, remote);
+    act('p0', { k: 'start' });
+    assert.equal(E.drawable(s, deck), 1);
+    mustOk(act('p0', { k: 'draw' }));
+    return E.pendingOf(s, 'p0')[0].id;
+  };
+  assert.equal(drawOne(false), 1, 'in one room');
+  assert.equal(drawOne(true), 2, 'on a call');
+  assert.equal(E.newRoom('1', { pid: 'a', name: 'A' }).rules.remote, false, 'rooms start in one room');
+  assert.equal(table().act('p1', { k: 'rules', remote: true }).ok, false, 'only the host');
 });
 
 // ---------- table colors ----------

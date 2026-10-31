@@ -1,8 +1,8 @@
 {
   "format": "the-deck",
   "version": 1,
-  "revision": 2,
-  "updated": "2026-10-30T16:33:52.137Z",
+  "revision": 3,
+  "updated": "2026-10-31T04:15:06.058Z",
   "groups": [
     {
       "id": "snow",
@@ -15,6 +15,14 @@
     {
       "id": "stranger",
       "name": "You can find a stranger"
+    },
+    {
+      "id": "same-room",
+      "name": "Same room only"
+    },
+    {
+      "id": "video-call",
+      "name": "Video call only"
     }
   ],
   "cards": [
@@ -24,7 +32,8 @@
       "text": "You must kiss another player of the opposite sex. If you take a shot, you may choose whom you kiss, otherwise the other players choose.",
       "flavor": "Pucker up.",
       "groups": [
-        "girls"
+        "girls",
+        "same-room"
       ]
     },
     {
@@ -32,7 +41,9 @@
       "title": "Tattoo",
       "text": "You must get a sharpie tattoo on your body drawn by another player. If you take a shot, you may choose where you get the tattoo.",
       "flavor": "Mike Tyson",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 3,
@@ -53,7 +64,9 @@
       "title": "Stoop Kid",
       "text": "You must sit on the stoop of the building for one round. Players will call you back into the room when it is your turn again.",
       "flavor": "Stoop kid's afraid to leave his stoop!",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 6,
@@ -109,7 +122,9 @@
       "title": "Get Spanked",
       "text": "You must get spanked by another player. If you take a shot, you may choose which player spanks you.",
       "flavor": "",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 14,
@@ -151,7 +166,9 @@
       "title": "Chug Challenge",
       "text": "You must challenge any player to chug a drink of your choice. The winner slaps the loser.",
       "flavor": "Challenge Brian, he's a bitch.",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 20,
@@ -200,14 +217,18 @@
       "title": "Pants Time Capsule",
       "text": "Every player puts one item in your pants. Your eyes must be closed, but players may hand you items so that you may place them in your own pants. At the end of the game, you may remove the items.",
       "flavor": "We suggest ice.",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 27,
       "title": "Teamwork",
       "text": "Everyone must hold hands for an entire round. Hands may only be broken to allow a player to participate in another card.",
       "flavor": "I'd like to lead you all in some swaying.",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 28,
@@ -284,7 +305,9 @@
       "title": "Spin the Bottle",
       "text": "Grab a bottle and give it a spin.",
       "flavor": "Welcome back to middle school.",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 39,
@@ -305,7 +328,9 @@
       "title": "The Janitor",
       "text": "Clean the table of any empty drinks or food items for the rest of the game.",
       "flavor": "It's *doctor* Jan Itor.",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 42,
@@ -319,14 +344,18 @@
       "title": "Hobbit Leaving the Shire",
       "text": "Grab three friends and take a lap around the building.",
       "flavor": "Hobbits don't wear shoes.",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 44,
       "title": "Stone Age",
       "text": "Turn off all electricity in the room (lights, music, phones, etc.). Lasts for two rounds.",
       "flavor": "Someday I want there to be an electric railroad in the stone age.",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 45,
@@ -340,14 +369,18 @@
       "title": "Snake Eyes",
       "text": "Any time a player looks you in the eyes, they must drink one. Lasts for one round.",
       "flavor": "",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 47,
       "title": "Sex Mannequin",
       "text": "Choose two players and place them in a sex position of your choice. Players must remain in position until it is one of their turns.",
       "flavor": "The grasshopper.",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 48,
@@ -398,14 +431,18 @@
       "title": "Boob Tap",
       "text": "Tap the nearest boob.",
       "flavor": "Boop",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 55,
       "title": "In the Pocket",
       "text": "You must place your hands in the pockets of the players to your left and your right for one round.",
       "flavor": "",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 56,
@@ -477,7 +514,9 @@
       "title": "Chinese Fire Drill",
       "text": "Everybody switch positions in the circle.",
       "flavor": "Firetrucks don't stop for red lights.",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 66,
@@ -540,7 +579,9 @@
       "title": "Gettin' Fingered",
       "text": "Every person's drink who is one finger length from the edge of the table must drink 3.",
       "flavor": "",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 75,
@@ -703,14 +744,18 @@
       "title": "Polyjuice Potion",
       "text": "You must get a cup and have everyone pour a splash of what they are drinking into your cup. Drink said cup of mixed drinks.",
       "flavor": "",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 98,
       "title": "Twi-Hard's Eternal Love",
       "text": "Other players choose a player that you must sit in front of and stare into their eyes for one round. Drink one every time you lose eye contact.",
       "flavor": "",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 99,
@@ -752,7 +797,9 @@
       "title": "Green Mountain Boys",
       "text": "Finish any unfinished drinks on the table.",
       "flavor": "Leave no man behind.",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 105,
@@ -830,7 +877,8 @@
       "text": "Kiss the player on your left on the lips. If you refuse, finish your drink and theirs. If they refuse, they finish their drink and yours.",
       "flavor": "",
       "groups": [
-        "girls"
+        "girls",
+        "same-room"
       ]
     },
     {
@@ -845,7 +893,9 @@
       "title": "Faptitude",
       "text": "Take a drink from the cup of each player you have masturbated to.",
       "flavor": "",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 118,
@@ -859,7 +909,9 @@
       "title": "The old Reddit Switcharoo",
       "text": "Switch a piece of clothing with a player of your choosing.",
       "flavor": "Ah, the old [Reddit Switcharoo](http://www.reddit.com/r/funny/comments/2314is/i_just_watched_a_girl_hit_a_parked_car_causing/cgsjhb9?context=4).",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 120,
@@ -950,7 +1002,9 @@
       "title": "Nay thou!",
       "text": "Every player must point at another player. The player with the most people pointing at him or her must drink 4.",
       "flavor": "",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 133,
@@ -1006,7 +1060,9 @@
       "title": "Lick!",
       "text": "The last person to lick someone takes three drinks. If nobody licks anyone, everyone takes four drinks.",
       "flavor": "",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 141,
@@ -1034,14 +1090,18 @@
       "title": "Carpool",
       "text": "Get in a crabwalk position. Choose any number of players to straddle you, and go to the other end of the room. Give out one shot for every player that does not fall off.",
       "flavor": "I can see your undercarriage.",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 145,
       "title": "Shirt Ninja",
       "text": "You have become a ninja, and must wear your shirt as a ninja mask (over your head). Whenever someone looks into your eyes, they become the shirt ninja.",
       "flavor": "",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 146,
@@ -1055,14 +1115,18 @@
       "title": "Ancient Chant",
       "text": "Who wants to drink from the big container?",
       "flavor": "Since 1865",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 148,
       "title": "Slow Clap",
       "text": "Whenever you make eye contact with somebody, you have to slow clap for 10 seconds.",
       "flavor": "Best Slab Ever",
-      "groups": []
+      "groups": [
+        "same-room"
+      ]
     },
     {
       "id": 149,
@@ -1098,6 +1162,1580 @@
       "text": "Take a shot and choose a color. All players must remove all clothing of that color.",
       "flavor": "",
       "groups": []
+    },
+    {
+      "id": 154,
+      "title": "Search History",
+      "text": "Read out the last three things you searched for on your phone. Drink 2 for every one you skip.",
+      "flavor": "\"Is it normal if…\" counts.",
+      "groups": []
+    },
+    {
+      "id": 155,
+      "title": "Mom's Last Text",
+      "text": "Read out the last text you got from a parent, word for word. If it has an emoji in it, everyone drinks 1.",
+      "flavor": "👍",
+      "groups": []
+    },
+    {
+      "id": 156,
+      "title": "Emoji Autopsy",
+      "text": "Everyone opens their most-used emojis. Anyone whose top one is 😂 drinks 2. Anyone with 🍆, 🍑 or 💦 in their top row drinks 3 and explains.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 157,
+      "title": "Photo Roulette",
+      "text": "Open your camera roll and scroll back exactly 47 photos. Show everyone, whatever it is. Or drink 5.",
+      "flavor": "Please be a screenshot.",
+      "groups": []
+    },
+    {
+      "id": 158,
+      "title": "Contact Roulette",
+      "text": "Read out the weirdest name saved in your contacts and explain who it is. Anyone with a contact saved as a warning, like \"Don't Answer\", drinks 2.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 159,
+      "title": "Notes App",
+      "text": "Read out the most recent note on your phone, word for word. Or drink 4.",
+      "flavor": "Grocery lists are allowed. Poems are encouraged.",
+      "groups": []
+    },
+    {
+      "id": 160,
+      "title": "Screen Time",
+      "text": "Everyone checks their screen time for this week. The highest drinks 1 for every 10 hours. The lowest gives out 3.",
+      "flavor": "Touch grass.",
+      "groups": []
+    },
+    {
+      "id": 161,
+      "title": "Battery Check",
+      "text": "Everyone checks their phone battery. The lowest drinks 3. Anyone over 80% gives out 1 for being an adult.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 162,
+      "title": "Passenger Rating",
+      "text": "Everyone checks their rating in a ride app. The lowest drinks 3. Anyone under 4.7 has to explain what they did.",
+      "flavor": "The driver remembers.",
+      "groups": []
+    },
+    {
+      "id": 163,
+      "title": "Spice Level",
+      "text": "Everyone who has ever sent a nude drinks 1. Anyone who has sent one to the wrong person finishes their drink and tells the story.",
+      "flavor": "Wrong chat. Very wrong chat.",
+      "groups": []
+    },
+    {
+      "id": 164,
+      "title": "Walk of Shame",
+      "text": "Tell the story of your most memorable walk of shame. If you've never done one, drink 3 and have a long look at your life.",
+      "flavor": "Shoes in hand, head held high.",
+      "groups": []
+    },
+    {
+      "id": 165,
+      "title": "Backseat",
+      "text": "Everyone who has hooked up in a car drinks 2. In a moving car: drink 2 more. On a plane: finish your drink.",
+      "flavor": "Eyes on the road.",
+      "groups": []
+    },
+    {
+      "id": 166,
+      "title": "Thin Walls",
+      "text": "Everyone who has been heard having sex by a roommate or neighbor drinks 2. Anyone who's been the roommate who heard it gives out 2 for their suffering.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 167,
+      "title": "Walk-In",
+      "text": "Everyone who has walked in on someone having sex drinks 2. Everyone who has been walked in on drinks 3. If it was a parent, double it.",
+      "flavor": "Knock. Always knock.",
+      "groups": []
+    },
+    {
+      "id": 168,
+      "title": "Shower Thoughts",
+      "text": "Everyone who pees in the shower drinks 2. Everyone who says they don't drinks 3 for lying.",
+      "flavor": "It's basically recycling.",
+      "groups": []
+    },
+    {
+      "id": 169,
+      "title": "Fart Amnesty",
+      "text": "If you've farted since the game started, admit it now and drink 1. Anyone caught later who didn't own up finishes their drink.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 170,
+      "title": "The Blame Game",
+      "text": "For the rest of the game, whenever someone farts, everyone points at (or names) who they think did it. Whoever gets the most votes drinks 3, guilty or not.",
+      "flavor": "Whoever smelt it…",
+      "groups": []
+    },
+    {
+      "id": 171,
+      "title": "Toilet Tales",
+      "text": "Tell everyone your most disgusting bathroom story. Anyone who gags drinks 2.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 172,
+      "title": "Burp the Alphabet",
+      "text": "Burp as much of the alphabet as you can in one go. Give out 1 drink for every letter you get through.",
+      "flavor": "A, B, C… bluuurgh.",
+      "groups": []
+    },
+    {
+      "id": 173,
+      "title": "Sex Noises",
+      "text": "Do an impression of your own sex noise. If anyone laughs, they drink 2. If nobody laughs, you drink 2, because that was a little too real.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 174,
+      "title": "Coming Soon",
+      "text": "Describe the last time you had sex as a movie trailer, starting with \"In a world…\". Or drink 3.",
+      "flavor": "Rated R for \"really?\"",
+      "groups": []
+    },
+    {
+      "id": 175,
+      "title": "Rate My Ex",
+      "text": "Rate your last ex out of 10, out loud. Drink the difference between your number and 10.",
+      "flavor": "Be nice or be drunk.",
+      "groups": []
+    },
+    {
+      "id": 176,
+      "title": "Kiss Math",
+      "text": "Count how many people you've kissed, divide by the number of players and round up. Drink that many.",
+      "flavor": "Show your working.",
+      "groups": []
+    },
+    {
+      "id": 177,
+      "title": "Exes in the Game",
+      "text": "Everyone who has hooked up with someone else in this game drinks 2. You don't have to say who. Yet.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 178,
+      "title": "Bucket List",
+      "text": "Tell everyone the dirtiest thing on your bucket list. Anyone who's already done it gives out 2.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 179,
+      "title": "Ghosted",
+      "text": "Everyone who has ever ghosted someone drinks 1. Everyone who got ghosted after a second date gives out 2 for their pain.",
+      "flavor": "Boo.",
+      "groups": []
+    },
+    {
+      "id": 180,
+      "title": "Feet Pics",
+      "text": "Everyone rates their own feet out of 10, honestly. The group votes for the most overrated feet, and their owner drinks 3.",
+      "flavor": "There is a market for this.",
+      "groups": []
+    },
+    {
+      "id": 181,
+      "title": "Commando",
+      "text": "Everyone who has gone commando to a wedding, a funeral or a job interview drinks 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 182,
+      "title": "Underwear Check",
+      "text": "Everyone says what color underwear they're wearing. Anyone wearing none drinks 3. Anyone wearing a matching set drinks 2, because they had plans. Anyone who \"doesn't remember\" has to check.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 183,
+      "title": "Hairy Situation",
+      "text": "Everyone who has shaved something and regretted it drinks 2. Anyone who's waxed anything below the belt gives out 2 for bravery.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 184,
+      "title": "Dr. Google",
+      "text": "Everyone who has googled a rash drinks 2. Anyone who found out it was definitely something drinks 2 more.",
+      "flavor": "The internet says it's fatal.",
+      "groups": []
+    },
+    {
+      "id": 185,
+      "title": "The Ex's Hoodie",
+      "text": "Everyone who still has clothes that belonged to an ex drinks 2. Anyone wearing them right now finishes their drink.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 186,
+      "title": "Deep Stalk",
+      "text": "Everyone who has looked up an ex's new partner online drinks 2. Anyone who has accidentally liked an old photo while doing it drinks 4.",
+      "flavor": "The double tap of doom.",
+      "groups": []
+    },
+    {
+      "id": 187,
+      "title": "Days Since",
+      "text": "Everyone says how many days it's been since they last hooked up. The highest number drinks 3. Anyone who says \"today\" drinks 3 too, for bragging.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 188,
+      "title": "Worst Date",
+      "text": "Everyone sums up their worst date in one sentence. The group votes for the worst, and that player gives out 5 out of pity.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 189,
+      "title": "Drunk Draft",
+      "text": "Write the text you'd send your ex at 2 a.m. and read it out loud. Don't send it. Drink 2 if anyone says \"aww\".",
+      "flavor": "u up?",
+      "groups": []
+    },
+    {
+      "id": 190,
+      "title": "Lost and Found",
+      "text": "Everyone drinks 1 for each of these they have lost on a night out: phone, keys, wallet, shoes, dignity.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 191,
+      "title": "Hall Pass",
+      "text": "Everyone names their celebrity hall pass. Anyone whose pick is over 50 drinks 2. Anyone whose pick is a cartoon drinks 4.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 192,
+      "title": "Two Truths and a Lay",
+      "text": "Say two true things and one lie about your sex life. Everyone who guesses wrong drinks 2. If everyone guesses right, you drink 4.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 193,
+      "title": "Hot Seat",
+      "text": "For one minute, anyone can ask you anything. Every question you don't answer is a drink.",
+      "flavor": "Tick tock.",
+      "groups": []
+    },
+    {
+      "id": 194,
+      "title": "The Confessional",
+      "text": "Confess something you've never told anyone playing. If the group decides it's boring, drink 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 195,
+      "title": "Tell on Them",
+      "text": "Tell a story about another player that they'd rather you didn't. If they deny it, the group votes, and whoever loses drinks 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 196,
+      "title": "Impressionist",
+      "text": "Do an impression of another player without saying who. If nobody guesses in three tries, drink 3. If someone gets it straight away, the player you did drinks 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 197,
+      "title": "Roast Battle",
+      "text": "Pick another player. You each get 20 seconds to roast the other. The group picks the winner, and the loser drinks 4.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 198,
+      "title": "The Haggler",
+      "text": "Pick a player and haggle over how many drinks they take, from 1 to 10. You both have to agree. If there's no deal in 30 seconds, you both drink 5.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 199,
+      "title": "Dirty Joke",
+      "text": "Tell your dirtiest joke. If nobody laughs, drink 3. Anyone who groans drinks 1.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 200,
+      "title": "Pheasant Plucker",
+      "text": "Say \"I'm not a pheasant plucker, I'm a pheasant plucker's son\" three times fast. Drink 1 for every slip. If something filthy comes out, give out 3.",
+      "flavor": "Careful now.",
+      "groups": []
+    },
+    {
+      "id": 201,
+      "title": "Things You Shouldn't Put in Your Butt",
+      "text": "Going in turn order from you, everyone names one. The first to hesitate, repeat one, or name something the group decides is actually fine, drinks 3.",
+      "flavor": "Doctors hate this card.",
+      "groups": []
+    },
+    {
+      "id": 202,
+      "title": "Kama Sutra",
+      "text": "Going in turn order from you, everyone names a sex position. The first to hesitate or repeat one drinks 3. Made-up ones count if you can describe them convincingly.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 203,
+      "title": "Spirit Animal",
+      "text": "The group decides what animal you'd be in bed. Do its mating call, or drink 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 204,
+      "title": "Safe Word",
+      "text": "Choose a safe word. Until your next turn, whenever anyone says it, everyone drinks 1.",
+      "flavor": "Pineapple.",
+      "groups": []
+    },
+    {
+      "id": 205,
+      "title": "Lap Dance",
+      "text": "Give a chair a 10-second lap dance. Everyone rates it out of 10. Under 5 and you drink 3.",
+      "flavor": "The chair has seen things.",
+      "groups": []
+    },
+    {
+      "id": 206,
+      "title": "Pickup Artist",
+      "text": "Use your best pickup line on the player of your choice. If they laugh or blush, they drink 2. If it bombs, you drink 2.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 207,
+      "title": "Bedroom Eyes",
+      "text": "Give every player your best bedroom eyes, one at a time. Anyone who laughs drinks 1. If nobody laughs, you drink 2, because that was unsettling.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 208,
+      "title": "Phone-Sex Voice",
+      "text": "Call or voice-note a parent and tell them you love them, in your best phone-sex voice. Or drink 5.",
+      "flavor": "They'll be so confused.",
+      "groups": []
+    },
+    {
+      "id": 209,
+      "title": "Wrong Chat",
+      "text": "Send \"I can't stop thinking about last night\" to the third chat in your messages, with no explanation for 10 minutes. Or drink 4.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 210,
+      "title": "Butt Dial",
+      "text": "Call the seventh person in your recent calls on speaker and ask what they're wearing. If they hang up, drink 2. If they answer, give out 4.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 211,
+      "title": "Narrator",
+      "text": "Until your next turn, narrate everything you do in the third person, like a nature documentary. Drink 1 every time you forget.",
+      "flavor": "Here we see the drunk in its natural habitat.",
+      "groups": []
+    },
+    {
+      "id": 212,
+      "title": "Excellent Choice",
+      "text": "Until your next turn, every time someone drinks, you have to say \"Excellent choice\" like a fancy waiter. Drink 1 every time you miss it.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 213,
+      "title": "Echo",
+      "text": "Until your next turn, you have to repeat the last word of everything anyone says. Drink 1 for every one you miss.",
+      "flavor": "Miss… miss… miss…",
+      "groups": []
+    },
+    {
+      "id": 214,
+      "title": "Sock Puppet",
+      "text": "Take off a sock and put it on your hand. Until your next turn, the sock does all your talking. Drink 1 every time you talk without it.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 215,
+      "title": "Back in My Day",
+      "text": "Until your next turn, you're 90 years old. Complain about everything and start every sentence with \"Back in my day\". Drink 1 when you break character.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 216,
+      "title": "Bathroom Key",
+      "text": "You hold the bathroom key. Until your next turn, anyone who needs to pee has to ask you first and do a little dance for permission.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 217,
+      "title": "Bladder of Steel",
+      "text": "You can't go to the bathroom until after your next two turns. Take a shot to buy an early pass.",
+      "flavor": "Breaking the seal is for the weak.",
+      "groups": []
+    },
+    {
+      "id": 218,
+      "title": "Freeze!",
+      "text": "Add this card to your hand. Any time you like, show it to everyone and shout \"Freeze!\". Everyone has to freeze, and the last one to do it drinks 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 219,
+      "title": "Thumb Master",
+      "text": "Add this card to your hand. Any time you like, show it and quietly put your thumb on the table (or your forehead). The last person to copy you drinks 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 220,
+      "title": "No U",
+      "text": "Add this card to your hand. The next time someone gives you drinks, show it, and they drink them instead.",
+      "flavor": "The ultimate comeback.",
+      "groups": []
+    },
+    {
+      "id": 221,
+      "title": "Interpretive Dance",
+      "text": "Perform an interpretive dance of your last relationship, from the first date to the breakup. Everyone guesses how it ended.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 222,
+      "title": "Infomercial",
+      "text": "Grab the nearest object and sell it to everyone like a late-night infomercial for 30 seconds. If nobody would buy it, drink 3.",
+      "flavor": "But wait, there's more!",
+      "groups": []
+    },
+    {
+      "id": 223,
+      "title": "Dramatic Reading",
+      "text": "Read your most recent email out loud as a dramatic monologue. Everyone who laughs drinks 1.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 224,
+      "title": "Wedding Vows",
+      "text": "Write wedding vows to your drink and read them out loud. Then finish it on the honeymoon.",
+      "flavor": "Till death (or the hangover) do us part.",
+      "groups": []
+    },
+    {
+      "id": 225,
+      "title": "Last Song Played",
+      "text": "Play the last song you listened to, out loud, right now. If it's embarrassing, drink 2. Anyone who sings along drinks 2 too.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 226,
+      "title": "Add to Cart",
+      "text": "Show everyone the last thing you bought online. If it's weird, give out 3. If it's boring, drink 2. If you bought it drunk, finish your drink.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 227,
+      "title": "Tattoo Tales",
+      "text": "Everyone with a tattoo tells its story. Anyone with a tattoo they regret drinks 3. Anyone with someone's name tattooed on them finishes their drink.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 228,
+      "title": "Hidden Piercing",
+      "text": "Anyone with a piercing they can't show at work drinks 2. No, you don't have to show us. Unless you want to.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 229,
+      "title": "Party Tricks",
+      "text": "Everyone with a weird body trick (double joints, wiggling ears, touching their nose with their tongue) shows it and gives out 2. Everyone else drinks 1.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 230,
+      "title": "Ring Finger",
+      "text": "Everyone whose ring finger is longer than their index finger drinks 2. Science says it means something. We won't say what.",
+      "flavor": "Look it up later.",
+      "groups": []
+    },
+    {
+      "id": 231,
+      "title": "Siblings",
+      "text": "Drink 1 for every sibling you have. Only children drink 3, because they're used to getting their own way.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 232,
+      "title": "Birthday Buddies",
+      "text": "Everyone born in the same month as you drinks 3. If nobody shares your month, you drink 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 233,
+      "title": "Star Signs",
+      "text": "Everyone says their star sign. The sign with the most people drinks 2. Anyone who says \"I don't believe in that\" drinks 1 for being such a Capricorn.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 234,
+      "title": "Hot Take",
+      "text": "Share your most controversial food opinion. Everyone who disagrees drinks 1. If nobody disagrees, you drink 3 for being boring.",
+      "flavor": "Pineapple belongs on pizza. Fight me.",
+      "groups": []
+    },
+    {
+      "id": 235,
+      "title": "Marry, Bang, Kill",
+      "text": "The next player names three people (players or celebrities). Say who you'd marry, bang and kill. Any player you kill drinks 3. Any player you bang gives out 2.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 236,
+      "title": "Talk Show",
+      "text": "Interview the player of your choice like a late-night talk show host for one minute. Ask about their love life. They drink 1 for every question they dodge.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 237,
+      "title": "Wrong Answers Only",
+      "text": "The next player asks you three questions. You can only give wrong answers. Drink 1 for every right one that slips out.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 238,
+      "title": "Mirror Mode",
+      "text": "Pick a player. Until your next turn, copy every move they make. Drink 1 every time they catch you slacking.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 239,
+      "title": "Polar Plunge",
+      "text": "Put an ice cube down your shirt and leave it there until it melts. Take a shot to put it down your pants instead, and give out 4.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 240,
+      "title": "A Toast",
+      "text": "Make a toast to the player with the dirtiest mind here. Everyone drinks. They drink double.",
+      "flavor": "Here's to you, you filthy animal.",
+      "groups": []
+    },
+    {
+      "id": 241,
+      "title": "Reality Star",
+      "text": "On three, everyone points at (or names) the player most likely to end up on a reality show. The player with the most votes drinks 3.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 242,
+      "title": "Wi-Fi Password",
+      "text": "Read out your wifi password. If it's embarrassing, give out 3. If it's just random letters, drink 2 for being boring.",
+      "flavor": "",
+      "groups": []
+    },
+    {
+      "id": 243,
+      "title": "Sniff Test",
+      "text": "Smell the armpit of the player of your choice and rate it out of 10. Under 5 and they drink 3. Refuse and you drink 5.",
+      "flavor": "",
+      "groups": [
+        "same-room"
+      ]
+    },
+    {
+      "id": 244,
+      "title": "Arm Wrestle",
+      "text": "Arm wrestle the player of your choice. The loser drinks 3. If you lose to someone smaller than you, drink 3 more.",
+      "flavor": "",
+      "groups": [
+        "same-room"
+      ]
+    },
+    {
+      "id": 245,
+      "title": "Human Coaster",
+      "text": "Lie down. The player of your choice uses your forehead as their coaster until your next turn. Every spill is a drink for them.",
+      "flavor": "",
+      "groups": [
+        "same-room"
+      ]
+    },
+    {
+      "id": 246,
+      "title": "Lap of Luxury",
+      "text": "Sit on the lap of the player of your choice until your next turn. If they say no, they drink 3.",
+      "flavor": "",
+      "groups": [
+        "same-room"
+      ]
+    },
+    {
+      "id": 247,
+      "title": "Red Hands",
+      "text": "Play slaps with the player of your choice. The first to get slapped three times drinks 3.",
+      "flavor": "Too slow.",
+      "groups": [
+        "same-room"
+      ]
+    },
+    {
+      "id": 248,
+      "title": "Blind Taste Test",
+      "text": "Get blindfolded. The group feeds you three things from the kitchen. Guess them all, or drink 3.",
+      "flavor": "",
+      "groups": [
+        "same-room"
+      ]
+    },
+    {
+      "id": 249,
+      "title": "Massage Train",
+      "text": "Everyone gives the person in front of them a 30-second shoulder rub. Anyone who'd rather not drinks 2.",
+      "flavor": "",
+      "groups": [
+        "same-room"
+      ]
+    },
+    {
+      "id": 250,
+      "title": "Unlocked",
+      "text": "Hand your unlocked phone to the next player for 30 seconds. They can open one app of your choice (not the calculator). Or drink 5.",
+      "flavor": "",
+      "groups": [
+        "same-room"
+      ]
+    },
+    {
+      "id": 251,
+      "title": "Spoons",
+      "text": "Pick a player to spoon with until your next turn. You decide who's the big spoon. If they refuse, they drink 3.",
+      "flavor": "",
+      "groups": [
+        "same-room"
+      ]
+    },
+    {
+      "id": 252,
+      "title": "Slap Bet",
+      "text": "Make a slap bet with any player about something that'll happen tonight. The loser takes a slap on the hand (or the butt, winner's choice), or drinks 4.",
+      "flavor": "",
+      "groups": [
+        "same-room"
+      ]
+    },
+    {
+      "id": 253,
+      "title": "Pocket Check",
+      "text": "Everyone empties their pockets onto the table. Whoever has the weirdest thing gives out 4. Anyone with empty pockets drinks 2.",
+      "flavor": "",
+      "groups": [
+        "same-room"
+      ]
+    },
+    {
+      "id": 254,
+      "title": "Wrong Number",
+      "text": "Give this card to the player most likely to have sent a nude to the wrong person.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Well? Tell the story, or finish your drink. If it's never happened, the player who gave you this drinks 3 for assuming."
+    },
+    {
+      "id": 255,
+      "title": "Worst Kisser",
+      "text": "Give this card to the player you think is the worst kisser. They won't know why. Probably.",
+      "flavor": "",
+      "groups": [],
+      "secret": "You were picked as the worst kisser. Make out with the back of your hand for 5 seconds to prove them wrong. If the group says you're actually good, the player who gave you this drinks 4."
+    },
+    {
+      "id": 256,
+      "title": "Freak in the Sheets",
+      "text": "Give this card to the biggest freak in the bedroom.",
+      "flavor": "",
+      "groups": [],
+      "secret": "The player who gave you this thinks you're the biggest freak in bed. Confirm it with one example, or deny it and drink 3."
+    },
+    {
+      "id": 257,
+      "title": "Search Party",
+      "text": "Give this card to the player with the dirtiest search history.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Read out your last three searches, word for word. Or drink 4."
+    },
+    {
+      "id": 258,
+      "title": "Trust Issues",
+      "text": "Give this card to the player you trust the least.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Until your next turn, you can only tell lies. Anyone who catches you telling the truth gives you a drink."
+    },
+    {
+      "id": 259,
+      "title": "Stuck in an Elevator",
+      "text": "Give this card to the player you'd most like to be stuck in an elevator with.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Aww. Stare into the eyes of the player who gave you this (through the camera counts) for 10 seconds. If either of you laughs, you both drink 2. If not, you both give out 3."
+    },
+    {
+      "id": 260,
+      "title": "Lightweight",
+      "text": "Give this card to the biggest lightweight here.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Prove them wrong: take a big drink. If you're honestly feeling it already, drink a glass of water instead, and the player who gave you this drinks for you."
+    },
+    {
+      "id": 261,
+      "title": "Thick Skin",
+      "text": "Give this card to the player who can take a joke the best.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Everyone roasts you, one sentence each, in turn order. Then you give out 5 drinks to whoever was meanest."
+    },
+    {
+      "id": 262,
+      "title": "Hottest in the Room",
+      "text": "Give this card to the player you secretly think is the hottest. Don't worry, it's sealed. They'll never know.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Surprise: you were picked as the hottest player. The player who gave you this has to explain why, out loud, in detail. Or they finish their drink. (We lied about them never knowing.)"
+    },
+    {
+      "id": 263,
+      "title": "Bad Influence",
+      "text": "Give this card to the player who's the worst influence on you.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Live up to it: pick a dare for the player who gave you this. If they won't do it, they drink 4."
+    },
+    {
+      "id": 264,
+      "title": "Bouncer's Nightmare",
+      "text": "Give this card to the player most likely to get kicked out of a bar.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Tell everyone the worst thing you've done on a night out. If the group says it's the worst they've heard tonight, give out 4. If not, drink 3."
+    },
+    {
+      "id": 265,
+      "title": "Mystery Guest",
+      "text": "Give this card to the player you know the least about.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Tell everyone three things they don't know about you. At least one has to be dirty. Or drink 4."
+    },
+    {
+      "id": 266,
+      "title": "Oversharer",
+      "text": "Give this card to the biggest oversharer here.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Prove it: share something you've never told anyone playing. Or drink 4 and keep your secrets, coward."
+    },
+    {
+      "id": 267,
+      "title": "Innocent Angel",
+      "text": "Give this card to the most innocent player.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Innocent, are we? Everyone asks you one dirty question each. Every one you won't answer is a drink."
+    },
+    {
+      "id": 268,
+      "title": "Party Pooper",
+      "text": "Give this card to the player who's been the most boring tonight.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Ouch. Do something wild that the group picks, or finish your drink. Then the player who gave you this has to compliment you three times."
+    },
+    {
+      "id": 269,
+      "title": "That Laugh",
+      "text": "Give this card to the player with the most ridiculous laugh.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Do your laugh on purpose, as loud as you can, for 5 seconds. Everyone who laughs drinks 1. Until your next turn, the player who gave you this has to laugh exactly like you."
+    },
+    {
+      "id": 270,
+      "title": "Best Dressed",
+      "text": "Give this card to the best-dressed player.",
+      "flavor": "",
+      "groups": [
+        "same-room"
+      ],
+      "secret": "Swap one piece of clothing with the player who gave you this. You both wear it until your next turn. Or you both drink 3."
+    },
+    {
+      "id": 271,
+      "title": "Getting Lucky",
+      "text": "Give this card to the player most likely to hook up with someone tonight.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Whisper (or text) to the player who gave you this the name of who you'd pick, out of everyone playing. If it's them, you both finish your drinks. They can't tell anyone."
+    },
+    {
+      "id": 272,
+      "title": "Ex Alert",
+      "text": "Give this card to the player most likely to text an ex tonight.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Mute or archive your ex's chat right now, in front of everyone. Or drink 4. The player who gave you this gets to check."
+    },
+    {
+      "id": 273,
+      "title": "Cheapskate",
+      "text": "Give this card to the stingiest player.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Prove you're generous: give out 6 drinks, split however you like. The player who gave you this has to take at least 2 of them."
+    },
+    {
+      "id": 274,
+      "title": "Dirty Mind",
+      "text": "Give this card to the player with the dirtiest mind.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Say the first thing that comes to mind for each word: banana, hole, wood, balls, cream. Give out 1 drink for every answer the group decides is dirty."
+    },
+    {
+      "id": 275,
+      "title": "Put a Ring on It",
+      "text": "Give this card to the player most likely to get married first.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Propose to the player who gave you this, on one knee, with a ring made from whatever you can find. If they say yes, everyone drinks to the happy couple. If they say no, drink 3 and cry."
+    },
+    {
+      "id": 276,
+      "title": "Group Mom",
+      "text": "Give this card to the mom (or dad) of the group.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Hydration check: everyone drinks some water, right now, while you watch. Then give out 3 for all the times you've held someone's hair back."
+    },
+    {
+      "id": 277,
+      "title": "Gossip",
+      "text": "Give this card to the biggest gossip here.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Spill one bit of harmless gossip about anyone playing. If it's about the player who gave you this, they drink 4. If you won't, you drink 4."
+    },
+    {
+      "id": 278,
+      "title": "Gym Rat",
+      "text": "Give this card to the strongest player.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Do 10 push-ups, right now. Drink 1 for every one you can't do. The player who gave you this has to count out loud and cheer."
+    },
+    {
+      "id": 279,
+      "title": "Big Flirt",
+      "text": "Give this card to the biggest flirt here.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Flirt with the player who gave you this for 30 seconds, using only food puns. If they laugh, they drink 2. If they blush, they finish their drink."
+    },
+    {
+      "id": 280,
+      "title": "Certified Weirdo",
+      "text": "Give this card to the weirdest player here, and mean it.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Embrace it: do the weirdest thing you can think of for 10 seconds. If the group agrees it was weird enough, the player who gave you this drinks 3. If not, you do."
+    },
+    {
+      "id": 281,
+      "title": "Zombie Plan",
+      "text": "Give this card to the player most likely to survive a zombie apocalypse.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Pick one other player for your survival team. You both give out 3. Then pick the player who'd get eaten first: they drink 3."
+    },
+    {
+      "id": 282,
+      "title": "Picky Eater",
+      "text": "Give this card to the pickiest eater here.",
+      "flavor": "",
+      "groups": [],
+      "secret": "The group picks something from your kitchen for you to eat a bite of. Or drink 4."
+    },
+    {
+      "id": 283,
+      "title": "Bed Buddy",
+      "text": "Give this card to the player you'd least want to share a bed with.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Confess your worst sleeping habit. If the player who gave you this has ever shared a bed with you, they have to back you up, and you both drink 2."
+    },
+    {
+      "id": 284,
+      "title": "Best Kisser",
+      "text": "Give this card to the player you think is the best kisser.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Tell everyone who taught you. Then, if you've ever kissed the player who gave you this, you both drink 3. (Now everyone knows.)"
+    },
+    {
+      "id": 285,
+      "title": "Side Hustle",
+      "text": "Give this card to the player most likely to have a secret OnlyFans.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Do you? Either way, describe what you'd post in one sentence. Everyone who'd subscribe drinks 1."
+    },
+    {
+      "id": 286,
+      "title": "Snitch",
+      "text": "Give this card to the player who'd snitch first in a police interview.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Prove it: tell everyone one thing another player did that they'd rather keep quiet. They drink 3. If you won't snitch, you drink 3."
+    },
+    {
+      "id": 287,
+      "title": "Kinky",
+      "text": "Give this card to the player who probably has the weirdest kink.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Name one weird turn-on. If you won't, the player who gave you this guesses it out loud, and you have to say whether they're right."
+    },
+    {
+      "id": 288,
+      "title": "Fake It",
+      "text": "Give this card to the player who's best at faking it.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Faking what, exactly? Do your best fake laugh, fake cry and fake orgasm, 3 seconds each. The player who gave you this picks the most convincing one. Or drink 4."
+    },
+    {
+      "id": 289,
+      "title": "Class Clown",
+      "text": "Give this card to the funniest player.",
+      "flavor": "",
+      "groups": [],
+      "secret": "You have 30 seconds to make the player who gave you this laugh. If they laugh, they drink 3. If they keep a straight face, you drink 3."
+    },
+    {
+      "id": 290,
+      "title": "Getaway Driver",
+      "text": "Give this card to the player you'd pick as your getaway driver.",
+      "flavor": "",
+      "groups": [],
+      "secret": "You're in the crew. Until your next turn, whenever you or the player who gave you this drinks, the other one drinks too."
+    },
+    {
+      "id": 291,
+      "title": "Future Millionaire",
+      "text": "Give this card to the player most likely to be a millionaire one day.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Spend it: give out 7 drinks however you like. Then promise the player who gave you this a cut, out loud, in front of witnesses."
+    },
+    {
+      "id": 292,
+      "title": "Ice Cold",
+      "text": "Give this card to the coldest-hearted player.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Say one genuinely nice thing about every player. Drink 1 for every one you can't say with a straight face."
+    },
+    {
+      "id": 293,
+      "title": "Dry Spell",
+      "text": "Give this card to the player who's gone the longest without sex.",
+      "flavor": "",
+      "groups": [],
+      "secret": "How long has it been? Drink 1 for every month (up to 5). If it's been less than a week, the player who gave you this drinks 3 for getting it so wrong."
+    },
+    {
+      "id": 294,
+      "title": "Crybaby",
+      "text": "Give this card to the player most likely to cry at a movie.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Name the last movie that made you cry. Everyone who cried at it too drinks 1. If you won't admit to one, drink 3."
+    },
+    {
+      "id": 295,
+      "title": "Lucky Dip",
+      "text": "Give this card to anyone. Don't think too hard.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Lucky you: give out 5 drinks. The player who gave you this has to take at least 2."
+    },
+    {
+      "id": 296,
+      "title": "Return to Sender",
+      "text": "Give this card to the player you most want to see drink.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Return to sender: the player who gave you this drinks 4. Enjoy watching."
+    },
+    {
+      "id": 297,
+      "title": "Puppet Master",
+      "text": "Give this card to the player you'd most like to control.",
+      "flavor": "",
+      "groups": [],
+      "secret": "You're the puppet. Until your next turn, the player who gave you this can give you one command each turn (nothing dangerous, nothing illegal). Refuse one and drink 3."
+    },
+    {
+      "id": 298,
+      "title": "Wingman",
+      "text": "Give this card to the player who'd be the best wingman.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Write a dating profile for the player who gave you this, out loud, in three sentences. Everyone votes: if they'd swipe right, you both give out 2. If not, you both drink 2."
+    },
+    {
+      "id": 299,
+      "title": "Psychic",
+      "text": "Give this card to the player you think is thinking about sex right now.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Were you? Be honest. If yes, the player who gave you this gives out 3 for reading minds. If no, they drink 3 for projecting."
+    },
+    {
+      "id": 300,
+      "title": "Body Count",
+      "text": "Give this card to the player whose body count you'd most like to know.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Don't say it yet. Everyone else guesses your number out loud. The closest guess gives out 3. Then reveal it, or drink 4 to keep the mystery."
+    },
+    {
+      "id": 301,
+      "title": "Look-Alike",
+      "text": "Give this card to the player who looks the most like a celebrity.",
+      "flavor": "",
+      "groups": [],
+      "secret": "The player who gave you this has to say which celebrity, out loud. If you like the answer, they drink 1. If you hate it, they finish their drink."
+    },
+    {
+      "id": 302,
+      "title": "Main Character",
+      "text": "Give this card to the player with the most main-character energy.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Until your next turn, everyone has to narrate what you do like you're the star of a movie. Anyone who forgets drinks 1."
+    },
+    {
+      "id": 303,
+      "title": "Payback",
+      "text": "Give this card to the player who's made you drink the most tonight.",
+      "flavor": "",
+      "groups": [],
+      "secret": "Payback: drink 4, courtesy of the player who gave you this. No refunds."
+    },
+    {
+      "id": 304,
+      "title": "Fridge Tour",
+      "text": "Give everyone a 30-second tour of your fridge. The group picks the saddest thing in it. Eat a bite, or drink 3.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 305,
+      "title": "Background Check",
+      "text": "Everyone shows the room behind them. The messiest one drinks 3. Anyone using a fake background drinks 2 for hiding something.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 306,
+      "title": "Bed Reveal",
+      "text": "Show everyone your bed on camera, right now, as it is. Unmade: drink 2. Someone in it: explain.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 307,
+      "title": "Bathroom Cabinet",
+      "text": "Open your bathroom cabinet on camera. The group picks one thing in it, and you explain why you have it. Or drink 3.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 308,
+      "title": "Under the Bed",
+      "text": "Show everyone what's under your bed or couch. Or drink 4.",
+      "flavor": "Monsters count.",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 309,
+      "title": "Top Drawer",
+      "text": "Open your bedside drawer on camera. Or drink 5, which tells us everything anyway.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 310,
+      "title": "Laundry Day",
+      "text": "Pull the first thing out of your laundry basket and hold it up to the camera. Underwear: give out 3. Socks: drink 2.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 311,
+      "title": "Toilet Cam",
+      "text": "Take everyone to your bathroom and show them your toilet. Rate how clean it is out of 10, then drink 10 minus your score.",
+      "flavor": "Be honest. We can see it.",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 312,
+      "title": "Stink Hunt",
+      "text": "Everyone has 60 seconds to bring the worst-smelling thing they can find back to the camera. The group picks the winner, who gives out 4. The last one back drinks 3.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 313,
+      "title": "Shape Hunt",
+      "text": "Everyone has 60 seconds to find something shaped like a penis and hold it up to the camera. The most convincing one gives out 4. The last one back drinks 3.",
+      "flavor": "Cucumbers are too easy.",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 314,
+      "title": "Mom Can't See This",
+      "text": "Everyone has 60 seconds to find the thing they'd least want their mom to see, and show it on camera. Or drink 4.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 315,
+      "title": "Expiration Date",
+      "text": "Everyone has 60 seconds to find the oldest food in their kitchen and read out the date. The oldest gives out 4. Anyone brave enough to sniff it gives out 2 more.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 316,
+      "title": "Show and Tell",
+      "text": "Go get the weirdest thing you own and explain it to the camera in 30 seconds. If the group says it isn't weird enough, drink 3.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 317,
+      "title": "Arm's Reach",
+      "text": "Everyone grabs the nearest thing they can reach without getting up and holds it to the camera. The weirdest gives out 3. If anyone's holding something from the bedside drawer, they finish their drink.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 318,
+      "title": "Pet Cameo",
+      "text": "Everyone with a pet brings it on camera and says what it's thinking about everyone on the call. Anyone without one has to be a pet for 10 seconds instead.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 319,
+      "title": "Roommate Roulette",
+      "text": "Shout for whoever else is home to come and say hi on camera. If they come, give out 4. If you're home alone, drink 2, you lonely legend.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 320,
+      "title": "Phone a Friend",
+      "text": "Add someone who isn't playing to the call for one minute. They have to say something nice about you. If you can't get anyone, drink 3.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 321,
+      "title": "Mom Cam",
+      "text": "Call a parent on speaker and ask what they think you're doing right now. Or drink 4.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 322,
+      "title": "Wardrobe Change",
+      "text": "You have 2 minutes to change into the most ridiculous outfit you own. If you come back looking normal, drink 4.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 323,
+      "title": "Ugly Closet",
+      "text": "Everyone holds up the ugliest piece of clothing they own. The group votes for the worst, and its owner wears it until the end of the game.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 324,
+      "title": "Freeze Frame",
+      "text": "Freeze like your video's stuck. Stay perfectly still until someone notices and says your name. If nobody notices in 30 seconds, everyone else drinks 2.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 325,
+      "title": "Bad Connection",
+      "text": "Until your next turn, answer everything 3 seconds late, like your internet is terrible. Drink 1 every time you answer on time.",
+      "flavor": "Sorry, you cut out there.",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 326,
+      "title": "You're on Mute",
+      "text": "For the rest of the game, anyone who talks while they're muted drinks 3 as soon as someone shouts \"YOU'RE ON MUTE!\"",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 327,
+      "title": "Can You Hear Me?",
+      "text": "For the rest of the game, anyone who says \"can you hear me?\", \"you're frozen\" or \"you're breaking up\" drinks 1.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 328,
+      "title": "Mute Button",
+      "text": "Pick a player. They mute themselves until your next turn and can only talk with gestures. They drink 1 every time they unmute.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 329,
+      "title": "Peekaboo",
+      "text": "Turn your camera off. Until your next turn, you can only come back on camera to drink, and you have to shout \"PEEKABOO!\" every time.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 330,
+      "title": "Ghost",
+      "text": "Leave the call without warning, then come back 30 seconds later like nothing happened. Anyone who asks where you went drinks 2.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 331,
+      "title": "Army Crawl",
+      "text": "Leave the camera and come back crawling into the shot like a soldier on a mission. Anyone who laughs drinks 1.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 332,
+      "title": "Face Cam",
+      "text": "Put your face as close to your camera as it will go and keep it there for one minute while everyone talks to you. Pull back early and drink 3.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 333,
+      "title": "Upside Down",
+      "text": "Turn your phone or camera upside down until your next turn. Drink 1 every time you fix it.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 334,
+      "title": "New Name",
+      "text": "The group renames you on the video call. Keep that name until the end of the game. Drink 3 if you change it back.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 335,
+      "title": "Filter Fail",
+      "text": "Turn on the silliest camera filter you can find and leave it on until your next turn. No filters? Draw a mustache on a sticky note and stick it on.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 336,
+      "title": "Screenshot",
+      "text": "Count down from three and take a screenshot of the call. Everyone has to pull their worst face. Whoever looks worst drinks 2, and the screenshot goes in the group chat.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 337,
+      "title": "Glass Check",
+      "text": "Everyone holds their glass up to the camera. The emptiest glass gets refilled and its owner drinks 2. The fullest drinks 2 for slacking.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 338,
+      "title": "Virtual Cheers",
+      "text": "Everyone raises a glass to the camera and drinks. The last person to raise theirs drinks 2 more.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 339,
+      "title": "Pour Decisions",
+      "text": "Everyone shows the camera what they're drinking. The group votes for the saddest drink, and its owner drinks 3. The fanciest gives out 2.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 340,
+      "title": "TV Bartender",
+      "text": "Make a cocktail out of whatever food and drink is in your kitchen, live on camera, narrating like a TV chef. Then drink it.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 341,
+      "title": "Snack Attack",
+      "text": "Eat the snack closest to you on camera, as seductively as you can, for 15 seconds. No snacks? A spoonful of any sauce.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 342,
+      "title": "Silent Movie",
+      "text": "Mute yourself and act out a movie on camera. The first person to guess it gives out 2. If nobody gets it in a minute, drink 3.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 343,
+      "title": "Silent Disco",
+      "text": "Everyone mutes. You play a song only you can hear and dance to it on camera. The first person to guess the song gives out 3. If nobody does, drink 2.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 344,
+      "title": "Corporate Mode",
+      "text": "Until your next turn, everyone talks like this is a work meeting: \"circle back\", \"synergy\", \"let's take this offline\". Anyone who says something normal drinks 1.",
+      "flavor": "Per my last email.",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 345,
+      "title": "Raise Your Hand",
+      "text": "Until your next turn, anyone who wants to speak has to raise their hand on camera and wait for you to call on them. Talking out of turn is a drink.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 346,
+      "title": "Chat Race",
+      "text": "Everyone types \"I have the dirtiest mind on this call\" in the call's chat. The last to send it drinks 2. Anyone who makes a typo drinks 1.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 347,
+      "title": "Window Watch",
+      "text": "Point your camera out of the nearest window and narrate what you see like a nature documentary for 20 seconds. Or drink 3.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 348,
+      "title": "Doorbell",
+      "text": "Go to your front door, knock on it, then open it to yourself on camera and act very surprised to see you.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 349,
+      "title": "Lights Out",
+      "text": "Turn off the lights and hold your phone's flashlight under your chin. Tell everyone your dirtiest secret like it's a ghost story.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 350,
+      "title": "Draw Me",
+      "text": "Draw a portrait of the player of your choice in 30 seconds and hold it up to the camera. If they hate it, they drink 2. If everyone loves it, give out 3.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 351,
+      "title": "News Desk",
+      "text": "Report live on what everyone on the call is doing right now, like a breaking-news anchor, for 30 seconds.",
+      "flavor": "This just in.",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 352,
+      "title": "Book Club",
+      "text": "Grab the nearest book (or anything with words on it) and read a random sentence to the camera in your sexiest voice.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
+    },
+    {
+      "id": 353,
+      "title": "Picture Frame",
+      "text": "Show everyone the nearest photo on your walls or shelves and tell the story behind it. If you're in it, drink 2 for vanity.",
+      "flavor": "",
+      "groups": [
+        "video-call"
+      ]
     }
   ]
 }

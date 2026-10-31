@@ -1,6 +1,6 @@
 {
   "name": "thedeck",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "THE DECK: draw a card, do what it says. A party card game with an editable deck.",
   "type": "module",
   "private": true,

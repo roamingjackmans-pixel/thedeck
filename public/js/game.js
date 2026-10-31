@@ -5,11 +5,15 @@
 //   1. something you opened yourself (a card in your hand, on the table, the discard pile, host controls)
 //   2. a card waiting on you (you drew it, or someone gave it to you): Show to All, Give to Player, Add to Hand
 //   3. a card someone just showed everyone
+//
+// Sealed cards stay sealed on the phone of whoever drew them: they can only give them away (or keep them
+// for later). The player they're given to sees them open, and can then show them to everyone as usual.
 import { Room, cleanCode } from './net.js';
 import * as E from './engine.js';
 import * as Store from './store.js';
+import { PLACE, isPlaceGroup, isSealed } from './deck.js';
 import { faceHtml, flipHtml, flipUp, pileHtml, fitCard } from './cards.js';
-import { escapeHtml as esc, plain } from './markup.js';
+import { escapeHtml as esc, plain, render as renderText } from './markup.js';
 
 // Things that belong to this tab (a phone has one), so two tabs on one computer are two players.
 const tabStore = {
@@ -82,6 +86,9 @@ export function initGame(app) {
   const cardOf = id => deck?.cards.find(c => c.id === id) || null;
   const nameOf = pid => (pid === me() ? 'You' : E.nameOf(s, pid));
   const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+  /** A copy of a sealed card that nobody has been given yet: it shows the seal, not the inside. */
+  const shut = (copy, card = cardOf(copy?.id)) => isSealed(card) && !copy?.open;
+  const mini = copy => faceHtml(cardOf(copy.id), { size: 'mini', sealed: shut(copy) });
 
   // ---------- home ----------
 
@@ -121,7 +128,7 @@ export function initGame(app) {
     const r = new Room(player, hostDeck);
     bind(r);
     try {
-      const code = await r.create({ off: [...app.state.off], replacement: app.state.replacement });
+      const code = await r.create({ off: [...app.state.off], replacement: app.state.replacement, remote: app.state.remote });
       saveSeat(code, player.pid);
       sentDeck = JSON.stringify(r.deck);
       enterRoom();
@@ -321,7 +328,7 @@ export function initGame(app) {
   }
 
   function rulesHtml(editable) {
-    const groups = deck?.groups || [];
+    const groups = (deck?.groups || []).filter(g => !isPlaceGroup(g.id));
     const off = new Set(s.rules.off);
     const count = id => deck.cards.filter(c => c.groups.includes(id)).length;
     const dis = editable ? '' : ' disabled';
@@ -330,7 +337,19 @@ export function initGame(app) {
           <input type="checkbox" data-rule-group="${g.id}"${off.has(g.id) ? '' : ' checked'}${dis}>
           <span>${esc(g.name)}</span><small>${plural(count(g.id), 'card')}</small></label>`).join('')
       : '<p class="rules-help">This deck has no card groups.</p>';
+    const call = deck?.groups.some(g => g.id === PLACE.call) ? count(PLACE.call) : 0;
+    const room = deck?.groups.some(g => g.id === PLACE.room) ? count(PLACE.room) : 0;
+    const place = call || room ? `<div class="rule-place">
+        <label class="rule-check"><input type="radio" name="rule-place" value="room"${s.rules.remote ? '' : ' checked'}${dis}>
+          <span>Together in one room</span></label>
+        <label class="rule-check"><input type="radio" name="rule-place" value="call"${s.rules.remote ? ' checked' : ''}${dis}>
+          <span>On a video call</span></label>
+        <p class="rules-help">${s.rules.remote
+          ? `Playing on a call: ${plural(call, 'video call card')} come up, and ${plural(room, 'card')} that need everyone in one room stay out.`
+          : `Playing in one room: the ${plural(call, 'video call card')} stay out.`}</p>
+      </div>` : '';
     return `<h3 class="area-label">Rules</h3>
+      ${place ? `<h4 class="rules-sub">Where are you playing?</h4>${place}<h4 class="rules-sub">Card groups</h4>` : ''}
       <p class="rules-help">${editable ? 'Uncheck a group to keep its cards out of the deck.' : 'The host sets the rules. Unchecked groups stay out of the deck.'}</p>
       <div class="rule-groups">${list}</div>
       <div class="rule-style">
@@ -346,6 +365,7 @@ export function initGame(app) {
     const box = e.target.closest('[data-rule-group]');
     if (box) app.setGroupOn(box.dataset.ruleGroup, box.checked);
     if (e.target.name === 'rule-style' && e.target.checked) app.setReplacement(e.target.value === 'yes');
+    if (e.target.name === 'rule-place' && e.target.checked) app.setRemote(e.target.value === 'call');
   }
   ui.lobbyRules.addEventListener('change', onRuleInput);
 
@@ -422,7 +442,7 @@ export function initGame(app) {
 
     const top = g.discard.at(-1);
     ui.discardPile.innerHTML = top
-      ? `<div class="discard-top">${faceHtml(cardOf(top.id), { size: 'mini' })}</div><span class="pile-label">${plural(g.discard.length, 'discard')}</span>`
+      ? `<div class="discard-top">${mini(top)}</div><span class="pile-label">${plural(g.discard.length, 'discard')}</span>`
       : '<div class="pile-empty"></div><span class="pile-label">Discard pile</span>';
     ui.discardPile.disabled = !top;
 
@@ -432,7 +452,7 @@ export function initGame(app) {
 
     ui.tableCards.innerHTML = g.table.length
       ? g.table.map(c => `<button type="button" class="card-btn" data-table="${c.uid}">
-          ${faceHtml(cardOf(c.id), { size: 'mini' })}<span class="card-by">${esc(nameOf(c.by))}</span></button>`).join('')
+          ${mini(c)}<span class="card-by">${esc(nameOf(c.by))}</span></button>`).join('')
       : '<p class="area-empty">Cards shown to everyone land here.</p>';
 
     ui.log.innerHTML = s.log.slice(-4).reverse().map(e => `<li>${esc(e.text)}</li>`).join('');
@@ -440,7 +460,7 @@ export function initGame(app) {
     const hand = E.handOf(s, pid);
     ui.handLabel.textContent = `Your hand (${hand.length})`;
     ui.hand.innerHTML = hand.length
-      ? hand.map(c => `<button type="button" class="card-btn" data-hand="${c.uid}">${faceHtml(cardOf(c.id), { size: 'mini' })}</button>`).join('')
+      ? hand.map(c => `<button type="button" class="card-btn" data-hand="${c.uid}">${mini(c)}</button>`).join('')
       : '<p class="area-empty">Cards you keep go here. Play them any time, even when it isn\'t your turn.</p>';
 
     ui.endTurn.hidden = !myTurn;
@@ -518,30 +538,43 @@ export function initGame(app) {
     let body = '';
     let actions = '';
     let flip = false;
-    const big = c => faceHtml(c, { size: 'big' });
+    const sealed = at ? shut(at, card) : false;
+    const big = (c, o = {}) => faceHtml(c, { size: 'big', sealed, ...o });
+    const still = c => `<div class="flip up"><div class="flip-inner">${big(c)}</div></div>`;
+    // A card that's new on this phone turns over (and a sealed one given to you opens as it lands).
     const turning = (uid, c) => {
-      if (flipped.has(uid)) return `<div class="flip up"><div class="flip-inner">${big(c)}</div></div>`;
+      if (flipped.has(uid)) return still(c);
       flipped.add(uid);
       flip = true;
-      return flipHtml(c);
+      return flipHtml(c, { sealed, opening: isSealed(c) && !sealed });
     };
+    // "Sam picked Alex": shown with a sealed card that was given to the player who has it now.
+    const picked = isSealed(card) && at?.from ? ` · ${esc(nameOf(at.from))} picked ${at.by === pid ? 'you' : esc(nameOf(at.by))}` : '';
 
     switch (v.kind) {
       case 'pending':
-        label = at.from ? `${esc(E.nameOf(s, at.from))} gave you this card` : 'You drew this card. Only you can see it.';
+        if (sealed) {
+          label = 'You drew a sealed card. Read who it\'s for, then give it to them.';
+          actions = button('give', 'Give to Player', 'btn-gold') + button('keep', 'Keep It for Later');
+        } else {
+          label = !at.from ? 'You drew this card. Only you can see it.'
+            : isSealed(card) ? `${esc(E.nameOf(s, at.from))} picked you for this sealed card. Only you can see inside.`
+            : `${esc(E.nameOf(s, at.from))} gave you this card`;
+          actions = button('show', 'Show to All', 'btn-gold') + button('give', 'Give to Player') + button('keep', 'Add to Hand');
+        }
         cardHtml = turning(v.uid, card);
-        actions = button('show', 'Show to All', 'btn-gold') + button('give', 'Give to Player') + button('keep', 'Add to Hand')
-          + '<button type="button" class="btn-link light" data-va="hide">Hide it for now</button>';
+        actions += '<button type="button" class="btn-link light" data-va="hide">Hide it for now</button>';
         break;
       case 'hand':
-        label = 'In your hand. Play it any time.';
-        cardHtml = `<div class="flip up"><div class="flip-inner">${big(card)}</div></div>`;
-        actions = button('show', 'Show to All', 'btn-gold') + button('give', 'Give to Player') + button('discard', 'Discard') + button('close', 'Close', 'btn-ghost');
+        label = sealed ? 'Sealed, in your hand. Give it to someone when you\'re ready.' : 'In your hand. Play it any time.';
+        cardHtml = still(card);
+        actions = (sealed ? button('give', 'Give to Player', 'btn-gold') : button('show', 'Show to All', 'btn-gold') + button('give', 'Give to Player'))
+          + button('discard', 'Discard') + button('close', 'Close', 'btn-ghost');
         break;
       case 'table': {
         const mine = at.by === pid;
-        label = `${mine ? 'You' : esc(E.nameOf(s, at.by))} showed everyone this card`;
-        cardHtml = `<div class="flip up"><div class="flip-inner">${big(card)}</div></div>`;
+        label = `${mine ? 'You' : esc(E.nameOf(s, at.by))} showed everyone this card${picked}`;
+        cardHtml = still(card);
         if (mine) actions += button('takeback', 'Back to My Hand') + button('discard', 'Discard');
         else if (isHost) actions += button('discard', 'Discard');
         actions += button('close', 'Close', 'btn-ghost');
@@ -549,21 +582,22 @@ export function initGame(app) {
         break;
       }
       case 'shown':
-        label = `${esc(E.nameOf(s, at.by))} shows everyone`;
+        label = `${esc(E.nameOf(s, at.by))} shows everyone${picked}`;
         cardHtml = turning(v.uid, card);
         actions = button('seen', 'OK', 'btn-gold');
         break;
       case 'discard': {
         const top = g.discard.at(-1);
         label = `Top of the discard pile (${plural(g.discard.length, 'card')})`;
-        cardHtml = `<div class="flip up"><div class="flip-inner">${big(cardOf(top.id))}</div></div>`;
+        cardHtml = `<div class="flip up"><div class="flip-inner">${big(cardOf(top.id), { sealed: shut(top) })}</div></div>`;
         actions = button('close', 'Close', 'btn-ghost');
         break;
       }
       case 'give':
-        label = 'Give this card to…';
-        cardHtml = `<div class="viewer-small">${faceHtml(card, { size: 'mini' })}</div>`;
-        body = others.length
+        label = sealed ? 'Who gets it?' : 'Give this card to…';
+        cardHtml = `<div class="viewer-small">${faceHtml(card, { size: 'mini', sealed })}</div>`;
+        if (sealed) body = `<div class="give-prompt">${renderText(card.text)}</div>`;
+        body += others.length
           ? `<div class="give-list">${others.map(([id, name, on]) => `<button type="button" class="btn btn-light give-to" data-va="give-to" data-to="${esc(id)}">
               ${esc(name)}${on ? '' : ' <small>(away, they get it when they\'re back)</small>'}</button>`).join('')}</div>`
           : '<p class="viewer-note">Nobody else is here yet.</p>';
@@ -678,7 +712,7 @@ export function initGame(app) {
     homeMessage,
     /** The host changed a rule (here or in the secret menu): tell the room. */
     rulesChanged() {
-      if (room?.isHost) room.act({ k: 'rules', off: [...app.state.off], replacement: app.state.replacement });
+      if (room?.isHost) room.act({ k: 'rules', off: [...app.state.off], replacement: app.state.replacement, remote: app.state.remote });
     },
     /** The host's deck changed: send it to the room if it really did. */
     deckChanged() {

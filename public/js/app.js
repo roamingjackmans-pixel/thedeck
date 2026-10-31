@@ -37,6 +37,7 @@ const state = {
   publishing: false,
   replacement: false,
   off: new Set(),    // groups switched off in the secret menu (the host's rules in a lobby)
+  remote: false,     // playing over a video call: "Video call only" cards in, "Same room only" cards out
   shoe: [],          // one-phone mode: ids of the cards still to come
   currentId: null,   // one-phone mode: the card on screen
   prevId: null,      // one-phone mode: the card before it (on the discard pile)
@@ -76,7 +77,7 @@ function toast(text, ms = 2200) {
 
 // ---------- saving on this device ----------
 
-const saveSettings = () => Store.save('settings', { replacement: state.replacement, off: [...state.off] });
+const saveSettings = () => Store.save('settings', { replacement: state.replacement, off: [...state.off], remote: state.remote });
 const saveShoe = () => Store.save('shoe', { ids: state.shoe, date: Date.now() });
 const saveShared = () => Store.save('shared', {
   revision: state.shared.revision, updated: state.shared.updated, groups: state.shared.groups, cards: state.shared.cards,
@@ -237,12 +238,15 @@ const app = {
   saveShoe,
   openMenu: tab => menu?.open(tab),
   setReplacement(on) { state.replacement = on; saveSettings(); rulesChanged(); },
+  setRemote(on) { state.remote = on; saveSettings(); rulesChanged(); },
+  /** The groups whose cards can't come up here: unchecked ones, and the place we're not playing in. */
+  playOff: () => Deck.playOff(state.off, state.remote),
   setGroupOn(id, on) {
     if (on) state.off.delete(id); else state.off.add(id);
     saveSettings();
     rulesChanged();
   },
-  cardsLeft: () => Deck.cardsLeft(state.deck, state.shoe, state.off),
+  cardsLeft: () => Deck.cardsLeft(state.deck, state.shoe, app.playOff()),
   resetShoe() { state.shoe = Deck.freshShoe(state.deck); saveShoe(); solo.showNotice(''); solo.refresh(); },
   cardAdded(card) { state.shoe.push(card.id); saveShoe(); deckChanged(); },
   cardDeleted(id) {
@@ -380,6 +384,7 @@ async function start() {
   const groupIds = new Set(state.deck.groups.map(g => g.id));
   const settings = Store.load('settings', {}) || {};
   state.replacement = settings.replacement === true;
+  state.remote = settings.remote === true;
   state.off = new Set((Array.isArray(settings.off) ? settings.off : []).filter(id => groupIds.has(id)));
 
   const cardIds = new Set(state.deck.cards.map(c => c.id));

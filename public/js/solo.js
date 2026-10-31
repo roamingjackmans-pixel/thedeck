@@ -35,14 +35,21 @@ export function initSolo(app) {
     ui.stage.innerHTML = '<div class="card-slot"><p>Tap the deck to draw a card</p></div>';
   }
 
+  // A sealed card stays sealed until it's been passed to the right person and they tap the seal.
+  let opened = null;
+  const sealOpts = card => (Deck.isSealed(card) && opened !== card.id
+    ? { sealed: true, sealButton: true, sealNote: 'Pass the phone to them, then they tap here to open it.' } : {});
+
   /** Puts a card on screen. drawn: it was just drawn (the old one goes on the discard pile). */
-  function showCard(card, { animate = true, keepHash = false, drawn = false } = {}) {
+  function showCard(card, { animate = true, keepHash = false, drawn = false, opening = false } = {}) {
     if (drawn && state.currentId != null && state.currentId !== card.id) state.prevId = state.currentId;
+    if (drawn || state.currentId !== card.id) opened = null;
     state.currentId = card.id;
     Store.save('current', { id: card.id, prev: state.prevId, date: Date.now() });
+    const opts = { permalink: true, opening, ...sealOpts(card) };
     ui.stage.innerHTML = animate
-      ? flipHtml(card, { permalink: true })
-      : `<div class="flip up"><div class="flip-inner">${faceHtml(card, { permalink: true })}</div></div>`;
+      ? flipHtml(card, opts)
+      : `<div class="flip up"><div class="flip-inner">${faceHtml(card, opts)}</div></div>`;
     fitCard(ui.stage);
     if (animate) flipUp(ui.stage);
     renderPiles();
@@ -67,7 +74,7 @@ export function initSolo(app) {
   function draw() {
     if (!state.deck) return;
     const result = Deck.drawCard({
-      deck: state.deck, shoe: state.shoe, off: state.off,
+      deck: state.deck, shoe: state.shoe, off: app.playOff(),
       replacement: state.replacement, lastId: state.currentId,
     });
     if (!result.card) {
@@ -87,6 +94,13 @@ export function initSolo(app) {
   ui.deck.addEventListener('click', draw);
 
   ui.stage.addEventListener('click', async e => {
+    if (e.target.closest('[data-open-seal]')) {
+      const card = cardById(state.currentId);
+      if (!card) return;
+      opened = card.id;
+      showCard(card, { animate: false, keepHash: true, opening: true });
+      return;
+    }
     const link = e.target.closest('.permalink');
     if (!link || state.currentId == null) return;
     e.preventDefault();

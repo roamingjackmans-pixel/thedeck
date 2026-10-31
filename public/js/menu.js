@@ -16,6 +16,8 @@ export function initMenu(app) {
     tabs: [$('tab-options'), $('tab-cards')],
     panels: { options: $('panel-options'), cards: $('panel-cards') },
     radios: [...dlg.querySelectorAll('input[name="draw-style"]')],
+    placeGroup: $('place-group'),
+    placeRadios: [...dlg.querySelectorAll('input[name="play-place"]')],
     groupList: $('group-list'),
     addGroupForm: $('add-group-form'),
     addGroupName: $('add-group-name'),
@@ -128,6 +130,7 @@ export function initMenu(app) {
 
   function renderOptions() {
     syncDrawStyle();
+    syncPlace();
     renderGroups();
     renderShoeStatus();
     renderDeckStatus();
@@ -141,6 +144,17 @@ export function initMenu(app) {
     renderShoeStatus();
   }));
 
+  // "Where are you playing?" switches the two place groups, so it only shows when the deck has one.
+  function syncPlace() {
+    ui.placeGroup.hidden = !deck().groups.some(g => Deck.isPlaceGroup(g.id));
+    for (const r of ui.placeRadios) r.checked = (r.value === 'call') === app.state.remote;
+  }
+  ui.placeRadios.forEach(r => r.addEventListener('change', () => {
+    if (r.checked) app.setRemote(r.value === 'call');
+    renderShoeStatus();
+  }));
+  const PLACE_NOTE = { [Deck.PLACE.room]: 'Left out on a video call', [Deck.PLACE.call]: 'Only comes up on a video call' };
+
   function renderGroups() {
     const d = deck();
     if (!d.groups.length) {
@@ -149,17 +163,21 @@ export function initMenu(app) {
     }
     ui.groupList.innerHTML = d.groups.map(g => {
       const cards = Deck.cardsInGroup(d, g.id);
-      const on = !app.state.off.has(g.id);
+      const place = PLACE_NOTE[g.id];
+      const on = place ? true : !app.state.off.has(g.id);
+      const toggle = place
+        ? `<span class="group-place"><span class="group-name">${esc(g.name)}</span><small>${place}</small></span>`
+        : `<label class="checkbox">
+             <input type="checkbox" data-act="toggle-group" data-group="${g.id}"${on ? ' checked' : ''}>
+             <span class="group-name">${esc(g.name)}</span>
+           </label>`;
       const head = renamingGroup === g.id
         ? `<form class="inline-form rename-form" data-group="${g.id}" autocomplete="off">
              <input type="text" maxlength="80" value="${esc(g.name)}" aria-label="Group name" enterkeyhint="done">
              <button type="submit" class="btn btn-default btn-sm">Save</button>
              <button type="button" class="btn btn-link btn-sm" data-act="cancel-rename">Cancel</button>
            </form>`
-        : `<label class="checkbox">
-             <input type="checkbox" data-act="toggle-group" data-group="${g.id}"${on ? ' checked' : ''}>
-             <span class="group-name">${esc(g.name)}</span>
-           </label>
+        : `${toggle}
            <span class="group-actions">
              <button type="button" class="btn-link" data-act="rename-group" data-group="${g.id}">Rename</button>
              <button type="button" class="btn-link danger" data-act="delete-group" data-group="${g.id}">Delete</button>
@@ -388,7 +406,7 @@ export function initMenu(app) {
 
   function renderFilter() {
     const keep = ui.filter.value;
-    const opts = [['all', 'All cards'], ['none', 'In no group'], ...deck().groups.map(g => [`g:${g.id}`, `In: ${g.name}`])];
+    const opts = [['all', 'All cards'], ['none', 'In no group'], ['sealed', 'Sealed (give-away) cards'], ...deck().groups.map(g => [`g:${g.id}`, `In: ${g.name}`])];
     ui.filter.innerHTML = opts.map(([val, label]) => `<option value="${esc(val)}">${esc(label)}</option>`).join('');
     ui.filter.value = opts.some(([val]) => val === keep) ? keep : 'all';
   }
@@ -398,12 +416,14 @@ export function initMenu(app) {
     const f = ui.filter.value;
     return deck().cards.filter(c => {
       if (f === 'none' && c.groups.length) return false;
+      if (f === 'sealed' && !Deck.isSealed(c)) return false;
       if (f.startsWith('g:') && !c.groups.includes(f.slice(2))) return false;
-      return !term || `${c.title}\n${c.text}\n${c.flavor}`.toLowerCase().includes(term);
+      return !term || `${c.title}\n${c.text}\n${c.secret || ''}\n${c.flavor}`.toLowerCase().includes(term);
     });
   }
 
-  const chipsHtml = c => c.groups.map(id => `<span class="chip">${esc(groupName(id))}</span>`).join('');
+  const chipsHtml = c => (Deck.isSealed(c) ? '<span class="chip chip-sealed">Sealed</span>' : '')
+    + c.groups.map(id => `<span class="chip">${esc(groupName(id))}</span>`).join('');
 
   function rowHeadHtml(c) {
     return `<span class="row-main">
@@ -447,10 +467,16 @@ export function initMenu(app) {
     return `${chips}<button type="button" class="chip chip-add" data-act="new-group">+ New group</button>`;
   }
 
-  const groupHelp = c => c.groups.length > 1
-    ? 'Only comes up when all of these groups are checked in Options.'
-    : c.groups.length ? 'Only comes up when this group is checked in Options.'
-    : 'In no groups, so it can always come up. Tap groups to add it to as many as you like.';
+  function groupHelp(c) {
+    const normal = c.groups.filter(id => !Deck.isPlaceGroup(id)).length;
+    const place = c.groups.includes(Deck.PLACE.call) && c.groups.includes(Deck.PLACE.room)
+      ? ' In both "where" groups, so it never comes up.'
+      : c.groups.includes(Deck.PLACE.call) ? ' Only comes up when you\'re playing on a video call.'
+      : c.groups.includes(Deck.PLACE.room) ? ' Left out when you\'re playing on a video call.' : '';
+    if (!c.groups.length) return 'In no groups, so it can always come up. Tap groups to add it to as many as you like.';
+    return (normal > 1 ? 'Only comes up when all of its groups are checked in Options.'
+      : normal ? 'Only comes up when its group is checked in Options.' : '') + place;
+  }
 
   function editorHtml(c) {
     const id = `ed-${c.id}`;
@@ -462,6 +488,12 @@ export function initMenu(app) {
       <div class="field">
         <label class="field-label" for="${id}-text">Text</label>
         <textarea id="${id}-text" data-field="text" rows="4" maxlength="2000">${esc(c.text)}</textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="${id}-secret">Sealed part <span class="optional">(optional)</span></label>
+        <textarea id="${id}-secret" data-field="secret" rows="3" maxlength="2000" placeholder="Fill this in to make it a give-away card">${esc(c.secret || '')}</textarea>
+        <p class="help-block">Makes it a sealed card. Whoever draws it only sees the text above (say, "Give this card to
+          the player most likely to…") and has to give it to someone. This part opens on that player's phone.</p>
       </div>
       <div class="field">
         <label class="field-label" for="${id}-flavor">Flavor text <span class="optional">(optional)</span></label>
@@ -493,6 +525,7 @@ export function initMenu(app) {
   function renderPreview(row, c) {
     row.querySelector('.preview').innerHTML =
       `<div class="pv-title">${inline(c.title)}</div><div class="pv-text">${render(c.text)}</div>${
+        c.secret ? `<div class="pv-inside"><span class="pv-inside-label">Sealed: opens for the player it's given to</span>${render(c.secret)}</div>` : ''}${
         c.flavor ? `<div class="pv-flavor">${render(c.flavor)}</div>` : ''}`;
   }
 
@@ -539,6 +572,7 @@ export function initMenu(app) {
     const c = cardById(Number(row.dataset.card));
     if (!c) return;
     c[field] = Deck.cleanCardField(field, e.target.value);
+    if (field === 'secret' && !c.secret.trim()) delete c.secret; // an empty sealed part: an ordinary card
     refreshRow(row, c);
     renderPreview(row, c);
     changed();
