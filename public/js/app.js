@@ -78,7 +78,8 @@ function toast(text, ms = 2200) {
 // ---------- saving on this device ----------
 
 const saveSettings = () => Store.save('settings', { replacement: state.replacement, off: [...state.off], remote: state.remote });
-const saveShoe = () => Store.save('shoe', { ids: state.shoe, date: Date.now() });
+// all: every card in the deck when it was saved, so cards added later can be told apart from drawn ones
+const saveShoe = () => Store.save('shoe', { ids: state.shoe, date: Date.now(), all: state.deck?.cards.map(c => c.id) || [] });
 const saveShared = () => Store.save('shared', {
   revision: state.shared.revision, updated: state.shared.updated, groups: state.shared.groups, cards: state.shared.cards,
 });
@@ -391,7 +392,17 @@ async function start() {
   const shoe = Store.load('shoe');
   const fresh = shoe && Array.isArray(shoe.ids) && Date.now() - shoe.date < Deck.SHOE_LIFETIME_MS;
   state.shoe = fresh ? shoe.ids.filter(id => cardIds.has(id)) : Deck.freshShoe(state.deck);
-  if (!fresh) saveShoe();
+  if (fresh) {
+    // Cards new since the shoe was saved (the deck was updated meanwhile) join the cards still to come.
+    // Shoes saved before 2.2 don't list the deck they came from; the deck this device had cached stands in.
+    const known = new Set(Array.isArray(shoe.all) ? shoe.all : cached ? cached.cards.map(c => c.id) : cardIds);
+    const waiting = new Set(state.shoe);
+    const added = state.deck.cards.filter(c => !known.has(c.id) && !waiting.has(c.id)).map(c => c.id);
+    state.shoe = state.shoe.concat(added);
+    if (added.length) saveShoe();
+  } else {
+    saveShoe();
+  }
 
   const current = Store.load('current');
   if (current && Date.now() - current.date < Deck.SHOE_LIFETIME_MS) {
