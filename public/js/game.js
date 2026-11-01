@@ -3,7 +3,8 @@
 //
 // On the table, a big card viewer pops up for whatever needs attention, most important first:
 //   1. something you opened yourself (a card in your hand, on the table, the discard pile, host controls)
-//   2. a card waiting on you (you drew it, or someone gave it to you): Show to All, Give to Player, Add to Hand
+//   2. a card waiting on you: one you drew (Show to All, Give to Player, Add to Hand), or one someone gave you,
+//      which is stuck with you (Show to All, Add to Hand, Discard; discarding it can end the giver's turn)
 //   3. a card someone just showed everyone
 //
 // Sealed cards stay sealed on the phone of whoever drew them: they can only give them away (or keep them
@@ -423,14 +424,18 @@ export function initGame(app) {
       </li>`;
     }).join('');
 
+    const holder = E.giftHolder(s);
     if (myTurn) {
       ui.banner.textContent = waiting.length ? "Your turn. Choose what to do with your card."
+        : holder ? `Waiting for ${E.nameOf(s, holder)} to finish the card you gave them. Your turn ends when they discard it.`
         : !g.drew ? 'Your turn! Tap the deck to draw a card.'
         : E.drawsLeft(s) ? 'Bonus draw! Tap the deck to draw one more card.'
         : "That's your card for this turn. End your turn when you're done.";
     } else {
       const looking = E.pendingOf(s, g.turn).length;
-      ui.banner.textContent = `${E.nameOf(s, g.turn)}'s turn${looking ? ' · looking at a card…' : ''}`;
+      ui.banner.textContent = `${E.nameOf(s, g.turn)}'s turn${
+        holder === pid ? ' · discard the card they gave you to end it'
+        : holder ? ` · waiting for ${E.nameOf(s, holder)}` : looking ? ' · looking at a card…' : ''}`;
     }
     ui.banner.classList.toggle('mine', myTurn);
 
@@ -466,7 +471,7 @@ export function initGame(app) {
       : '<p class="area-empty">Cards you keep go here. Play them any time, even when it isn\'t your turn.</p>';
 
     ui.endTurn.hidden = !myTurn;
-    ui.endTurn.disabled = !g.drew || waiting.length > 0;
+    ui.endTurn.disabled = !g.drew || waiting.length > 0 || !!holder;
   }
 
   ui.drawPile.addEventListener('click', () => room?.act({ k: 'draw' }));
@@ -531,7 +536,7 @@ export function initGame(app) {
     const at = v.uid != null ? locate(v.uid) : null;
     const card = at ? cardOf(at.id) : null;
     const others = s ? s.order.filter(id => id !== pid).map(id => [id, s.players[id].name, s.players[id].on]) : [];
-    const key = JSON.stringify([v, at, card?.id, card?.title, card?.text, card?.flavor, isHost, others, g?.discard.length, g?.turn, s?.rules, deck?.groups]);
+    const key = JSON.stringify([v, at, card?.id, card?.title, card?.text, card?.flavor, isHost, others, g?.discard.length, g?.turn, g?.turnNo, s?.rules, deck?.groups]);
     if (key === viewerKey) return;
     viewerKey = key;
 
@@ -552,6 +557,9 @@ export function initGame(app) {
     };
     // "Sam picked Alex": shown with a sealed card that was given to the player who has it now.
     const picked = isSealed(card) && at?.from ? ` · ${esc(nameOf(at.from))} picked ${at.by === pid ? 'you' : esc(nameOf(at.by))}` : '';
+    // A card given to you is stuck with you. If it was given on this turn, discarding it ends the turn.
+    const given = !!at?.from;
+    const endsTurn = given && at.gift === g?.turnNo ? ` Discard it when you're done to end ${esc(E.nameOf(s, g.turn))}'s turn.` : '';
 
     switch (v.kind) {
       case 'pending':
@@ -559,18 +567,23 @@ export function initGame(app) {
           label = 'You drew a sealed card. Read who it\'s for, then give it to them.' + (hasBonus(card) ? ' You get a bonus draw.' : '');
           actions = button('give', 'Give to Player', 'btn-gold') + button('keep', 'Keep It for Later');
         } else {
-          label = !at.from ? (hasBonus(card) ? 'Bonus draw! Deal with this card, then draw one more.' : 'You drew this card. Only you can see it.')
-            : isSealed(card) ? `${esc(E.nameOf(s, at.from))} picked you for this sealed card. Only you can see inside.`
-            : `${esc(E.nameOf(s, at.from))} gave you this card`;
-          actions = button('show', 'Show to All', 'btn-gold') + button('give', 'Give to Player') + button('keep', 'Add to Hand');
+          label = !given ? (hasBonus(card) ? 'Bonus draw! Deal with this card, then draw one more.' : 'You drew this card. Only you can see it.')
+            : (isSealed(card) ? `${esc(E.nameOf(s, at.from))} picked you for this sealed card. Only you can see inside.`
+              : `${esc(E.nameOf(s, at.from))} gave you this card. It's stuck with you.`) + endsTurn;
+          actions = given
+            ? button('show', 'Show to All', 'btn-gold') + button('keep', 'Add to Hand') + button('discard', 'Discard')
+            : button('show', 'Show to All', 'btn-gold') + button('give', 'Give to Player') + button('keep', 'Add to Hand');
         }
         cardHtml = turning(v.uid, card);
         actions += '<button type="button" class="btn-link light" data-va="hide">Hide it for now</button>';
         break;
       case 'hand':
-        label = sealed ? 'Sealed, in your hand. Give it to someone when you\'re ready.' : 'In your hand. Play it any time.';
+        label = sealed ? 'Sealed, in your hand. Give it to someone when you\'re ready.'
+          : given ? `In your hand. ${esc(E.nameOf(s, at.from))} gave you this card, so it's stuck with you.${endsTurn}`
+          : 'In your hand. Play it any time.';
         cardHtml = still(card);
-        actions = (sealed ? button('give', 'Give to Player', 'btn-gold') : button('show', 'Show to All', 'btn-gold') + button('give', 'Give to Player'))
+        actions = (sealed ? button('give', 'Give to Player', 'btn-gold')
+          : button('show', 'Show to All', 'btn-gold') + (given ? '' : button('give', 'Give to Player')))
           + button('discard', 'Discard') + button('close', 'Close', 'btn-ghost');
         break;
       case 'table': {
@@ -580,7 +593,9 @@ export function initGame(app) {
         if (mine) actions += button('takeback', 'Back to My Hand') + button('discard', 'Discard');
         else if (isHost) actions += button('discard', 'Discard');
         actions += button('close', 'Close', 'btn-ghost');
-        if (mine) body = '<p class="viewer-note">Cards on the table go to the discard pile when the turn ends.</p>';
+        if (mine) {
+          body = `<p class="viewer-note">${endsTurn ? endsTurn.trim() : 'Cards on the table go to the discard pile when the turn ends.'}</p>`;
+        }
         break;
       }
       case 'shown':

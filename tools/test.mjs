@@ -371,19 +371,74 @@ test('a drawn card waits privately until you show it, give it or keep it', () =>
   assert.equal(act('p0', { k: 'draw' }).ok, false, 'one card at a time');
   assert.equal(act('p0', { k: 'endturn' }).ok, false, 'must deal with it before ending the turn');
 
-  // give it to Sam: it moves to Sam's screen with the same choices
+  // give it to Sam: it moves to Sam's screen
   mustOk(act('p0', { k: 'give', uid: card.uid, to: 'p1' }));
   assert.equal(E.pendingOf(s, 'p0').length, 0);
   assert.equal(E.pendingOf(s, 'p1')[0].from, 'p0');
-  // Sam passes it on to Alex, who keeps it
-  mustOk(act('p1', { k: 'give', uid: card.uid, to: 'p2' }));
-  mustOk(act('p2', { k: 'keep', uid: card.uid }));
-  assert.deepEqual(E.handOf(s, 'p2').map(c => c.uid), [card.uid]);
-  // Alex can show it later, even though it isn't their turn
-  mustOk(act('p2', { k: 'show', uid: card.uid }));
-  assert.equal(s.game.table[0].by, 'p2');
+  // it's stuck with Sam, who keeps it
+  assert.match(act('p1', { k: 'give', uid: card.uid, to: 'p2' }).err, /Host gave you this card, so it's stuck with you/);
+  mustOk(act('p1', { k: 'keep', uid: card.uid }));
+  assert.match(act('p1', { k: 'give', uid: card.uid, to: 'p2' }).err, /stuck with you/, 'even from their hand');
+  assert.deepEqual(E.handOf(s, 'p1').map(c => c.uid), [card.uid]);
+  // Sam can show it later
+  mustOk(act('p1', { k: 'show', uid: card.uid }));
+  assert.equal(s.game.table[0].by, 'p1');
   assert.equal(s.showSeq, 1);
-  assert.equal(act('p1', { k: 'show', uid: card.uid }).ok, false, "can't play someone else's card");
+  assert.equal(act('p2', { k: 'show', uid: card.uid }).ok, false, "can't play someone else's card");
+});
+
+test('a card given away on your turn holds up the turn until it is discarded', () => {
+  const { s, act } = table();
+  act('p0', { k: 'start' });
+  act('p0', { k: 'draw' });
+  const uid = E.pendingOf(s, 'p0')[0].uid;
+  assert.equal(act('p0', { k: 'discard', uid }).ok, false, "you can't throw away a card you drew without playing it");
+  mustOk(act('p0', { k: 'give', uid, to: 'p2' }));
+  assert.equal(E.giftHolder(s), 'p2');
+  assert.match(act('p0', { k: 'endturn' }).err, /Wait for Alex/);
+  // Alex shows it, takes it back, then discards it: that ends the Host's turn
+  mustOk(act('p2', { k: 'show', uid }));
+  assert.equal(E.giftHolder(s), 'p2', 'still Alex’s to finish on the table');
+  mustOk(act('p2', { k: 'takeback', uid }));
+  mustOk(act('p2', { k: 'discard', uid }));
+  assert.equal(s.game.turn, 'p1', 'the turn moved on');
+  assert.equal(s.game.discard.at(-1).uid, uid);
+  assert.equal(E.giftHolder(s), null);
+
+  // straight from the screen works too, and the table is cleared as usual
+  act('p1', { k: 'draw' });
+  const shown = E.pendingOf(s, 'p1')[0].uid;
+  act('p1', { k: 'show', uid: shown });
+  assert.equal(act('p1', { k: 'draw' }).ok, false);
+  s.game.bonus = 1; // pretend it was a bonus draw card
+  act('p1', { k: 'draw' });
+  const given = E.pendingOf(s, 'p1')[0].uid;
+  mustOk(act('p1', { k: 'give', uid: given, to: 'p0' }));
+  mustOk(act('p0', { k: 'discard', uid: given }));
+  assert.equal(s.game.turn, 'p2');
+  assert.equal(s.game.table.length, 0);
+  assert.ok(s.game.discard.some(c => c.uid === shown));
+
+  // kept in a hand, it still holds up the turn until it's discarded from there
+  act('p2', { k: 'draw' });
+  const kept = E.pendingOf(s, 'p2')[0].uid;
+  act('p2', { k: 'give', uid: kept, to: 'p1' });
+  mustOk(act('p1', { k: 'keep', uid: kept }));
+  assert.match(act('p2', { k: 'endturn' }).err, /Wait for Sam/);
+  mustOk(act('p1', { k: 'discard', uid: kept }));
+  assert.equal(s.game.turn, 'p0');
+
+  // a card given while it isn't your turn is still stuck, but doesn't end anyone's turn
+  act('p0', { k: 'draw' });
+  const mine = E.pendingOf(s, 'p0')[0].uid;
+  act('p0', { k: 'keep', uid: mine });
+  mustOk(act('p0', { k: 'endturn' }));
+  assert.equal(s.game.turn, 'p1');
+  mustOk(act('p0', { k: 'give', uid: mine, to: 'p2' }), "giving from your hand on someone else's turn");
+  assert.equal(E.giftHolder(s), null, "it doesn't hold up Sam's turn");
+  assert.match(act('p2', { k: 'give', uid: mine, to: 'p1' }).err, /stuck/);
+  mustOk(act('p2', { k: 'discard', uid: mine }));
+  assert.equal(s.game.turn, 'p1', "discarding it didn't end Sam's turn");
 });
 
 test('ending your turn discards the table and passes the turn on', () => {

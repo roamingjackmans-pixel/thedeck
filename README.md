@@ -14,8 +14,9 @@ Draw a card, do what it says. A party card game for the browser, rebuilt from
 - Players take turns in the order they joined. On your turn, **tap the deck** to draw. The card turns over on
   **your phone only**; everyone else sees that you're looking at a card. Then choose:
   - **Show to All**: it pops up on everyone's phone and lands face up on the table.
-  - **Give to Player**: pick someone. It pops up privately on their phone with the same three choices, so they
-    can show it, pass it on, or keep it.
+  - **Give to Player**: pick someone. It pops up privately on their phone, and **it's stuck with them**: they
+    can show it, keep it or discard it, but not pass it on. When you give a card away on your turn, your turn
+    waits for them, and **ends when they discard it** (from the pop-up, their hand or the table).
   - **Add to Hand**: keep it. Cards in your hand can be shown, given away or discarded **any time**, even when
     it isn't your turn.
 - **Sealed cards** (50 of them, with a red wax seal): whoever draws one only sees the outside, such as "Give this
@@ -140,7 +141,7 @@ npm test
 ```
 
 Checks the drawing rules (no repeats, groups switched off, reshuffling, one room or a video call), the
-multiplayer rules (private draws, one draw per turn, bonus draws, passing cards on, sealed cards opening when given, playing out of turn, ending
+multiplayer rules (private draws, one draw per turn, bonus draws, given cards staying put and ending the turn, sealed cards opening when given, playing out of turn, ending
 turns, reshuffling the discard pile, dropped players, host takeover), the editing rules (groups, cards, imports), publishing against a pretend GitHub (revisions, two
 devices publishing at once, error messages), that card formatting can't run code, and that the shared deck file
 is well formed.

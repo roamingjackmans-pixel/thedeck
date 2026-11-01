@@ -8,7 +8,10 @@
 //     whoever draws it one more draw that turn, once they've dealt with it.
 //   - A drawn card is private: it waits on your phone ("pending") until you choose what to do with it:
 //       show it to everyone (it goes face up on the table), give it to another player (it waits on their
-//       phone with the same choices), or add it to your hand.
+//       phone), or add it to your hand.
+//   - A card someone gives you is stuck with you: you can show it, keep it or discard it, but not pass it
+//     on. A card the player whose turn it is gives away on their turn (gift: the turn number) holds up the
+//     turn: they can't end it themselves, and it ends when the card is discarded.
 //   - Cards in your hand can be shown, given away or discarded at any time, even when it isn't your turn.
 //   - Ending your turn moves every face-up card on the table to the discard pile.
 //   - When the deck runs out, the discard pile is shuffled to make a new deck, like a real one.
@@ -19,7 +22,7 @@
 import { hasBonus, isEligible, isSealed, playOff, shuffle } from './deck.js';
 import { plain } from './markup.js';
 
-export const PROTO = 4;           // bump when the message format or the rules change
+export const PROTO = 5;        // bump when the message format or the rules change
 export const MAX_PLAYERS = 16;
 export const AUTO_SKIP_MS = 20000;       // someone who drops out on their turn is skipped after this long
 const LOG_KEEP = 40;
@@ -179,8 +182,18 @@ const take = (list, uid) => {
 const listFor = (g, kind, pid) => (g[kind][pid] ||= []);
 /** A card the player holds: one waiting on their screen, or one in their hand. */
 const takeHeld = (g, pid, uid) => take(listFor(g, 'pending', pid), uid) || take(listFor(g, 'hands', pid), uid);
-/** What a card copy takes with it when it moves: whether its seal is open, and who gave it. */
-const carry = c => (c.open ? { open: true, ...(c.from ? { from: c.from } : {}) } : {});
+/** What a card copy takes with it when it moves: whether its seal is open, who gave it, and on which turn. */
+const carry = c => ({ ...(c.open ? { open: true } : {}), ...(c.from ? { from: c.from } : {}), ...(c.gift ? { gift: c.gift } : {}) });
+/** Someone gave this card to the player who has it, so it's stuck with them. */
+const isGift = c => !!c?.from;
+/** Who has the card the player whose turn it is gave away this turn (the turn waits for it), or null. */
+function giftOut(s) {
+  const g = s.game;
+  for (const kind of ['pending', 'hands']) {
+    for (const pid in g[kind]) if (g[kind][pid].some(c => c.gift === g.turnNo)) return pid;
+  }
+  return g.table.find(c => c.gift === g.turnNo)?.by || null;
+}
 
 /** Applies a player's action. Returns { ok } or { ok: false, err } with a message to show them. */
 export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.random) {
@@ -282,10 +295,13 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
       const to = String(a.to || '');
       if (!s.players[to]) return no('That player has left');
       if (to === pid) return no("You can't give a card to yourself");
+      const held = [...listFor(g, 'pending', pid), ...listFor(g, 'hands', pid)].find(c => c.uid === uid);
+      if (!held) return no("That card isn't yours any more");
+      if (isGift(held)) return no(`${nameOf(s, held.from)} gave you this card, so it's stuck with you. You can't pass it on.`);
       const card = takeHeld(g, pid, uid);
-      if (!card) return no("That card isn't yours any more");
       const sealed = !card.open && isSealed(deck?.cards.find(c => c.id === card.id));
-      listFor(g, 'pending', to).push({ uid: card.uid, id: card.id, from: pid, open: true });
+      const gift = g.turn === pid ? { gift: g.turnNo } : {};
+      listFor(g, 'pending', to).push({ uid: card.uid, id: card.id, from: pid, open: true, ...gift });
       log(s, sealed ? `${me} gave ${nameOf(s, to)} a sealed card` : `${me} gave a card to ${nameOf(s, to)}`, now, { by: pid, to });
       return ok;
     }
@@ -298,6 +314,7 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
     }
     case 'discard': {
       let card = take(listFor(g, 'hands', pid), uid);
+      if (!card && isGift(listFor(g, 'pending', pid).find(c => c.uid === uid))) card = take(listFor(g, 'pending', pid), uid);
       if (!card) {
         const onTable = g.table.find(c => c.uid === uid);
         if (onTable && (onTable.by === pid || isHost)) card = take(g.table, uid);
@@ -305,6 +322,12 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
       if (!card) return no("You can't discard that card");
       toDiscard(s, card, rand);
       log(s, `${me} discarded "${titleOf(deck, card.id)}"`, now, { by: pid, card: card.id });
+      // The card the player whose turn it is gave away is done with, so their turn is over (unless they're
+      // still looking at a card of their own, when they end it themselves).
+      if (card.gift === g.turnNo && !giftOut(s) && !listFor(g, 'pending', g.turn).length) {
+        clearTable(s, rand);
+        passTurn(s, now);
+      }
       return ok;
     }
     case 'takeback': {
@@ -319,6 +342,8 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
       if (g.turn !== pid) return no("It's not your turn");
       if (!g.drew) return no('Draw a card first');
       if (listFor(g, 'pending', pid).length) return no('Deal with your card first: show it, give it away or add it to your hand');
+      const holder = giftOut(s);
+      if (holder) return no(`Wait for ${nameOf(s, holder)} to finish the card you gave them. Your turn ends when they discard it.`);
       clearTable(s, rand);
       passTurn(s, now);
       return ok;
@@ -338,6 +363,7 @@ export function tick(s, now = Date.now(), rand = Math.random) {
   clearTable(s, rand);
   if (!p) {
     g.turn = s.order.find(id => s.players[id].on);
+    g.turnNo++;
     g.drew = 0;
     g.bonus = 0;
     log(s, `It's ${nameOf(s, g.turn)}'s turn`, now, { turn: g.turn });
@@ -373,6 +399,8 @@ export function syncDeck(s, deck, rand = Math.random) {
 export const isMyTurn = (s, pid) => s.phase === 'play' && s.game?.turn === pid;
 export const pendingOf = (s, pid) => s.game?.pending[pid] || [];
 export const handOf = (s, pid) => s.game?.hands[pid] || [];
+/** Who has the card given away this turn, which the turn is waiting on (null if nobody). */
+export const giftHolder = s => (s.game ? giftOut(s) : null);
 /** How many more cards the player whose turn it is can draw: one a turn, plus any bonus draws. */
 export const drawsLeft = s => (s.game ? Math.max(0, 1 + (s.game.bonus || 0) - s.game.drew) : 0);
 /** How many cards can still be drawn before the discard pile has to be reshuffled. */
