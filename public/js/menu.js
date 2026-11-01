@@ -406,7 +406,7 @@ export function initMenu(app) {
 
   function renderFilter() {
     const keep = ui.filter.value;
-    const opts = [['all', 'All cards'], ['none', 'In no group'], ['sealed', 'Sealed (give-away) cards'], ...deck().groups.map(g => [`g:${g.id}`, `In: ${g.name}`])];
+    const opts = [['all', 'All cards'], ['none', 'In no group'], ['sealed', 'Sealed (give-away) cards'], ['bonus', 'Bonus draw cards'], ...deck().groups.map(g => [`g:${g.id}`, `In: ${g.name}`])];
     ui.filter.innerHTML = opts.map(([val, label]) => `<option value="${esc(val)}">${esc(label)}</option>`).join('');
     ui.filter.value = opts.some(([val]) => val === keep) ? keep : 'all';
   }
@@ -417,12 +417,14 @@ export function initMenu(app) {
     return deck().cards.filter(c => {
       if (f === 'none' && c.groups.length) return false;
       if (f === 'sealed' && !Deck.isSealed(c)) return false;
+      if (f === 'bonus' && !Deck.hasBonus(c)) return false;
       if (f.startsWith('g:') && !c.groups.includes(f.slice(2))) return false;
       return !term || `${c.title}\n${c.text}\n${c.secret || ''}\n${c.flavor}`.toLowerCase().includes(term);
     });
   }
 
   const chipsHtml = c => (Deck.isSealed(c) ? '<span class="chip chip-sealed">Sealed</span>' : '')
+    + (Deck.hasBonus(c) ? '<span class="chip chip-bonus">Bonus draw</span>' : '')
     + c.groups.map(id => `<span class="chip">${esc(groupName(id))}</span>`).join('');
 
   function rowHeadHtml(c) {
@@ -511,6 +513,13 @@ export function initMenu(app) {
         <p class="help-block group-help">${groupHelp(c)}</p>
       </fieldset>
       <div class="field">
+        <span class="field-label">Turns</span>
+        <div class="chips"><label class="chip-check">
+          <input type="checkbox" data-act="card-bonus"${Deck.hasBonus(c) ? ' checked' : ''}><span>Bonus draw</span></label></div>
+        <p class="help-block">For cards like "Draw another card". In a lobby everyone draws one card per turn, and
+          whoever draws this one gets to draw one more.</p>
+      </div>
+      <div class="field">
         <span class="field-label">Preview</span>
         <div class="preview"></div>
         <p class="help-block">Formatting: *italic*, **bold**, [link](https://…). Lines starting with "1." or "-" make a list.</p>
@@ -579,6 +588,17 @@ export function initMenu(app) {
   });
 
   ui.cardList.addEventListener('change', e => {
+    const bonus = e.target.closest('[data-act="card-bonus"]');
+    if (bonus) {
+      const row = bonus.closest('.card-row');
+      const c = cardById(Number(row.dataset.card));
+      if (!c) return;
+      if (bonus.checked) c.bonus = true;
+      else delete c.bonus;
+      refreshRow(row, c);
+      changed();
+      return;
+    }
     const box = e.target.closest('[data-act="card-group"]');
     if (!box) return;
     const row = box.closest('.card-row');

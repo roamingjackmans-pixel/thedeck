@@ -920,7 +920,8 @@
       "title": "Lose-Lose Situation",
       "text": "Choose another card. All players must perform that card.",
       "flavor": "",
-      "groups": []
+      "groups": [],
+      "bonus": true
     },
     {
       "id": 129,
@@ -1011,7 +1012,8 @@
       "title": "Don't be Hatin'",
       "text": "Draw another card. Everyone must do what's on the card.",
       "flavor": "",
-      "groups": []
+      "groups": [],
+      "bonus": true
     },
     {
       "id": 142,

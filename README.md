@@ -29,6 +29,8 @@ Draw a card, do what it says. A party card game for the browser, rebuilt from
   passing drinks round) stay out. In one room it's the other way round.
 - **One card per turn.** Once you've drawn, the deck is locked until the next player's turn. **End Turn** moves
   every face-up card on the table to the discard pile and passes the turn on.
+- **Bonus draws:** cards that say to draw another card ("Don't be Hatin'", "Lose-Lose Situation") give whoever
+  draws them one more draw that turn, once they've dealt with the card. Any card can be made one in the editor.
 - When the deck runs out, the discard pile is **shuffled back in**, like a real deck.
 - The host can skip a turn, remove someone who left, or end the game. Someone who drops out on their turn is
   skipped after 20 seconds, and gets their seat and hand back when they return.
@@ -90,6 +92,8 @@ New in this version (the **Edit Cards** tab of the secret menu):
 - **Edit any card**: title, text and flavor text, with a live preview. Fill in a card's **Sealed part** to make
   it a sealed give-away card (and empty it to make it an ordinary card again). The card list can show just the
   sealed cards.
+- Tick **Bonus draw** on a card like "Draw another card" so whoever draws it in a lobby gets one more draw that
+  turn. The card list can show just these too.
 - **Put a card in any number of groups** by tapping group pills. A card only comes up when every one of its
   groups is checked in Options. A card in no groups can always come up.
 - **Add groups** (in Options, or with "+ New group" right inside a card), and rename or delete them.
@@ -136,7 +140,7 @@ npm test
 ```
 
 Checks the drawing rules (no repeats, groups switched off, reshuffling, one room or a video call), the
-multiplayer rules (private draws, one draw per turn, passing cards on, sealed cards opening when given, playing out of turn, ending
+multiplayer rules (private draws, one draw per turn, bonus draws, passing cards on, sealed cards opening when given, playing out of turn, ending
 turns, reshuffling the discard pile, dropped players, host takeover), the editing rules (groups, cards, imports), publishing against a pretend GitHub (revisions, two
 devices publishing at once, error messages), that card formatting can't run code, and that the shared deck file
 is well formed.

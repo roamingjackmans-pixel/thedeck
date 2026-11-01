@@ -1017,6 +1017,7 @@ dialog.menu::backdrop { background: rgba(0, 0, 0, 0.5); }
 .pv-inside { margin-top: 8px; padding: 8px 10px; border: 1px dashed var(--border-strong); border-radius: 6px; overflow-wrap: anywhere; }
 .pv-inside-label { display: block; margin-bottom: 2px; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
 .chip-sealed { background: color-mix(in srgb, var(--danger) 16%, var(--panel)); color: var(--danger); }
+.chip-bonus { background: color-mix(in srgb, var(--primary) 16%, var(--panel)); color: var(--primary); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

@@ -11,7 +11,7 @@
 import { Room, cleanCode } from './net.js';
 import * as E from './engine.js';
 import * as Store from './store.js';
-import { PLACE, isPlaceGroup, isSealed } from './deck.js';
+import { PLACE, hasBonus, isPlaceGroup, isSealed } from './deck.js';
 import { faceHtml, flipHtml, flipUp, pileHtml, fitCard } from './cards.js';
 import { escapeHtml as esc, plain, render as renderText } from './markup.js';
 
@@ -425,14 +425,16 @@ export function initGame(app) {
 
     if (myTurn) {
       ui.banner.textContent = waiting.length ? "Your turn. Choose what to do with your card."
-        : g.drew ? "That's your card for this turn. End your turn when you're done." : 'Your turn! Tap the deck to draw a card.';
+        : !g.drew ? 'Your turn! Tap the deck to draw a card.'
+        : E.drawsLeft(s) ? 'Bonus draw! Tap the deck to draw one more card.'
+        : "That's your card for this turn. End your turn when you're done.";
     } else {
       const looking = E.pendingOf(s, g.turn).length;
       ui.banner.textContent = `${E.nameOf(s, g.turn)}'s turn${looking ? ' · looking at a card…' : ''}`;
     }
     ui.banner.classList.toggle('mine', myTurn);
 
-    const canDraw = myTurn && !g.drew && !waiting.length;
+    const canDraw = myTurn && E.drawsLeft(s) > 0 && !waiting.length;
     const left = E.drawable(s, deck);
     ui.drawPile.innerHTML = left
       ? pileHtml(left, { label: `${left} left`, active: canDraw })
@@ -554,10 +556,10 @@ export function initGame(app) {
     switch (v.kind) {
       case 'pending':
         if (sealed) {
-          label = 'You drew a sealed card. Read who it\'s for, then give it to them.';
+          label = 'You drew a sealed card. Read who it\'s for, then give it to them.' + (hasBonus(card) ? ' You get a bonus draw.' : '');
           actions = button('give', 'Give to Player', 'btn-gold') + button('keep', 'Keep It for Later');
         } else {
-          label = !at.from ? 'You drew this card. Only you can see it.'
+          label = !at.from ? (hasBonus(card) ? 'Bonus draw! Deal with this card, then draw one more.' : 'You drew this card. Only you can see it.')
             : isSealed(card) ? `${esc(E.nameOf(s, at.from))} picked you for this sealed card. Only you can see inside.`
             : `${esc(E.nameOf(s, at.from))} gave you this card`;
           actions = button('show', 'Show to All', 'btn-gold') + button('give', 'Give to Player') + button('keep', 'Add to Hand');

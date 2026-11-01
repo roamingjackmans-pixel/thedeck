@@ -4,7 +4,8 @@
 //
 // How a game goes:
 //   - Players take turns in the order they joined. On your turn you draw one card from the top of the deck
-//     (only one: the next card waits for the next player).
+//     (only one: the next card waits for the next player). A bonus draw card ("Draw another card") gives
+//     whoever draws it one more draw that turn, once they've dealt with it.
 //   - A drawn card is private: it waits on your phone ("pending") until you choose what to do with it:
 //       show it to everyone (it goes face up on the table), give it to another player (it waits on their
 //       phone with the same choices), or add it to your hand.
@@ -15,10 +16,10 @@
 //     one room or on a video call (that switches the "Same room only" and "Video call only" cards).
 //   - Sealed cards (cards with a secret) open when they're given to someone: the card copy remembers it
 //     (open: true) wherever it goes next, and who gave it, so the table can say who picked who.
-import { isEligible, isSealed, playOff, shuffle } from './deck.js';
+import { hasBonus, isEligible, isSealed, playOff, shuffle } from './deck.js';
 import { plain } from './markup.js';
 
-export const PROTO = 3;              // bump when the message format or the rules change
+export const PROTO = 4;           // bump when the message format or the rules change
 export const MAX_PLAYERS = 16;
 export const AUTO_SKIP_MS = 20000;       // someone who drops out on their turn is skipped after this long
 const LOG_KEEP = 40;
@@ -118,7 +119,7 @@ const roomOff = s => playOff(s.rules.off, s.rules.remote);
 function newGame(s, deck, rand) {
   s.gameNo++;
   s.game = {
-    turn: null, turnNo: 1, drew: 0,
+    turn: null, turnNo: 1, drew: 0, bonus: 0,       // cards drawn this turn, and bonus draws earned
     shoe: shuffle(deck.cards.map(c => c.id), rand), // the deck: the top card is the last one
     discard: [],                                    // face up: the top card is the last one
     hands: {}, pending: {}, table: [],
@@ -141,6 +142,7 @@ function passTurn(s, now) {
       g.turn = id;
       g.turnNo++;
       g.drew = 0;
+      g.bonus = 0;
       log(s, `It's ${nameOf(s, id)}'s turn`, now, { turn: id });
       return;
     }
@@ -247,7 +249,10 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
   switch (a.k) {
     case 'draw': {
       if (g.turn !== pid) return no("It's not your turn");
-      if (g.drew) return no('You already drew your card this turn. End your turn to pass the deck on.');
+      if (!drawsLeft(s)) {
+        return no(g.bonus ? "You've used your bonus draw. End your turn to pass the deck on."
+          : 'You already drew your card this turn. End your turn to pass the deck on.');
+      }
       if (listFor(g, 'pending', pid).length) return no('Deal with the card you have first');
       if (!deck) return no('The deck is still loading');
       const byId = new Map(deck.cards.map(c => [c.id, c]));
@@ -261,8 +266,9 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
       }
       if (!card) return no("There's nothing left to draw. The cards left are switched off or in people's hands.");
       listFor(g, 'pending', pid).push({ uid: ++g.nextUid, id: card.id, from: null });
+      log(s, g.drew ? `${me} took a bonus draw` : `${me} drew a card`, now, { by: pid });
       g.drew++;
-      log(s, `${me} drew a card`, now, { by: pid });
+      if (hasBonus(card)) g.bonus++;
       return ok;
     }
     case 'show': {
@@ -333,6 +339,7 @@ export function tick(s, now = Date.now(), rand = Math.random) {
   if (!p) {
     g.turn = s.order.find(id => s.players[id].on);
     g.drew = 0;
+    g.bonus = 0;
     log(s, `It's ${nameOf(s, g.turn)}'s turn`, now, { turn: g.turn });
     return true;
   }
@@ -366,6 +373,8 @@ export function syncDeck(s, deck, rand = Math.random) {
 export const isMyTurn = (s, pid) => s.phase === 'play' && s.game?.turn === pid;
 export const pendingOf = (s, pid) => s.game?.pending[pid] || [];
 export const handOf = (s, pid) => s.game?.hands[pid] || [];
+/** How many more cards the player whose turn it is can draw: one a turn, plus any bonus draws. */
+export const drawsLeft = s => (s.game ? Math.max(0, 1 + (s.game.bonus || 0) - s.game.drew) : 0);
 /** How many cards can still be drawn before the discard pile has to be reshuffled. */
 export function drawable(s, deck) {
   const g = s.game;

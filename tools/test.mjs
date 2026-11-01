@@ -56,6 +56,19 @@ test('sealed cards keep their secret, and an empty one makes an ordinary card', 
   assert.ok(!Deck.isSealed(d.cards[1]));
 });
 
+test('a bonus draw is kept only when it is switched on, and the draw-again cards have one', () => {
+  const d = Deck.normalizeDeck({ cards: [
+    { id: 1, title: 'Again', text: 'Draw another card.', bonus: true },
+    { id: 2, title: 'Not quite', text: 'x', bonus: 'yes' },
+    { id: 3, title: 'Plain', text: 'x' },
+  ] });
+  assert.deepEqual(d.cards.map(Deck.hasBonus), [true, false, false]);
+  assert.equal('bonus' in d.cards[1], false);
+  for (const deck of [Deck.normalizeDeck(readJson('cards.json')), original]) {
+    assert.deepEqual(deck.cards.filter(Deck.hasBonus).map(c => c.id), [128, 141]);
+  }
+});
+
 test('"Where are you playing?" switches the same-room and video call cards', () => {
   const deck = {
     groups: [{ id: 'snow', name: 'Snow' }, { id: Deck.PLACE.room, name: 'Same room only' }, { id: Deck.PLACE.call, name: 'Video call only' }],
@@ -500,6 +513,35 @@ test('one draw per turn holds through a reconnect and a new host, and a skipped 
   mustOk(act('p1', { k: 'skip' }));
   assert.equal(s.game.turn, 'p1');
   mustOk(act('p1', { k: 'draw' }), 'the next player gets their draw');
+});
+
+test('a bonus draw card gives whoever draws it one more draw that turn', () => {
+  const deck = { groups: [], cards: [1, 2, 3, 4, 5].map(id => ({ id, title: `C${id}`, text: 'x', flavor: '', groups: [], ...(id === 1 ? { bonus: true } : {}) })) };
+  const { s, act } = table(['Host', 'Sam'], deck);
+  act('p0', { k: 'start' });
+  s.game.shoe = [5, 4, 3, 2, 1]; // the bonus card is on top
+  mustOk(act('p0', { k: 'draw' }));
+  assert.equal(E.drawsLeft(s), 1);
+  assert.match(act('p0', { k: 'draw' }).err, /Deal with/, 'deal with the bonus card first');
+  act('p0', { k: 'show', uid: E.pendingOf(s, 'p0')[0].uid });
+  mustOk(act('p0', { k: 'draw' }), 'the bonus draw');
+  assert.equal(s.log.at(-1).text, 'Host took a bonus draw');
+  act('p0', { k: 'show', uid: E.pendingOf(s, 'p0')[0].uid });
+  assert.equal(E.drawsLeft(s), 0);
+  assert.match(act('p0', { k: 'draw' }).err, /used your bonus draw/, 'only one more');
+  mustOk(act('p0', { k: 'endturn' }));
+  mustOk(act('p1', { k: 'draw' }));
+  act('p1', { k: 'show', uid: E.pendingOf(s, 'p1')[0].uid });
+  assert.match(act('p1', { k: 'draw' }).err, /already drew/, 'the bonus went with the turn');
+  // an unused bonus doesn't carry over either
+  s.game.shoe.push(1);
+  mustOk(act('p1', { k: 'endturn' }));
+  mustOk(act('p0', { k: 'draw' }));
+  act('p0', { k: 'keep', uid: E.pendingOf(s, 'p0')[0].uid });
+  mustOk(act('p0', { k: 'endturn' }), 'the bonus draw is optional');
+  mustOk(act('p1', { k: 'draw' }));
+  act('p1', { k: 'keep', uid: E.pendingOf(s, 'p1')[0].uid });
+  assert.equal(act('p1', { k: 'draw' }).ok, false);
 });
 
 test('cards added to or deleted from the host deck mid-game join or leave the draw pile', () => {
