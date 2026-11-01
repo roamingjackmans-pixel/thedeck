@@ -491,7 +491,8 @@ export function initMenu(app) {
         <label class="field-label" for="${id}-secret">Sealed part <span class="optional">(optional)</span></label>
         <textarea id="${id}-secret" data-field="secret" rows="3" maxlength="2000" placeholder="Fill this in to make it a give-away card">${esc(c.secret || '')}</textarea>
         <p class="help-block">Makes it a sealed card. Whoever draws it only sees the text above (say, "Give this card to
-          the player most likely to…") and has to give it to someone. This part opens on that player's phone.</p>
+          the player most likely to…") and has to give it to someone. This part opens on that player's phone. Only
+          sealed cards can be given to another player.</p>
       </div>
       <div class="field">
         <label class="field-label" for="${id}-flavor">Flavor text <span class="optional">(optional)</span></label>

@@ -7,8 +7,8 @@
 //     (only one: the next card waits for the next player). A bonus draw card ("Draw another card") gives
 //     whoever draws it one more draw that turn, once they've dealt with it.
 //   - A drawn card is private: it waits on your phone ("pending") until you choose what to do with it:
-//       show it to everyone (it goes face up on the table), give it to another player (it waits on their
-//       phone), or add it to your hand.
+//       show it to everyone (it goes face up on the table), or add it to your hand. Sealed cards ("Give this
+//       card to…") are the only ones that can be given to another player (it waits on their phone).
 //   - A card someone gives you is stuck with you: you can show it, keep it or discard it, but not pass it
 //     on. A card the player whose turn it is gives away on their turn (gift: the turn number) holds up the
 //     turn: they can't end it themselves, and it ends when the card is discarded.
@@ -22,7 +22,7 @@
 import { hasBonus, isEligible, isSealed, playOff, shuffle } from './deck.js';
 import { plain } from './markup.js';
 
-export const PROTO = 5;        // bump when the message format or the rules change
+export const PROTO = 6;        // bump when the message format or the rules change
 export const MAX_PLAYERS = 16;
 export const AUTO_SKIP_MS = 20000;       // someone who drops out on their turn is skipped after this long
 const LOG_KEEP = 40;
@@ -298,8 +298,10 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
       const held = [...listFor(g, 'pending', pid), ...listFor(g, 'hands', pid)].find(c => c.uid === uid);
       if (!held) return no("That card isn't yours any more");
       if (isGift(held)) return no(`${nameOf(s, held.from)} gave you this card, so it's stuck with you. You can't pass it on.`);
+      if (!deck) return no('The deck is still loading');
+      if (!isSealed(deck.cards.find(c => c.id === held.id))) return no('Only sealed cards can be given to another player. Show this one to everyone or keep it.');
       const card = takeHeld(g, pid, uid);
-      const sealed = !card.open && isSealed(deck?.cards.find(c => c.id === card.id));
+      const sealed = !card.open;
       const gift = g.turn === pid ? { gift: g.turnNo } : {};
       listFor(g, 'pending', to).push({ uid: card.uid, id: card.id, from: pid, open: true, ...gift });
       log(s, sealed ? `${me} gave ${nameOf(s, to)} a sealed card` : `${me} gave a card to ${nameOf(s, to)}`, now, { by: pid, to });

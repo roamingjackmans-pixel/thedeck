@@ -2,8 +2,9 @@
 // The room state comes from net.js (the host runs engine.js); this file draws it and turns taps into actions.
 //
 // On the table, a big card viewer pops up for whatever needs attention, most important first:
-//   1. something you opened yourself (a card in your hand, on the table, the discard pile, host controls)
-//   2. a card waiting on you: one you drew (Show to All, Give to Player, Add to Hand), or one someone gave you,
+//   1. something you opened yourself (a card in your hand, on the table, the discard pile, host controls),
+//      or a card you just showed everyone (it stays up on your phone, with End Turn when your turn is done)
+//   2. a card waiting on you: one you drew (Show to All, Add to Hand; a sealed one: Give to Player), or one someone gave you,
 //      which is stuck with you (Show to All, Add to Hand, Discard; discarding it can end the giver's turn)
 //   3. a card someone just showed everyone
 //
@@ -193,7 +194,12 @@ export function initGame(app) {
       r.on('state', st => onState(st)),
       r.on('deck', d => { deck = d; render(); }),
       r.on('status', t => { netStatus = t; render(); }),
-      r.on('error', msg => { app.toast(msg, 3500); viewerKey = ''; renderViewer(); }),
+      r.on('error', msg => {
+        app.toast(msg, 3500);
+        if (view?.sending) view = null; // the host said no, so the card didn't go on the table
+        viewerKey = '';
+        renderViewer();
+      }),
       r.on('toast', msg => app.toast(msg, 3500)),
       r.on('progress', msg => homeMessage(msg)),
       r.on('role', () => { viewerKey = ''; if (s) render(); }),
@@ -504,10 +510,13 @@ export function initGame(app) {
     const g = s.game;
     const pid = me();
     if (view) {
+      const where = view.uid != null ? locate(view.uid)?.where : null;
+      // A card you just showed stays up on your phone. Until the host says it's on the table, it's on its way.
+      if (view.kind === 'table' && where === 'table') delete view.sending;
       const stillThere = ['discard', 'host', 'rules'].includes(view.kind)
-        || (view.kind === 'give' && ['pending', 'hand'].includes(locate(view.uid)?.where))
-        || (view.kind === 'hand' && locate(view.uid)?.where === 'hand')
-        || (view.kind === 'table' && locate(view.uid)?.where === 'table');
+        || (view.kind === 'give' && ['pending', 'hand'].includes(where))
+        || (view.kind === 'hand' && where === 'hand')
+        || (view.kind === 'table' && (where === 'table' || (view.sending && ['pending', 'hand'].includes(where))));
       if (view.kind === 'discard' && !g.discard.length) view = null;
       else if (!stillThere) view = null;
     }
@@ -536,7 +545,7 @@ export function initGame(app) {
     const at = v.uid != null ? locate(v.uid) : null;
     const card = at ? cardOf(at.id) : null;
     const others = s ? s.order.filter(id => id !== pid).map(id => [id, s.players[id].name, s.players[id].on]) : [];
-    const key = JSON.stringify([v, at, card?.id, card?.title, card?.text, card?.flavor, isHost, others, g?.discard.length, g?.turn, g?.turnNo, s?.rules, deck?.groups]);
+    const key = JSON.stringify([v, at, card?.id, card?.title, card?.text, card?.flavor, isHost, others, g?.discard.length, g?.turn, g?.turnNo, g?.drew, E.drawsLeft(s || {}), E.giftHolder(s || {}), E.pendingOf(s || {}, pid).length, s?.rules, deck?.groups]);
     if (key === viewerKey) return;
     viewerKey = key;
 
@@ -570,9 +579,7 @@ export function initGame(app) {
           label = !given ? (hasBonus(card) ? 'Bonus draw! Deal with this card, then draw one more.' : 'You drew this card. Only you can see it.')
             : (isSealed(card) ? `${esc(E.nameOf(s, at.from))} picked you for this sealed card. Only you can see inside.`
               : `${esc(E.nameOf(s, at.from))} gave you this card. It's stuck with you.`) + endsTurn;
-          actions = given
-            ? button('show', 'Show to All', 'btn-gold') + button('keep', 'Add to Hand') + button('discard', 'Discard')
-            : button('show', 'Show to All', 'btn-gold') + button('give', 'Give to Player') + button('keep', 'Add to Hand');
+          actions = button('show', 'Show to All', 'btn-gold') + button('keep', 'Add to Hand') + (given ? button('discard', 'Discard') : '');
         }
         cardHtml = turning(v.uid, card);
         actions += '<button type="button" class="btn-link light" data-va="hide">Hide it for now</button>';
@@ -582,19 +589,24 @@ export function initGame(app) {
           : given ? `In your hand. ${esc(E.nameOf(s, at.from))} gave you this card, so it's stuck with you.${endsTurn}`
           : 'In your hand. Play it any time.';
         cardHtml = still(card);
-        actions = (sealed ? button('give', 'Give to Player', 'btn-gold')
-          : button('show', 'Show to All', 'btn-gold') + (given ? '' : button('give', 'Give to Player')))
+        actions = (sealed ? button('give', 'Give to Player', 'btn-gold') : button('show', 'Show to All', 'btn-gold'))
           + button('discard', 'Discard') + button('close', 'Close', 'btn-ghost');
         break;
       case 'table': {
-        const mine = at.by === pid;
-        label = `${mine ? 'You' : esc(E.nameOf(s, at.by))} showed everyone this card${picked}`;
+        const landed = at.where === 'table'; // not yet: you just tapped Show to All and it's on its way
+        const mine = !landed || at.by === pid;
+        label = landed ? `${mine ? 'You' : esc(E.nameOf(s, at.by))} showed everyone this card${picked}` : 'Showing everyone…';
         cardHtml = still(card);
-        if (mine) actions += button('takeback', 'Back to My Hand') + button('discard', 'Discard');
-        else if (isHost) actions += button('discard', 'Discard');
+        const myTurn = g.turn === pid && g.drew > 0 && !E.pendingOf(s, pid).length && !E.giftHolder(s);
+        const bonusLeft = myTurn && E.drawsLeft(s) > 0;
+        if (landed && mine && myTurn && !bonusLeft) actions += button('endturn', 'End Turn', 'btn-gold');
+        if (landed && mine) actions += button('takeback', 'Back to My Hand') + button('discard', 'Discard');
+        else if (landed && isHost) actions += button('discard', 'Discard');
         actions += button('close', 'Close', 'btn-ghost');
         if (mine) {
-          body = `<p class="viewer-note">${endsTurn ? endsTurn.trim() : 'Cards on the table go to the discard pile when the turn ends.'}</p>`;
+          body = `<p class="viewer-note">${endsTurn ? endsTurn.trim()
+            : bonusLeft ? 'Bonus draw! Close this to draw one more card.'
+            : 'Cards on the table go to the discard pile when the turn ends.'}</p>`;
         }
         break;
       }
@@ -657,9 +669,11 @@ export function initGame(app) {
     if (!b || !room) return;
     const v = currentView();
     if (!v) return;
-    const act = a => { room.act(a); };
+    const act = a => room.act(a);
     switch (b.dataset.va) {
-      case 'show': act({ k: 'show', uid: v.uid }); view = null; break;
+      // The card stays up on your phone once it's shown (as "Showing everyone…" until the host answers).
+      case 'show': view = act({ k: 'show', uid: v.uid }) ? { kind: 'table', uid: v.uid, sending: true } : null; break;
+      case 'endturn': act({ k: 'endturn' }); view = null; break;
       case 'keep': act({ k: 'keep', uid: v.uid }); break;
       case 'discard': act({ k: 'discard', uid: v.uid }); view = null; break;
       case 'takeback': act({ k: 'takeback', uid: v.uid }); view = null; break;
@@ -687,7 +701,8 @@ export function initGame(app) {
     renderViewer();
     // Until the host answers, the same card stays up: don't let a double tap send it twice.
     const sent = ['show', 'keep', 'discard', 'takeback', 'give-to'].includes(b.dataset.va);
-    if (sent && currentView()?.uid === v.uid) {
+    const now = currentView();
+    if (sent && now?.uid === v.uid && now.kind === v.kind) {
       for (const btn of ui.viewer.querySelectorAll('button')) btn.disabled = true;
       setTimeout(() => { viewerKey = ''; renderViewer(); }, 4000); // in case the answer never comes
     }

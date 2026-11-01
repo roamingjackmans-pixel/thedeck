@@ -350,6 +350,11 @@ function table(names = ['Host', 'Sam', 'Alex'], deck = original, seed = 5) {
   return { s, act, rand };
 }
 const mustOk = r => { assert.ok(r.ok, r.err); return r; };
+// Sealed (give-away) cards: the only ones that can be given to another player.
+const sealedDeck = {
+  groups: [],
+  cards: [1, 2, 3, 4, 5, 6, 7, 8].map(id => ({ id, title: `Give ${id}`, text: 'Give this card to…', flavor: '', groups: [], secret: 'Drink 2.' })),
+};
 
 test('a game starts with the whole deck shuffled and the host to play', () => {
   const { s, act } = table();
@@ -360,18 +365,25 @@ test('a game starts with the whole deck shuffled and the host to play', () => {
   assert.equal(s.game.turn, 'p0');
 });
 
-test('a drawn card waits privately until you show it, give it or keep it', () => {
-  const { s, act } = table();
-  act('p0', { k: 'start' });
-  assert.equal(act('p1', { k: 'draw' }).ok, false, "can't draw on someone else's turn");
-  mustOk(act('p0', { k: 'draw' }));
-  const [card] = E.pendingOf(s, 'p0');
-  assert.ok(card && card.uid);
-  assert.equal(s.game.shoe.length, 152);
-  assert.equal(act('p0', { k: 'draw' }).ok, false, 'one card at a time');
-  assert.equal(act('p0', { k: 'endturn' }).ok, false, 'must deal with it before ending the turn');
+test('a drawn card waits privately until you show it or keep it, and only sealed cards can be given', () => {
+  const t = table();
+  t.act('p0', { k: 'start' });
+  assert.equal(t.act('p1', { k: 'draw' }).ok, false, "can't draw on someone else's turn");
+  mustOk(t.act('p0', { k: 'draw' }));
+  const [plain] = E.pendingOf(t.s, 'p0');
+  assert.ok(plain && plain.uid);
+  assert.equal(t.s.game.shoe.length, 152);
+  assert.equal(t.act('p0', { k: 'draw' }).ok, false, 'one card at a time');
+  assert.equal(t.act('p0', { k: 'endturn' }).ok, false, 'must deal with it before ending the turn');
+  assert.match(t.act('p0', { k: 'give', uid: plain.uid, to: 'p1' }).err, /Only sealed cards/, "an ordinary card can't be given");
+  mustOk(t.act('p0', { k: 'keep', uid: plain.uid }));
+  assert.match(t.act('p0', { k: 'give', uid: plain.uid, to: 'p1' }).err, /Only sealed cards/, 'not from your hand either');
 
-  // give it to Sam: it moves to Sam's screen
+  // a sealed card can be given to Sam: it moves to Sam's screen
+  const { s, act } = table(['Host', 'Sam', 'Alex'], sealedDeck);
+  act('p0', { k: 'start' });
+  act('p0', { k: 'draw' });
+  const [card] = E.pendingOf(s, 'p0');
   mustOk(act('p0', { k: 'give', uid: card.uid, to: 'p1' }));
   assert.equal(E.pendingOf(s, 'p0').length, 0);
   assert.equal(E.pendingOf(s, 'p1')[0].from, 'p0');
@@ -388,7 +400,7 @@ test('a drawn card waits privately until you show it, give it or keep it', () =>
 });
 
 test('a card given away on your turn holds up the turn until it is discarded', () => {
-  const { s, act } = table();
+  const { s, act } = table(undefined, sealedDeck);
   act('p0', { k: 'start' });
   act('p0', { k: 'draw' });
   const uid = E.pendingOf(s, 'p0')[0].uid;
@@ -540,7 +552,7 @@ test('a player who drops out on their turn is skipped, and the host can skip or 
 });
 
 test('a returning player gets their seat and hand back, and a new host can take over', () => {
-  const { s, act } = table();
+  const { s, act } = table(undefined, sealedDeck);
   act('p0', { k: 'start' });
   act('p0', { k: 'draw' });
   act('p0', { k: 'give', uid: E.pendingOf(s, 'p0')[0].uid, to: 'p2' });

@@ -13,15 +13,17 @@ Draw a card, do what it says. A party card game for the browser, rebuilt from
   until the deck runs out or go straight back in. The host can change them mid-game too (the ⋯ button).
 - Players take turns in the order they joined. On your turn, **tap the deck** to draw. The card turns over on
   **your phone only**; everyone else sees that you're looking at a card. Then choose:
-  - **Show to All**: it pops up on everyone's phone and lands face up on the table.
-  - **Give to Player**: pick someone. It pops up privately on their phone, and **it's stuck with them**: they
-    can show it, keep it or discard it, but not pass it on. When you give a card away on your turn, your turn
-    waits for them, and **ends when they discard it** (from the pop-up, their hand or the table).
-  - **Add to Hand**: keep it. Cards in your hand can be shown, given away or discarded **any time**, even when
-    it isn't your turn.
+  - **Show to All**: it pops up on everyone's phone and lands face up on the table. It **stays up on your
+    phone** so you can keep reading it, with **End Turn** right there when you're done.
+  - **Add to Hand**: keep it. Cards in your hand can be shown or discarded **any time**, even when it isn't your
+    turn.
+  - **Give to Player** (sealed cards only, see below): pick someone. It pops up privately on their phone, and
+    **it's stuck with them**: they can show it, keep it or discard it, but not pass it on. When you give a card
+    away on your turn, your turn waits for them, and **ends when they discard it** (from the pop-up, their hand
+    or the table).
 - **Sealed cards** (50 of them, with a red wax seal): whoever draws one only sees the outside, such as "Give this
   card to the player most likely to have sent a nude to the wrong person", and has to **Give to Player** (or keep
-  it sealed in their hand for later). The inside opens on the phone of the player it's given to, and tells them
+  it sealed in their hand for later). They're the only cards that can be given away. The inside opens on the phone of the player it's given to, and tells them
   what happens: a question, a dare, or a twist on the player who picked them. When they show it to everyone,
   the table says who picked who ("Sam picked Alex").
 - **Where are you playing?** The host picks **Together in one room** or **On a video call** in the lobby rules.
@@ -154,7 +156,7 @@ To try multiplayer on one computer, open the site in two or three tabs: each tab
 It shows up at `josephjackman.com/thedeck/` because this repo is named `thedeck` and the account's user site
 (`roamingjackmans-pixel.github.io`) has the `josephjackman.com` custom domain. The workflow also stamps the
 version and adds `?v=<commit>` to every file URL so phones never mix old and new code. The version and commit
-(`v2.5.1 · abc1234`) show at the bottom of the home screen and in the secret menu, so you can tell which build a
+(`v2.6.0 · abc1234`) show at the bottom of the home screen and in the secret menu, so you can tell which build a
 phone is running.
 
 Publishing from the secret menu commits `public/cards.json` to `main`, which runs this same workflow. If you
