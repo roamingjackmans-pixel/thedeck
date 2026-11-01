@@ -69,6 +69,20 @@ test('a bonus draw is kept only when it is switched on, and the draw-again cards
   }
 });
 
+test('save-for-later cards are kept only when switched on, and the deck has 44 of them', () => {
+  const d = Deck.normalizeDeck({ cards: [
+    { id: 1, title: 'Drink Coupon', text: 'Play it when…', keeper: true },
+    { id: 2, title: 'Not quite', text: 'x', keeper: 1 },
+  ] });
+  assert.deepEqual(d.cards.map(Deck.isKeeper), [true, false]);
+  assert.equal('keeper' in d.cards[1], false);
+  const shared = Deck.normalizeDeck(readJson('cards.json')).cards.filter(Deck.isKeeper);
+  assert.equal(shared.length, 44);
+  for (const id of [6, 218, 219, 220]) assert.ok(shared.some(c => c.id === id), `card ${id} is one`);
+  assert.ok(!shared.some(c => Deck.isSealed(c)), 'none of them is also a sealed card');
+  assert.deepEqual(original.cards.filter(Deck.isKeeper).map(c => c.id), [6], 'Get out of Jail Free, in the originals too');
+});
+
 test('"Where are you playing?" switches the same-room and video call cards', () => {
   const deck = {
     groups: [{ id: 'snow', name: 'Snow' }, { id: Deck.PLACE.room, name: 'Same room only' }, { id: Deck.PLACE.call, name: 'Video call only' }],
@@ -355,6 +369,11 @@ const sealedDeck = {
   groups: [],
   cards: [1, 2, 3, 4, 5, 6, 7, 8].map(id => ({ id, title: `Give ${id}`, text: 'Give this card to…', flavor: '', groups: [], secret: 'Drink 2.' })),
 };
+// Save-for-later cards: the only ones that can go in a hand.
+const keeperDeck = {
+  groups: [],
+  cards: [1, 2, 3, 4, 5, 6].map(id => ({ id, title: `Keep ${id}`, text: 'Play it any time.', flavor: '', groups: [], keeper: true })),
+};
 
 test('a game starts with the whole deck shuffled and the host to play', () => {
   const { s, act } = table();
@@ -365,7 +384,7 @@ test('a game starts with the whole deck shuffled and the host to play', () => {
   assert.equal(s.game.turn, 'p0');
 });
 
-test('a drawn card waits privately until you show it or keep it, and only sealed cards can be given', () => {
+test('a drawn card waits privately: ordinary cards get shown, sealed ones given, save-for-later ones kept', () => {
   const t = table();
   t.act('p0', { k: 'start' });
   assert.equal(t.act('p1', { k: 'draw' }).ok, false, "can't draw on someone else's turn");
@@ -376,23 +395,36 @@ test('a drawn card waits privately until you show it or keep it, and only sealed
   assert.equal(t.act('p0', { k: 'draw' }).ok, false, 'one card at a time');
   assert.equal(t.act('p0', { k: 'endturn' }).ok, false, 'must deal with it before ending the turn');
   assert.match(t.act('p0', { k: 'give', uid: plain.uid, to: 'p1' }).err, /Only sealed cards/, "an ordinary card can't be given");
-  mustOk(t.act('p0', { k: 'keep', uid: plain.uid }));
-  assert.match(t.act('p0', { k: 'give', uid: plain.uid, to: 'p1' }).err, /Only sealed cards/, 'not from your hand either');
+  assert.match(t.act('p0', { k: 'keep', uid: plain.uid }).err, /Only save-for-later cards/, 'or kept');
+  mustOk(t.act('p0', { k: 'show', uid: plain.uid }));
+  assert.match(t.act('p0', { k: 'takeback', uid: plain.uid }).err, /Only save-for-later cards/, 'or taken back into your hand');
+
+  // a save-for-later card goes in your hand, and can be used any time, even on someone else's turn
+  const k = table(['Host', 'Sam'], keeperDeck);
+  k.act('p0', { k: 'start' });
+  k.act('p0', { k: 'draw' });
+  const [saved] = E.pendingOf(k.s, 'p0');
+  mustOk(k.act('p0', { k: 'keep', uid: saved.uid }));
+  assert.equal(k.s.log.at(-1).text, 'Host saved a card for later');
+  assert.match(k.act('p0', { k: 'give', uid: saved.uid, to: 'p1' }).err, /Only sealed cards/);
+  mustOk(k.act('p0', { k: 'endturn' }));
+  assert.equal(k.s.game.turn, 'p1');
+  mustOk(k.act('p0', { k: 'show', uid: saved.uid }), "used on Sam's turn");
+  mustOk(k.act('p0', { k: 'takeback', uid: saved.uid }), 'and taken back if that was a mistake');
+  assert.deepEqual(E.handOf(k.s, 'p0').map(c => c.uid), [saved.uid]);
 
   // a sealed card can be given to Sam: it moves to Sam's screen
   const { s, act } = table(['Host', 'Sam', 'Alex'], sealedDeck);
   act('p0', { k: 'start' });
   act('p0', { k: 'draw' });
   const [card] = E.pendingOf(s, 'p0');
+  assert.match(act('p0', { k: 'keep', uid: card.uid }).err, /Only save-for-later cards/, "a sealed card can't be kept");
   mustOk(act('p0', { k: 'give', uid: card.uid, to: 'p1' }));
   assert.equal(E.pendingOf(s, 'p0').length, 0);
   assert.equal(E.pendingOf(s, 'p1')[0].from, 'p0');
-  // it's stuck with Sam, who keeps it
+  // it's stuck with Sam: no passing it on, and no keeping it either
   assert.match(act('p1', { k: 'give', uid: card.uid, to: 'p2' }).err, /Host gave you this card, so it's stuck with you/);
-  mustOk(act('p1', { k: 'keep', uid: card.uid }));
-  assert.match(act('p1', { k: 'give', uid: card.uid, to: 'p2' }).err, /stuck with you/, 'even from their hand');
-  assert.deepEqual(E.handOf(s, 'p1').map(c => c.uid), [card.uid]);
-  // Sam can show it later
+  assert.match(act('p1', { k: 'keep', uid: card.uid }).err, /Only save-for-later cards/);
   mustOk(act('p1', { k: 'show', uid: card.uid }));
   assert.equal(s.game.table[0].by, 'p1');
   assert.equal(s.showSeq, 1);
@@ -408,10 +440,10 @@ test('a card given away on your turn holds up the turn until it is discarded', (
   mustOk(act('p0', { k: 'give', uid, to: 'p2' }));
   assert.equal(E.giftHolder(s), 'p2');
   assert.match(act('p0', { k: 'endturn' }).err, /Wait for Alex/);
-  // Alex shows it, takes it back, then discards it: that ends the Host's turn
+  // Alex shows it, then discards it from the table: that ends the Host's turn
   mustOk(act('p2', { k: 'show', uid }));
   assert.equal(E.giftHolder(s), 'p2', 'still Alex’s to finish on the table');
-  mustOk(act('p2', { k: 'takeback', uid }));
+  assert.equal(act('p2', { k: 'takeback', uid }).ok, false, "it can't go in a hand");
   mustOk(act('p2', { k: 'discard', uid }));
   assert.equal(s.game.turn, 'p1', 'the turn moved on');
   assert.equal(s.game.discard.at(-1).uid, uid);
@@ -431,26 +463,16 @@ test('a card given away on your turn holds up the turn until it is discarded', (
   assert.equal(s.game.table.length, 0);
   assert.ok(s.game.discard.some(c => c.uid === shown));
 
-  // kept in a hand, it still holds up the turn until it's discarded from there
+  // a card given when it isn't your turn (yours was skipped) is still stuck, but ends nobody's turn
   act('p2', { k: 'draw' });
-  const kept = E.pendingOf(s, 'p2')[0].uid;
-  act('p2', { k: 'give', uid: kept, to: 'p1' });
-  mustOk(act('p1', { k: 'keep', uid: kept }));
-  assert.match(act('p2', { k: 'endturn' }).err, /Wait for Sam/);
-  mustOk(act('p1', { k: 'discard', uid: kept }));
+  const late = E.pendingOf(s, 'p2')[0].uid;
+  mustOk(act('p0', { k: 'skip' }));
   assert.equal(s.game.turn, 'p0');
-
-  // a card given while it isn't your turn is still stuck, but doesn't end anyone's turn
-  act('p0', { k: 'draw' });
-  const mine = E.pendingOf(s, 'p0')[0].uid;
-  act('p0', { k: 'keep', uid: mine });
-  mustOk(act('p0', { k: 'endturn' }));
-  assert.equal(s.game.turn, 'p1');
-  mustOk(act('p0', { k: 'give', uid: mine, to: 'p2' }), "giving from your hand on someone else's turn");
-  assert.equal(E.giftHolder(s), null, "it doesn't hold up Sam's turn");
-  assert.match(act('p2', { k: 'give', uid: mine, to: 'p1' }).err, /stuck/);
-  mustOk(act('p2', { k: 'discard', uid: mine }));
-  assert.equal(s.game.turn, 'p1', "discarding it didn't end Sam's turn");
+  mustOk(act('p2', { k: 'give', uid: late, to: 'p1' }), "giving on someone else's turn");
+  assert.equal(E.giftHolder(s), null, "it doesn't hold up the Host's turn");
+  assert.match(act('p1', { k: 'give', uid: late, to: 'p0' }).err, /stuck/);
+  mustOk(act('p1', { k: 'discard', uid: late }));
+  assert.equal(s.game.turn, 'p0', "discarding it didn't end the Host's turn");
 });
 
 test('ending your turn discards the table and passes the turn on', () => {
@@ -468,16 +490,15 @@ test('ending your turn discards the table and passes the turn on', () => {
   assert.deepEqual(s.game.discard.map(c => c.uid), [card.uid]);
   assert.equal(s.game.turn, 'p1');
   mustOk(act('p1', { k: 'draw' }), 'the next player gets their draw');
-  mustOk(act('p1', { k: 'keep', uid: E.pendingOf(s, 'p1')[0].uid }));
-  assert.equal(act('p1', { k: 'draw' }).ok, false, 'keeping the card does not earn another draw');
-  assert.equal(E.handOf(s, 'p1').length, 1, 'kept cards stay in your hand');
+  mustOk(act('p1', { k: 'show', uid: E.pendingOf(s, 'p1')[0].uid }));
+  assert.equal(act('p1', { k: 'draw' }).ok, false, 'dealing with the card does not earn another draw');
   act('p1', { k: 'endturn' });
-  act('p2', { k: 'draw' }); act('p2', { k: 'keep', uid: E.pendingOf(s, 'p2')[0].uid }); act('p2', { k: 'endturn' });
+  act('p2', { k: 'draw' }); act('p2', { k: 'show', uid: E.pendingOf(s, 'p2')[0].uid }); act('p2', { k: 'endturn' });
   assert.equal(s.game.turn, 'p0', 'back round to the first player');
 });
 
-test('shown cards can be taken back or discarded by whoever showed them', () => {
-  const { s, act } = table();
+test('shown cards can be taken back (save-for-later ones) or discarded by whoever showed them', () => {
+  const { s, act } = table(undefined, keeperDeck);
   act('p0', { k: 'start' });
   act('p0', { k: 'draw' });
   const uid = E.pendingOf(s, 'p0')[0].uid;
@@ -511,7 +532,7 @@ test('switched-off groups never get drawn, and the discard pile is reshuffled wh
   assert.ok(s.game.shuffles >= 2, 'the discard pile went back in');
   assert.deepEqual(new Set(drawn.slice(0, 3)), new Set([1, 2, 3]), 'no repeats before a reshuffle');
   // with everything held in hands, there's nothing to draw
-  const t = table(['Host'], small);
+  const t = table(['Host'], { ...small, cards: small.cards.map(c => ({ ...c, keeper: true })) });
   t.act('p0', { k: 'rules', off: ['snow'] });
   t.act('p0', { k: 'start' });
   for (let i = 0; i < 3; i++) {
@@ -534,7 +555,7 @@ test('with replacement, discarded cards go straight back into the deck', () => {
 test('a player who drops out on their turn is skipped, and the host can skip or remove players', () => {
   const { s, act } = table();
   act('p0', { k: 'start' });
-  act('p0', { k: 'draw' }); act('p0', { k: 'keep', uid: E.pendingOf(s, 'p0')[0].uid }); act('p0', { k: 'endturn' });
+  act('p0', { k: 'draw' }); act('p0', { k: 'show', uid: E.pendingOf(s, 'p0')[0].uid }); act('p0', { k: 'endturn' });
   assert.equal(s.game.turn, 'p1');
   E.setOnline(s, 'p1', false, 10000);
   assert.equal(E.tick(s, 10000 + E.AUTO_SKIP_MS - 1), false, 'gets a moment to come back');
@@ -604,10 +625,10 @@ test('a bonus draw card gives whoever draws it one more draw that turn', () => {
   s.game.shoe.push(1);
   mustOk(act('p1', { k: 'endturn' }));
   mustOk(act('p0', { k: 'draw' }));
-  act('p0', { k: 'keep', uid: E.pendingOf(s, 'p0')[0].uid });
+  act('p0', { k: 'show', uid: E.pendingOf(s, 'p0')[0].uid });
   mustOk(act('p0', { k: 'endturn' }), 'the bonus draw is optional');
   mustOk(act('p1', { k: 'draw' }));
-  act('p1', { k: 'keep', uid: E.pendingOf(s, 'p1')[0].uid });
+  act('p1', { k: 'show', uid: E.pendingOf(s, 'p1')[0].uid });
   assert.equal(act('p1', { k: 'draw' }).ok, false);
 });
 
@@ -630,16 +651,12 @@ test('a sealed card stays sealed until it is given, then stays open wherever it 
   mustOk(act('p0', { k: 'draw' }));
   const [drawn] = E.pendingOf(s, 'p0');
   assert.ok(!drawn.open, 'sealed for whoever drew it');
-  mustOk(act('p0', { k: 'keep', uid: drawn.uid }));
-  assert.ok(!E.handOf(s, 'p0')[0].open, 'still sealed in their hand');
   mustOk(act('p0', { k: 'give', uid: drawn.uid, to: 'p1' }));
   assert.match(s.log.at(-1).text, /Host gave Sam a sealed card/);
   const got = E.pendingOf(s, 'p1')[0];
   assert.deepEqual([got.open, got.from], [true, 'p0'], 'open for Sam, who knows who picked them');
   mustOk(act('p1', { k: 'show', uid: got.uid }));
   assert.deepEqual([s.game.table[0].open, s.game.table[0].from, s.game.table[0].by], [true, 'p0', 'p1'], 'the table says who picked who');
-  mustOk(act('p1', { k: 'takeback', uid: got.uid }));
-  assert.ok(E.handOf(s, 'p1')[0].open);
   mustOk(act('p1', { k: 'discard', uid: got.uid }));
   assert.ok(s.game.discard.at(-1).open);
 });

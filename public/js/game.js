@@ -4,16 +4,17 @@
 // On the table, a big card viewer pops up for whatever needs attention, most important first:
 //   1. something you opened yourself (a card in your hand, on the table, the discard pile, host controls),
 //      or a card you just showed everyone (it stays up on your phone, with End Turn when your turn is done)
-//   2. a card waiting on you: one you drew (Show to All, Add to Hand; a sealed one: Give to Player), or one someone gave you,
-//      which is stuck with you (Show to All, Add to Hand, Discard; discarding it can end the giver's turn)
+//   2. a card waiting on you: one you drew (Show to All; a sealed one: Give to Player; a save-for-later one: Add to
+//      Hand), or one someone gave you, which is stuck with you (Show to All, Discard; discarding it can end the
+//      giver's turn)
 //   3. a card someone just showed everyone
 //
-// Sealed cards stay sealed on the phone of whoever drew them: they can only give them away (or keep them
-// for later). The player they're given to sees them open, and can then show them to everyone as usual.
+// Sealed cards stay sealed on the phone of whoever drew them: they can only give them away. The player
+// they're given to sees them open, and can then show them to everyone as usual.
 import { Room, cleanCode } from './net.js';
 import * as E from './engine.js';
 import * as Store from './store.js';
-import { PLACE, hasBonus, isPlaceGroup, isSealed } from './deck.js';
+import { PLACE, hasBonus, isKeeper, isPlaceGroup, isSealed } from './deck.js';
 import { faceHtml, flipHtml, flipUp, pileHtml, fitCard } from './cards.js';
 import { escapeHtml as esc, plain, render as renderText } from './markup.js';
 
@@ -474,7 +475,7 @@ export function initGame(app) {
     ui.handLabel.textContent = `Your hand (${hand.length})`;
     ui.hand.innerHTML = hand.length
       ? hand.map(c => `<button type="button" class="card-btn" data-hand="${c.uid}">${mini(c)}</button>`).join('')
-      : '<p class="area-empty">Cards you keep go here. Play them any time, even when it isn\'t your turn.</p>';
+      : '<p class="area-empty">Save-for-later cards go here. Use them on someone any time, even when it isn\'t your turn.</p>';
 
     ui.endTurn.hidden = !myTurn;
     ui.endTurn.disabled = !g.drew || waiting.length > 0 || !!holder;
@@ -572,14 +573,20 @@ export function initGame(app) {
 
     switch (v.kind) {
       case 'pending':
+        // Sealed cards get given, save-for-later cards can go in your hand, and everything else gets shown.
         if (sealed) {
           label = 'You drew a sealed card. Read who it\'s for, then give it to them.' + (hasBonus(card) ? ' You get a bonus draw.' : '');
-          actions = button('give', 'Give to Player', 'btn-gold') + button('keep', 'Keep It for Later');
+          actions = button('give', 'Give to Player', 'btn-gold');
+        } else if (given) {
+          label = (isSealed(card) ? `${esc(E.nameOf(s, at.from))} picked you for this sealed card. Only you can see inside.`
+            : `${esc(E.nameOf(s, at.from))} gave you this card. It's stuck with you.`) + endsTurn;
+          actions = button('show', 'Show to All', 'btn-gold') + button('discard', 'Discard');
+        } else if (isKeeper(card)) {
+          label = 'A save-for-later card! Add it to your hand and use it on someone whenever you like.';
+          actions = button('keep', 'Add to Hand', 'btn-gold') + button('show', 'Use It Now');
         } else {
-          label = !given ? (hasBonus(card) ? 'Bonus draw! Deal with this card, then draw one more.' : 'You drew this card. Only you can see it.')
-            : (isSealed(card) ? `${esc(E.nameOf(s, at.from))} picked you for this sealed card. Only you can see inside.`
-              : `${esc(E.nameOf(s, at.from))} gave you this card. It's stuck with you.`) + endsTurn;
-          actions = button('show', 'Show to All', 'btn-gold') + button('keep', 'Add to Hand') + (given ? button('discard', 'Discard') : '');
+          label = hasBonus(card) ? 'Bonus draw! Deal with this card, then draw one more.' : 'You drew this card. Only you can see it.';
+          actions = button('show', 'Show to All', 'btn-gold');
         }
         cardHtml = turning(v.uid, card);
         actions += '<button type="button" class="btn-link light" data-va="hide">Hide it for now</button>';
@@ -587,9 +594,10 @@ export function initGame(app) {
       case 'hand':
         label = sealed ? 'Sealed, in your hand. Give it to someone when you\'re ready.'
           : given ? `In your hand. ${esc(E.nameOf(s, at.from))} gave you this card, so it's stuck with you.${endsTurn}`
+          : isKeeper(card) ? 'Saved for later. Use it any time, even when it isn\'t your turn. Everyone sees it when you do.'
           : 'In your hand. Play it any time.';
         cardHtml = still(card);
-        actions = (sealed ? button('give', 'Give to Player', 'btn-gold') : button('show', 'Show to All', 'btn-gold'))
+        actions = (sealed ? button('give', 'Give to Player', 'btn-gold') : button('show', isKeeper(card) ? 'Use It' : 'Show to All', 'btn-gold'))
           + button('discard', 'Discard') + button('close', 'Close', 'btn-ghost');
         break;
       case 'table': {
@@ -600,7 +608,7 @@ export function initGame(app) {
         const myTurn = g.turn === pid && g.drew > 0 && !E.pendingOf(s, pid).length && !E.giftHolder(s);
         const bonusLeft = myTurn && E.drawsLeft(s) > 0;
         if (landed && mine && myTurn && !bonusLeft) actions += button('endturn', 'End Turn', 'btn-gold');
-        if (landed && mine) actions += button('takeback', 'Back to My Hand') + button('discard', 'Discard');
+        if (landed && mine) actions += (isKeeper(card) ? button('takeback', 'Back to My Hand') : '') + button('discard', 'Discard');
         else if (landed && isHost) actions += button('discard', 'Discard');
         actions += button('close', 'Close', 'btn-ghost');
         if (mine) {
@@ -611,7 +619,7 @@ export function initGame(app) {
         break;
       }
       case 'shown':
-        label = `${esc(E.nameOf(s, at.by))} shows everyone${picked}`;
+        label = `${esc(E.nameOf(s, at.by))} ${isKeeper(card) ? 'used a save-for-later card' : 'shows everyone'}${picked}`;
         cardHtml = turning(v.uid, card);
         actions = button('seen', 'OK', 'btn-gold');
         break;

@@ -12,23 +12,25 @@ Draw a card, do what it says. A party card game for the browser, rebuilt from
 - The **host sets the rules** in the lobby: which card groups are in play, and whether discarded cards stay out
   until the deck runs out or go straight back in. The host can change them mid-game too (the ⋯ button).
 - Players take turns in the order they joined. On your turn, **tap the deck** to draw. The card turns over on
-  **your phone only**; everyone else sees that you're looking at a card. Then choose:
+  **your phone only**; everyone else sees that you're looking at a card. Then:
   - **Show to All**: it pops up on everyone's phone and lands face up on the table. It **stays up on your
     phone** so you can keep reading it, with **End Turn** right there when you're done.
-  - **Add to Hand**: keep it. Cards in your hand can be shown or discarded **any time**, even when it isn't your
-    turn.
+  - **Add to Hand** (save-for-later cards only, see below): keep it to use on someone later.
   - **Give to Player** (sealed cards only, see below): pick someone. It pops up privately on their phone, and
-    **it's stuck with them**: they can show it, keep it or discard it, but not pass it on. When you give a card
-    away on your turn, your turn waits for them, and **ends when they discard it** (from the pop-up, their hand
-    or the table).
+    **it's stuck with them**: they can show it or discard it, but not pass it on or keep it. When you give a
+    card away on your turn, your turn waits for them, and **ends when they discard it** (from the pop-up or the
+    table).
+- **Save-for-later cards** (44 of them, with a gold "Save for later" tag) are the only cards that can go in your
+  hand: "Drink Coupon", "Pass the Buck", "Objection!", "Truth Bomb", "Immunity Idol" and so on. Use one **any
+  time**, even when it isn't your turn: it pops up on everyone's phone ("Sam used a save-for-later card").
 - **Sealed cards** (50 of them, with a red wax seal): whoever draws one only sees the outside, such as "Give this
-  card to the player most likely to have sent a nude to the wrong person", and has to **Give to Player** (or keep
-  it sealed in their hand for later). They're the only cards that can be given away. The inside opens on the phone of the player it's given to, and tells them
-  what happens: a question, a dare, or a twist on the player who picked them. When they show it to everyone,
-  the table says who picked who ("Sam picked Alex").
+  card to the player most likely to have sent a nude to the wrong person", and has to **Give to Player**.
+  They're the only cards that can be given away. The inside opens on the phone of the player it's given to,
+  and tells them what happens: a question, a dare, or a twist on the player who picked them. When they show it
+  to everyone, the table says who picked who ("Sam picked Alex").
 - **Where are you playing?** The host picks **Together in one room** or **On a video call** in the lobby rules.
   On a call, the 50 video call cards come up (show us your fridge, freeze like your video's stuck, scavenger
-  hunts around your home) and the 41 cards that need everyone in one room (kissing, spanking, holding hands,
+  hunts around your home) and the 43 cards that need everyone in one room (kissing, spanking, holding hands,
   passing drinks round) stay out. In one room it's the other way round.
 - **One card per turn.** Once you've drawn, the deck is locked until the next player's turn. **End Turn** moves
   every face-up card on the table to the discard pile and passes the turn on.
@@ -77,15 +79,16 @@ Everything the original did:
   call), **Card Options** (uncheck a group such as "There are girls present" to keep its cards out of the deck)
   and **Reset Shoe** (put every card back). When you're hosting a lobby, these are the lobby's rules.
 - The ¶ in a card's corner is a link to that card (`#card-12`). Clicking it copies the link.
-- All 153 original cards and the original three groups, plus 200 new ones: 100 more party cards (dirty truths,
-  weird reasons to drink, dares), the 50 sealed give-away cards and the 50 video call cards.
+- All 153 original cards and the original three groups, plus 240 new ones: 100 more party cards (dirty truths,
+  weird reasons to drink, dares), the 50 sealed give-away cards, the 50 video call cards and 40 save-for-later
+  cards.
 
 The deck's groups:
 
 | Group | Cards | What it does |
 | --- | --- | --- |
 | Snow on the ground, There are girls present, You can find a stranger | the originals' | Uncheck to leave those cards out |
-| Same room only | 41 | Left out when playing on a video call |
+| Same room only | 43 | Left out when playing on a video call |
 | Video call only | 50 | Only come up when playing on a video call |
 
 The last two follow "Where are you playing?", so they have no checkbox. Put any card in them from the editor.
@@ -95,8 +98,9 @@ New in this version (the **Edit Cards** tab of the secret menu):
 - **Edit any card**: title, text and flavor text, with a live preview. Fill in a card's **Sealed part** to make
   it a sealed give-away card (and empty it to make it an ordinary card again). The card list can show just the
   sealed cards.
-- Tick **Bonus draw** on a card like "Draw another card" so whoever draws it in a lobby gets one more draw that
-  turn. The card list can show just these too.
+- Tick **Save for later** on a card someone should keep and use against someone later (only these can go in a
+  hand), and **Bonus draw** on a card like "Draw another card" so whoever draws it in a lobby gets one more draw
+  that turn. The card list can show just these too.
 - **Put a card in any number of groups** by tapping group pills. A card only comes up when every one of its
   groups is checked in Options. A card in no groups can always come up.
 - **Add groups** (in Options, or with "+ New group" right inside a card), and rename or delete them.
@@ -143,7 +147,7 @@ npm test
 ```
 
 Checks the drawing rules (no repeats, groups switched off, reshuffling, one room or a video call), the
-multiplayer rules (private draws, one draw per turn, bonus draws, given cards staying put and ending the turn, sealed cards opening when given, playing out of turn, ending
+multiplayer rules (private draws, one draw per turn, bonus draws, only sealed cards given and only save-for-later cards kept, given cards staying put and ending the turn, sealed cards opening when given, playing out of turn, ending
 turns, reshuffling the discard pile, dropped players, host takeover), the editing rules (groups, cards, imports), publishing against a pretend GitHub (revisions, two
 devices publishing at once, error messages), that card formatting can't run code, and that the shared deck file
 is well formed.
@@ -156,7 +160,7 @@ To try multiplayer on one computer, open the site in two or three tabs: each tab
 It shows up at `josephjackman.com/thedeck/` because this repo is named `thedeck` and the account's user site
 (`roamingjackmans-pixel.github.io`) has the `josephjackman.com` custom domain. The workflow also stamps the
 version and adds `?v=<commit>` to every file URL so phones never mix old and new code. The version and commit
-(`v2.6.0 · abc1234`) show at the bottom of the home screen and in the secret menu, so you can tell which build a
+(`v2.7.0 · abc1234`) show at the bottom of the home screen and in the secret menu, so you can tell which build a
 phone is running.
 
 Publishing from the secret menu commits `public/cards.json` to `main`, which runs this same workflow. If you

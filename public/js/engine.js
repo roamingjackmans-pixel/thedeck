@@ -6,23 +6,25 @@
 //   - Players take turns in the order they joined. On your turn you draw one card from the top of the deck
 //     (only one: the next card waits for the next player). A bonus draw card ("Draw another card") gives
 //     whoever draws it one more draw that turn, once they've dealt with it.
-//   - A drawn card is private: it waits on your phone ("pending") until you choose what to do with it:
-//       show it to everyone (it goes face up on the table), or add it to your hand. Sealed cards ("Give this
-//       card to…") are the only ones that can be given to another player (it waits on their phone).
-//   - A card someone gives you is stuck with you: you can show it, keep it or discard it, but not pass it
-//     on. A card the player whose turn it is gives away on their turn (gift: the turn number) holds up the
-//     turn: they can't end it themselves, and it ends when the card is discarded.
-//   - Cards in your hand can be shown, given away or discarded at any time, even when it isn't your turn.
+//   - A drawn card is private: it waits on your phone ("pending") until you deal with it: show it to
+//       everyone (it goes face up on the table). Sealed cards ("Give this card to…") are the only ones that
+//       can be given to another player (it waits on their phone), and save-for-later cards (keeper) are the
+//       only ones that can go in your hand.
+//   - A card someone gives you is stuck with you: you can show it or discard it, but not pass it on. A card
+//     the player whose turn it is gives away on their turn (gift: the turn number) holds up the turn: they
+//     can't end it themselves, and it ends when the card is discarded.
+//   - Cards in your hand can be used (shown to everyone) or discarded at any time, even when it isn't your
+//     turn.
 //   - Ending your turn moves every face-up card on the table to the discard pile.
 //   - When the deck runs out, the discard pile is shuffled to make a new deck, like a real one.
 //   - The host sets the rules: which card groups are in play, the draw style, and whether everyone is in
 //     one room or on a video call (that switches the "Same room only" and "Video call only" cards).
 //   - Sealed cards (cards with a secret) open when they're given to someone: the card copy remembers it
 //     (open: true) wherever it goes next, and who gave it, so the table can say who picked who.
-import { hasBonus, isEligible, isSealed, playOff, shuffle } from './deck.js';
+import { hasBonus, isEligible, isKeeper, isSealed, playOff, shuffle } from './deck.js';
 import { plain } from './markup.js';
 
-export const PROTO = 6;        // bump when the message format or the rules change
+export const PROTO = 7;     // bump when the message format or the rules change
 export const MAX_PLAYERS = 16;
 export const AUTO_SKIP_MS = 20000;       // someone who drops out on their turn is skipped after this long
 const LOG_KEEP = 40;
@@ -184,6 +186,9 @@ const listFor = (g, kind, pid) => (g[kind][pid] ||= []);
 const takeHeld = (g, pid, uid) => take(listFor(g, 'pending', pid), uid) || take(listFor(g, 'hands', pid), uid);
 /** What a card copy takes with it when it moves: whether its seal is open, who gave it, and on which turn. */
 const carry = c => ({ ...(c.open ? { open: true } : {}), ...(c.from ? { from: c.from } : {}), ...(c.gift ? { gift: c.gift } : {}) });
+/** Only save-for-later cards can go in a hand. */
+const keeps = (deck, id) => isKeeper(deck?.cards.find(c => c.id === id));
+const NOT_A_KEEPER = 'Only save-for-later cards can go in your hand. Show this one to everyone.';
 /** Someone gave this card to the player who has it, so it's stuck with them. */
 const isGift = c => !!c?.from;
 /** Who has the card the player whose turn it is gave away this turn (the turn waits for it), or null. */
@@ -308,10 +313,12 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
       return ok;
     }
     case 'keep': {
+      const waiting = listFor(g, 'pending', pid).find(c => c.uid === uid);
+      if (!waiting) return no("That card isn't yours any more");
+      if (!keeps(deck, waiting.id)) return no(NOT_A_KEEPER);
       const card = take(listFor(g, 'pending', pid), uid);
-      if (!card) return no("That card isn't yours any more");
       listFor(g, 'hands', pid).push({ uid: card.uid, id: card.id, ...carry(card) });
-      log(s, `${me} put a card in their hand`, now, { by: pid });
+      log(s, `${me} saved a card for later`, now, { by: pid });
       return ok;
     }
     case 'discard': {
@@ -335,6 +342,7 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
     case 'takeback': {
       const onTable = g.table.find(c => c.uid === uid);
       if (!onTable || onTable.by !== pid) return no("That card isn't yours to take");
+      if (!keeps(deck, onTable.id)) return no(NOT_A_KEEPER);
       take(g.table, uid);
       listFor(g, 'hands', pid).push({ uid: onTable.uid, id: onTable.id, ...carry(onTable) });
       log(s, `${me} took "${titleOf(deck, onTable.id)}" back into their hand`, now, { by: pid });
@@ -343,7 +351,7 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
     case 'endturn': {
       if (g.turn !== pid) return no("It's not your turn");
       if (!g.drew) return no('Draw a card first');
-      if (listFor(g, 'pending', pid).length) return no('Deal with your card first: show it, give it away or add it to your hand');
+      if (listFor(g, 'pending', pid).length) return no('Deal with your card first');
       const holder = giftOut(s);
       if (holder) return no(`Wait for ${nameOf(s, holder)} to finish the card you gave them. Your turn ends when they discard it.`);
       clearTable(s, rand);

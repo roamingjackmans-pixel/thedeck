@@ -1,6 +1,6 @@
 // The deck's rules, kept free of the page so they can be tested (tools/test.mjs).
 //
-// A deck is { groups: [{ id, name }], cards: [{ id, title, text, flavor, secret?, bonus?, groups: [groupId…] }] }.
+// A deck is { groups: [{ id, name }], cards: [{ id, title, text, flavor, secret?, bonus?, keeper?, groups: [groupId…] }] }.
 // Groups work like the original site's "requirements": a card only comes up when every group it is in
 // is switched on in the secret menu. A card in no groups can always come up.
 //
@@ -9,6 +9,9 @@
 //
 // A card with bonus: true ("Draw another card") gives a bonus draw: in a lobby you normally draw one card
 // per turn, and whoever draws one of these gets one more.
+//
+// A card with keeper: true is a save-for-later card ("Play it when someone makes you drink…"). They're the
+// only cards a player can add to their hand, to use against someone any time later.
 //
 // Two groups aren't switched on and off by hand. They follow "Where are you playing?":
 //   same-room   cards that need everyone in one room (left out on a video call)
@@ -19,6 +22,7 @@ export const PLACE = { room: 'same-room', call: 'video-call' };
 export const isPlaceGroup = id => id === PLACE.room || id === PLACE.call;
 export const isSealed = card => !!card?.secret;
 export const hasBonus = card => card?.bonus === true;
+export const isKeeper = card => card?.keeper === true;
 
 /** The groups that are really switched off: the unchecked ones, plus the place that doesn't apply. */
 export function playOff(off, remote = false) {
@@ -70,6 +74,7 @@ export function normalizeDeck(raw) {
     const secret = str(c.secret, MAX_TEXT).trim();
     if (secret) card.secret = secret;
     if (c.bonus === true) card.bonus = true;
+    if (c.keeper === true) card.keeper = true;
     if (!card.title && !card.text) continue;
     if (!card.title) card.title = 'Untitled card';
     if (Number.isInteger(card.id) && card.id > 0 && !cardIds.has(card.id)) cardIds.add(card.id);

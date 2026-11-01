@@ -402,7 +402,7 @@ export function initMenu(app) {
 
   function renderFilter() {
     const keep = ui.filter.value;
-    const opts = [['all', 'All cards'], ['none', 'In no group'], ['sealed', 'Sealed (give-away) cards'], ['bonus', 'Bonus draw cards'], ...deck().groups.map(g => [`g:${g.id}`, `In: ${g.name}`])];
+    const opts = [['all', 'All cards'], ['none', 'In no group'], ['sealed', 'Sealed (give-away) cards'], ['keeper', 'Save-for-later cards'], ['bonus', 'Bonus draw cards'], ...deck().groups.map(g => [`g:${g.id}`, `In: ${g.name}`])];
     ui.filter.innerHTML = opts.map(([val, label]) => `<option value="${esc(val)}">${esc(label)}</option>`).join('');
     ui.filter.value = opts.some(([val]) => val === keep) ? keep : 'all';
   }
@@ -414,12 +414,14 @@ export function initMenu(app) {
       if (f === 'none' && c.groups.length) return false;
       if (f === 'sealed' && !Deck.isSealed(c)) return false;
       if (f === 'bonus' && !Deck.hasBonus(c)) return false;
+      if (f === 'keeper' && !Deck.isKeeper(c)) return false;
       if (f.startsWith('g:') && !c.groups.includes(f.slice(2))) return false;
       return !term || `${c.title}\n${c.text}\n${c.secret || ''}\n${c.flavor}`.toLowerCase().includes(term);
     });
   }
 
   const chipsHtml = c => (Deck.isSealed(c) ? '<span class="chip chip-sealed">Sealed</span>' : '')
+    + (Deck.isKeeper(c) ? '<span class="chip chip-keeper">Save for later</span>' : '')
     + (Deck.hasBonus(c) ? '<span class="chip chip-bonus">Bonus draw</span>' : '')
     + c.groups.map(id => `<span class="chip">${esc(groupName(id))}</span>`).join('');
 
@@ -510,11 +512,15 @@ export function initMenu(app) {
         <p class="help-block group-help">${groupHelp(c)}</p>
       </fieldset>
       <div class="field">
-        <span class="field-label">Turns</span>
-        <div class="chips"><label class="chip-check">
-          <input type="checkbox" data-act="card-bonus"${Deck.hasBonus(c) ? ' checked' : ''}><span>Bonus draw</span></label></div>
-        <p class="help-block">For cards like "Draw another card". In a lobby everyone draws one card per turn, and
-          whoever draws this one gets to draw one more.</p>
+        <span class="field-label">In a lobby</span>
+        <div class="chips">
+          <label class="chip-check"><input type="checkbox" data-act="card-flag" data-flag="keeper"${Deck.isKeeper(c) ? ' checked' : ''}><span>Save for later</span></label>
+          <label class="chip-check"><input type="checkbox" data-act="card-flag" data-flag="bonus"${Deck.hasBonus(c) ? ' checked' : ''}><span>Bonus draw</span></label>
+        </div>
+        <p class="help-block"><b>Save for later:</b> a card to use against someone later. Whoever draws it can add it
+          to their hand and play it any time. Only these cards can be kept in a hand.<br>
+          <b>Bonus draw:</b> for cards like "Draw another card". Everyone draws one card per turn, and whoever draws
+          this one gets to draw one more.</p>
       </div>
       <div class="field">
         <span class="field-label">Preview</span>
@@ -585,14 +591,16 @@ export function initMenu(app) {
   });
 
   ui.cardList.addEventListener('change', e => {
-    const bonus = e.target.closest('[data-act="card-bonus"]');
-    if (bonus) {
-      const row = bonus.closest('.card-row');
+    const flag = e.target.closest('[data-act="card-flag"]');
+    if (flag) {
+      const row = flag.closest('.card-row');
       const c = cardById(Number(row.dataset.card));
-      if (!c) return;
-      if (bonus.checked) c.bonus = true;
-      else delete c.bonus;
+      const key = flag.dataset.flag;
+      if (!c || !['keeper', 'bonus'].includes(key)) return;
+      if (flag.checked) c[key] = true;
+      else delete c[key];
       refreshRow(row, c);
+      renderPreview(row, c);
       changed();
       return;
     }

@@ -30,9 +30,10 @@ export function faceHtml(card, { size = 'big', extra = '', permalink = false, se
   } else if (secret === 'open') {
     inside = `<div class="pc-inside${opening ? ' opening' : ''}"><span class="pc-inside-label">Inside</span>${render(card.secret)}</div>`;
   }
+  const keep = card.keeper === true ? '<span class="pc-keep">Save for later</span>' : '';
   const body = size === 'mini'
     ? `<h3 class="pc-title">${inline(card.title)}</h3>`
-    : `<h3 class="pc-title">${inline(card.title)}</h3>
+    : `${keep}<h3 class="pc-title">${inline(card.title)}</h3>
        <div class="pc-text">${render(card.text)}</div>
        ${inside}
        ${card.flavor ? `<div class="pc-flavor">${render(card.flavor)}</div>` : ''}`;

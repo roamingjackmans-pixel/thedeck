@@ -1,8 +1,8 @@
 {
   "format": "the-deck",
   "version": 1,
-  "revision": 5,
-  "updated": "2026-11-01T01:06:27.745Z",
+  "revision": 6,
+  "updated": "2026-11-01T02:06:34.606Z",
   "groups": [
     {
       "id": "snow",
@@ -73,7 +73,8 @@
       "title": "Get out of Jail Free",
       "text": "You may use this card to save yourself or a fellow player from answering a question or participating in a card.",
       "flavor": "Don't abuse it.",
-      "groups": []
+      "groups": [],
+      "keeper": true
     },
     {
       "id": 7,
@@ -1618,21 +1619,24 @@
       "title": "Freeze!",
       "text": "Add this card to your hand. Any time you like, show it to everyone and shout \"Freeze!\". Everyone has to freeze, and the last one to do it drinks 3.",
       "flavor": "",
-      "groups": []
+      "groups": [],
+      "keeper": true
     },
     {
       "id": 219,
       "title": "Thumb Master",
       "text": "Add this card to your hand. Any time you like, show it and quietly put your thumb on the table (or your forehead). The last person to copy you drinks 3.",
       "flavor": "",
-      "groups": []
+      "groups": [],
+      "keeper": true
     },
     {
       "id": 220,
       "title": "No U",
       "text": "Add this card to your hand. The next time someone gives you drinks, show it, and they drink them instead.",
       "flavor": "The ultimate comeback.",
-      "groups": []
+      "groups": [],
+      "keeper": true
     },
     {
       "id": 221,
@@ -2738,6 +2742,330 @@
       "groups": [
         "video-call"
       ]
+    },
+    {
+      "id": 354,
+      "title": "Drink Coupon",
+      "text": "Play it when you're told to drink, and don't. Good for one drink, any time tonight.",
+      "flavor": "No cash value.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 355,
+      "title": "Pass the Buck",
+      "text": "Play it when you're told to drink. Point at anyone else: they drink it for you.",
+      "flavor": "Not my problem.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 356,
+      "title": "Objection!",
+      "text": "Play it right after someone shows a card. Nobody has to do it, and whoever showed it drinks 2 instead.",
+      "flavor": "Sustained.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 357,
+      "title": "Tattletale",
+      "text": "Play it the second you catch someone breaking a rule from an earlier card. They drink 3, and you get to say \"I'm telling\" in your most annoying voice.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 358,
+      "title": "Chicken Exit",
+      "text": "Play it to get out of any dare. You still have to do the chicken dance while everyone clucks at you.",
+      "flavor": "Bawk bawk.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 359,
+      "title": "Truth Bomb",
+      "text": "Play it on anyone. They answer one question of your choice, honestly, or finish their drink.",
+      "flavor": "Choose violence.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 360,
+      "title": "Double Dare",
+      "text": "Play it on anyone. They do a dare of your choice (nothing that needs a hospital or a lawyer), or drink 4.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 361,
+      "title": "Body Double",
+      "text": "Play it when you get a dare. Pick someone to do it for you. They can get out of it by drinking 3, and you're off the hook either way.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 362,
+      "title": "Drinking Buddy",
+      "text": "Play it on anyone. Until your next turn, every time you drink, they drink too.",
+      "flavor": "Friendship is magic.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 363,
+      "title": "Toastmaster",
+      "text": "Play it any time. Everyone raises their glass to a toast you make up on the spot, the filthier the better. Last glass up drinks 2.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 364,
+      "title": "Simon Says",
+      "text": "Play it to become Simon until your next turn. Anyone who messes up a \"Simon says\", or follows an order without it, drinks 1.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 365,
+      "title": "Plus One",
+      "text": "Play it when someone else is told to drink. They drink double.",
+      "flavor": "Math is hard.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 366,
+      "title": "Dirty Laundry",
+      "text": "Play it on anyone. They tell a secret nobody here knows yet. If the group votes it boring, they drink 3 and try again.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 367,
+      "title": "Group Chat Leak",
+      "text": "Play it on anyone. They read out the last message they sent in their busiest group chat, no context allowed, or drink 4.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 368,
+      "title": "Camera Roll",
+      "text": "Play it on anyone. They show everyone the 7th most recent photo on their phone, or drink 4.",
+      "flavor": "No swiping.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 369,
+      "title": "Bottoms Up",
+      "text": "Play it on anyone. They finish what's in their glass.",
+      "flavor": "Glug glug glug.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 370,
+      "title": "Surprise Waterfall",
+      "text": "Play it any time to start a waterfall with you. Everyone drinks, and nobody can stop until the person before them stops.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 371,
+      "title": "Sip Insurance",
+      "text": "Play it when you're told to drink 3 or more. You only drink 1.",
+      "flavor": "Read the small print.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 372,
+      "title": "Immunity Idol",
+      "text": "Play it when a card makes everyone drink. Everyone except you.",
+      "flavor": "The tribe has spoken.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 373,
+      "title": "Drink Tax",
+      "text": "Play it any time. Every other player drinks 1, just because you said so.",
+      "flavor": "Death and taxes.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 374,
+      "title": "Rubber and Glue",
+      "text": "Play it right after someone roasts you. It bounces off you and sticks to them: they drink 2.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 375,
+      "title": "Swear Jar",
+      "text": "Play it on anyone. Until your next turn, every time they swear, they drink 1.",
+      "flavor": "Fuck around and find out.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 376,
+      "title": "Lock Jaw",
+      "text": "Play it on anyone. They can't say a word until your next turn. Every word that slips out is a drink.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 377,
+      "title": "Accent Lock",
+      "text": "Play it on anyone. Until your next turn, they talk like a pirate, a cowboy or a sports commentator (your pick). Every slip is a drink.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 378,
+      "title": "Dibs",
+      "text": "Play it when a card tells someone else to pick a player. You make the pick instead.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 379,
+      "title": "Lie Detector",
+      "text": "Play it right after someone answers a question. They look you in the eye and say it again. If they laugh or look away, they drink 3.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 380,
+      "title": "Rewind",
+      "text": "Play it right after someone finishes a dare. They do it again, in slow motion, while you narrate.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 381,
+      "title": "Spill It",
+      "text": "Play it on anyone. They tell the story of their most embarrassing hookup, or drink 4.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 382,
+      "title": "New Law",
+      "text": "Play it any time to make a rule that lasts until your next turn. Anyone who breaks it drinks 1.",
+      "flavor": "You are the law.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 383,
+      "title": "Cockblock",
+      "text": "Play it when two players are flirting, cuddling or about to kiss because of a card. They have to stop, and both drink 2.",
+      "flavor": "Not on my watch.",
+      "groups": [
+        "same-room"
+      ],
+      "keeper": true
+    },
+    {
+      "id": 384,
+      "title": "Last Call",
+      "text": "Play it any time. Everyone has 10 seconds to drink as much as they can. Whoever drank the least drinks 2 more.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 385,
+      "title": "Water Break",
+      "text": "Play it any time. Everyone drinks some water. Anyone who complains drinks 1 of their real drink.",
+      "flavor": "Hydrate or die-drate.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 386,
+      "title": "Shame Bell",
+      "text": "Play it on anyone who just chickened out of a card. Everyone chants \"Shame!\" while they drink 2.",
+      "flavor": "Ding ding.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 387,
+      "title": "Drunk Dial",
+      "text": "Play it on anyone. They text \"thinking about you 😉\" to the 5th person in their recent messages, or drink 5.",
+      "flavor": "No unsending.",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 388,
+      "title": "Heckler",
+      "text": "Play it while someone is doing a dare or answering a question. You heckle them the whole time. If they laugh or stop, they drink 2.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 389,
+      "title": "Bodyguard",
+      "text": "Play it when someone else is told to drink. You drink it for them, and they owe you a favor of your choice before the night's over.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 390,
+      "title": "Interrogator",
+      "text": "Play it to become the Interrogator until your next turn. Anyone who answers a question you ask drinks 1.",
+      "flavor": "Who's asking?",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 391,
+      "title": "Rock Paper Shots",
+      "text": "Play it on anyone. Rock, paper, scissors, best of three. The loser takes a shot (or drinks 3).",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 392,
+      "title": "Double or Nothing",
+      "text": "Play it when someone is told to drink. They call heads or tails and flip a coin: right, they drink nothing; wrong, they drink double.",
+      "flavor": "",
+      "groups": [],
+      "keeper": true
+    },
+    {
+      "id": 393,
+      "title": "Phone Jail",
+      "text": "Play it on anyone. Their phone goes face down in the middle until your next turn. Every time they touch it, they drink 2.",
+      "flavor": "",
+      "groups": [
+        "same-room"
+      ],
+      "keeper": true
     }
   ]
 }

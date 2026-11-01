@@ -205,6 +205,10 @@ body.viewing { overflow: hidden; }
   overflow-wrap: anywhere;
 }
 .pc-title { margin: 0 0 0.45em; font: 700 1.5em/1.12 Georgia, "Times New Roman", serif; }
+.pc-keep {
+  margin-bottom: 0.6em; padding: 0.15em 0.7em; border: 1px solid #c9a227; border-radius: 999px;
+  background: #fbf0c8; color: #6b5310; font-size: 0.62em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+}
 .pc-text, .pc-flavor { width: 100%; }
 .pc p { margin: 0 0 0.45em; }
 .pc p:last-child { margin-bottom: 0; }
@@ -1020,6 +1024,7 @@ dialog.menu::backdrop { background: rgba(0, 0, 0, 0.5); }
 .pv-inside-label { display: block; margin-bottom: 2px; color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
 .chip-sealed { background: color-mix(in srgb, var(--danger) 16%, var(--panel)); color: var(--danger); }
 .chip-bonus { background: color-mix(in srgb, var(--primary) 16%, var(--panel)); color: var(--primary); }
+.chip-keeper { background: color-mix(in srgb, #c9a227 22%, var(--panel)); color: color-mix(in srgb, #8a6a10 80%, var(--text, #222)); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

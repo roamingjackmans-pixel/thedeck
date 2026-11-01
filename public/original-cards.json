@@ -58,7 +58,8 @@
       "title": "Get out of Jail Free",
       "text": "You may use this card to save yourself or a fellow player from answering a question or participating in a card.",
       "flavor": "Don't abuse it.",
-      "groups": []
+      "groups": [],
+      "keeper": true
     },
     {
       "id": 7,
