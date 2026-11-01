@@ -348,7 +348,19 @@ window.addEventListener('hashchange', () => {
   if (solo.showCardById(id, { keepHash: true })) showScreen('solo');
 });
 
+/** Fills in the version (v2.5.0 · commit) wherever the page asks for it: the home screen and the secret menu. */
+function showVersion() {
+  const v = window.DECK_VERSION;
+  if (!v) return;
+  const text = `v${v.version}${v.commit && v.commit !== 'dev' ? ` · ${v.commit}` : ''}`;
+  for (const el of document.querySelectorAll('[data-version]')) {
+    el.textContent = text;
+    if (v.built) el.title = `Built ${v.built}`;
+  }
+}
+
 async function start() {
+  showVersion();
   initSettings();
   solo = initSolo(app);
   game = initGame(app);

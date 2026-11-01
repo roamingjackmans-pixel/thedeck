@@ -153,7 +153,9 @@ To try multiplayer on one computer, open the site in two or three tabs: each tab
 `.github/workflows/pages.yml` runs the tests and publishes `public/` to GitHub Pages on every push to `main`.
 It shows up at `josephjackman.com/thedeck/` because this repo is named `thedeck` and the account's user site
 (`roamingjackmans-pixel.github.io`) has the `josephjackman.com` custom domain. The workflow also stamps the
-version and adds `?v=<commit>` to every file URL so phones never mix old and new code.
+version and adds `?v=<commit>` to every file URL so phones never mix old and new code. The version and commit
+(`v2.5.1 · abc1234`) show at the bottom of the home screen and in the secret menu, so you can tell which build a
+phone is running.
 
 Publishing from the secret menu commits `public/cards.json` to `main`, which runs this same workflow. If you
 edit the repo by hand, pull first: the deck may have been published from a phone since.

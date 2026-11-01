@@ -45,7 +45,6 @@ export function initMenu(app) {
     cardCount: $('card-count'),
     cardList: $('card-list'),
     saveStatus: $('save-status'),
-    version: $('version'),
   };
   const deck = () => app.state.deck;
   const cardById = id => deck().cards.find(c => c.id === id);
@@ -53,9 +52,6 @@ export function initMenu(app) {
   let tab = 'options';
   let renamingGroup = null; // id of the group being renamed
   let openCardId = null;    // the card whose editor is open
-
-  const v = window.DECK_VERSION;
-  if (v) ui.version.textContent = `v${v.version}${v.commit && v.commit !== 'dev' ? ` · ${v.commit}` : ''}`;
 
   // ---------- saving status ----------
 
