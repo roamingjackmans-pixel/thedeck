@@ -380,14 +380,18 @@ test('ending your turn discards the table and passes the turn on', () => {
   act('p0', { k: 'draw' });
   const [card] = E.pendingOf(s, 'p0');
   mustOk(act('p0', { k: 'show', uid: card.uid }));
-  mustOk(act('p0', { k: 'draw' }), 'can draw again after dealing with the first card');
-  mustOk(act('p0', { k: 'keep', uid: E.pendingOf(s, 'p0')[0].uid }));
+  const left = s.game.shoe.length;
+  assert.match(act('p0', { k: 'draw' }).err, /already drew/, 'one draw per turn, even after dealing with the card');
+  assert.equal(s.game.shoe.length, left, 'the refused draw took nothing off the deck');
   mustOk(act('p0', { k: 'endturn' }));
   assert.equal(s.game.table.length, 0);
   assert.deepEqual(s.game.discard.map(c => c.uid), [card.uid]);
   assert.equal(s.game.turn, 'p1');
-  assert.equal(E.handOf(s, 'p0').length, 1, 'kept cards stay in your hand');
-  act('p1', { k: 'draw' }); act('p1', { k: 'keep', uid: E.pendingOf(s, 'p1')[0].uid }); act('p1', { k: 'endturn' });
+  mustOk(act('p1', { k: 'draw' }), 'the next player gets their draw');
+  mustOk(act('p1', { k: 'keep', uid: E.pendingOf(s, 'p1')[0].uid }));
+  assert.equal(act('p1', { k: 'draw' }).ok, false, 'keeping the card does not earn another draw');
+  assert.equal(E.handOf(s, 'p1').length, 1, 'kept cards stay in your hand');
+  act('p1', { k: 'endturn' });
   act('p2', { k: 'draw' }); act('p2', { k: 'keep', uid: E.pendingOf(s, 'p2')[0].uid }); act('p2', { k: 'endturn' });
   assert.equal(s.game.turn, 'p0', 'back round to the first player');
 });
@@ -430,7 +434,9 @@ test('switched-off groups never get drawn, and the discard pile is reshuffled wh
   const t = table(['Host'], small);
   t.act('p0', { k: 'rules', off: ['snow'] });
   t.act('p0', { k: 'start' });
-  for (let i = 0; i < 3; i++) { t.act('p0', { k: 'draw' }); t.act('p0', { k: 'keep', uid: E.pendingOf(t.s, 'p0')[0].uid }); }
+  for (let i = 0; i < 3; i++) {
+    t.act('p0', { k: 'draw' }); t.act('p0', { k: 'keep', uid: E.pendingOf(t.s, 'p0')[0].uid }); t.act('p0', { k: 'endturn' });
+  }
   assert.match(t.act('p0', { k: 'draw' }).err, /nothing left to draw/);
 });
 
@@ -478,6 +484,22 @@ test('a returning player gets their seat and hand back, and a new host can take 
   assert.equal(s.hostPid, 'p1');
   assert.equal(s.players.p0.on, false);
   mustOk(act('p1', { k: 'skip' }), 'the new host has host powers');
+});
+
+test('one draw per turn holds through a reconnect and a new host, and a skipped turn passes it on', () => {
+  const { s, act } = table();
+  act('p0', { k: 'start' });
+  mustOk(act('p0', { k: 'draw' }));
+  act('p0', { k: 'show', uid: E.pendingOf(s, 'p0')[0].uid });
+  E.setOnline(s, 'p0', false, 3000);
+  E.addPlayer(s, { pid: 'p0', name: 'Host' }, 4000);
+  assert.equal(act('p0', { k: 'draw' }).ok, false, 'coming back does not earn another draw');
+  E.takeOver(s, 'p1', 0, 5000);
+  E.addPlayer(s, { pid: 'p0', name: 'Host' }, 6000);
+  assert.equal(act('p0', { k: 'draw' }).ok, false, 'nor does a new host taking over');
+  mustOk(act('p1', { k: 'skip' }));
+  assert.equal(s.game.turn, 'p1');
+  mustOk(act('p1', { k: 'draw' }), 'the next player gets their draw');
 });
 
 test('cards added to or deleted from the host deck mid-game join or leave the draw pile', () => {

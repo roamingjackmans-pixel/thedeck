@@ -3,7 +3,8 @@
 // so it can be tested (tools/test.mjs).
 //
 // How a game goes:
-//   - Players take turns in the order they joined. On your turn you draw from the top of the deck.
+//   - Players take turns in the order they joined. On your turn you draw one card from the top of the deck
+//     (only one: the next card waits for the next player).
 //   - A drawn card is private: it waits on your phone ("pending") until you choose what to do with it:
 //       show it to everyone (it goes face up on the table), give it to another player (it waits on their
 //       phone with the same choices), or add it to your hand.
@@ -17,7 +18,7 @@
 import { isEligible, isSealed, playOff, shuffle } from './deck.js';
 import { plain } from './markup.js';
 
-export const PROTO = 2;                 // bump when the message format or the rules change
+export const PROTO = 3;              // bump when the message format or the rules change
 export const MAX_PLAYERS = 16;
 export const AUTO_SKIP_MS = 20000;       // someone who drops out on their turn is skipped after this long
 const LOG_KEEP = 40;
@@ -246,6 +247,7 @@ export function apply(s, pid, a, now = Date.now(), deck = null, rand = Math.rand
   switch (a.k) {
     case 'draw': {
       if (g.turn !== pid) return no("It's not your turn");
+      if (g.drew) return no('You already drew your card this turn. End your turn to pass the deck on.');
       if (listFor(g, 'pending', pid).length) return no('Deal with the card you have first');
       if (!deck) return no('The deck is still loading');
       const byId = new Map(deck.cards.map(c => [c.id, c]));

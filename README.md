@@ -27,8 +27,8 @@ Draw a card, do what it says. A party card game for the browser, rebuilt from
   On a call, the 50 video call cards come up (show us your fridge, freeze like your video's stuck, scavenger
   hunts around your home) and the 41 cards that need everyone in one room (kissing, spanking, holding hands,
   passing drinks round) stay out. In one room it's the other way round.
-- **End Turn** moves every face-up card on the table to the discard pile and passes the turn on. You can also
-  draw again before ending your turn (for cards like "Draw another card").
+- **One card per turn.** Once you've drawn, the deck is locked until the next player's turn. **End Turn** moves
+  every face-up card on the table to the discard pile and passes the turn on.
 - When the deck runs out, the discard pile is **shuffled back in**, like a real deck.
 - The host can skip a turn, remove someone who left, or end the game. Someone who drops out on their turn is
   skipped after 20 seconds, and gets their seat and hand back when they return.
@@ -136,7 +136,7 @@ npm test
 ```
 
 Checks the drawing rules (no repeats, groups switched off, reshuffling, one room or a video call), the
-multiplayer rules (private draws, passing cards on, sealed cards opening when given, playing out of turn, ending
+multiplayer rules (private draws, one draw per turn, passing cards on, sealed cards opening when given, playing out of turn, ending
 turns, reshuffling the discard pile, dropped players, host takeover), the editing rules (groups, cards, imports), publishing against a pretend GitHub (revisions, two
 devices publishing at once, error messages), that card formatting can't run code, and that the shared deck file
 is well formed.

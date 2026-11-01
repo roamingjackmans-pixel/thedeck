@@ -425,14 +425,14 @@ export function initGame(app) {
 
     if (myTurn) {
       ui.banner.textContent = waiting.length ? "Your turn. Choose what to do with your card."
-        : g.drew ? 'Draw another card, or end your turn.' : 'Your turn! Tap the deck to draw a card.';
+        : g.drew ? "That's your card for this turn. End your turn when you're done." : 'Your turn! Tap the deck to draw a card.';
     } else {
       const looking = E.pendingOf(s, g.turn).length;
       ui.banner.textContent = `${E.nameOf(s, g.turn)}'s turn${looking ? ' · looking at a card…' : ''}`;
     }
     ui.banner.classList.toggle('mine', myTurn);
 
-    const canDraw = myTurn && !waiting.length;
+    const canDraw = myTurn && !g.drew && !waiting.length;
     const left = E.drawable(s, deck);
     ui.drawPile.innerHTML = left
       ? pileHtml(left, { label: `${left} left`, active: canDraw })
