@@ -3,7 +3,7 @@
 Draw a card, do what it says. A party card game for the browser, rebuilt from
 [rchowe.com/deck](http://rchowe.com/deck/) as a multiplayer game on a green card table, with an editable deck.
 
-**Play:** https://josephjackman.com/thedeck/
+**Play:** https://josephjackman.com/games/thedeck/
 
 ## Playing together
 
@@ -50,7 +50,7 @@ Draw a card, do what it says. A party card game for the browser, rebuilt from
   in the lobby, switch back to direct later if it starts working, and go last in line to take over hosting.
   The relay servers are public, so what goes through them (names, cards, turns) isn't private. Add
   `?forcerelay` to the address to test it; `deckTrace()` in the browser console shows how a tab connected.
-  Horse Race's [connection check](https://josephjackman.com/horserace/check.html) tests a phone for all of this.
+  Horse Race's [connection check](https://josephjackman.com/games/horserace/check.html) tests a phone for all of this.
 - **Play on One Phone** is the original game: tap the deck, do what it says, pass the phone. A sealed card says
   to pass the phone to the right player, who taps the seal to open it.
 
@@ -113,7 +113,7 @@ New in this version (the **Edit Cards** tab of the secret menu):
 
 Everyone plays the same shared deck, `public/cards.json`. Edits are saved on the device first. A device
 connected to GitHub then **publishes** them when the secret menu closes (or with **Publish Now**): it commits a
-new `cards.json`, GitHub Pages redeploys in about a minute, and every other phone picks up the new deck on its
+new `cards.json`, the site redeploys (see Deploying), and every other phone picks up the new deck on its
 own (pages check for a newer deck every minute and whenever they come back to the screen).
 
 To connect a device: secret menu → Options → **Your Deck** → **Connect This Device**. The link there opens
@@ -156,14 +156,16 @@ To try multiplayer on one computer, open the site in two or three tabs: each tab
 
 ## Deploying
 
-`.github/workflows/pages.yml` runs the tests and publishes `public/` to GitHub Pages on every push to `main`.
-It shows up at `josephjackman.com/thedeck/` because this repo is named `thedeck` and the account's user site
-(`roamingjackmans-pixel.github.io`) has the `josephjackman.com` custom domain. The workflow also stamps the
-version and adds `?v=<commit>` to every file URL so phones never mix old and new code. The version and commit
+`.github/workflows/ready.yml` runs the tests on every push to `main` and then moves the `ready` branch to that
+commit. The [games](https://github.com/roamingjackmans-pixel/games) repo publishes every game on
+josephjackman.com/games/ and puts this one at `josephjackman.com/games/thedeck/`: it looks for new `ready`
+commits every 10 minutes, or starts right away when this repo has a `GAMES_DEPLOY_TOKEN` secret. That build
+also stamps the version and adds `?v=<commit>` to every file URL (`tools/stamp-build.mjs`) so phones never mix
+old and new code. The version and commit
 (`v2.7.0 · abc1234`) show at the bottom of the home screen and in the secret menu, so you can tell which build a
 phone is running.
 
-Publishing from the secret menu commits `public/cards.json` to `main`, which runs this same workflow. If you
+Publishing from the secret menu commits `public/cards.json` to `main`, which goes through this same path. If you
 edit the repo by hand, pull first: the deck may have been published from a phone since.
 
 ## Project layout
